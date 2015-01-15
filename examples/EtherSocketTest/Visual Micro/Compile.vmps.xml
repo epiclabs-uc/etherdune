@@ -1,0 +1,33 @@
+<VisualMicro>
+  <Program Name="EtherSocketTest" Ext=".ino" Location="C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest">
+    <Platform Name="arduino10x" Package="arduino" Platform="avr" Architecture="avr">
+      <Board Name="atmega328" Description="Arduino Duemilanove w/ ATmega328" CoreFolder="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores\arduino" VariantFullPath="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\variants\standard" McuIdePath="C:\Users\jpeletie\Dropbox\Arduino" McuSketchBookPath="C:\Users\jpeletie\Dropbox\Arduino\Projects" name="Arduino Duemilanove w/ ATmega328" upload.protocol="arduino" upload.maximum_size="30720" upload.speed="57600" bootloader.low_fuses="0xFF" bootloader.high_fuses="0xDA" bootloader.extended_fuses="0x05" bootloader.path="atmega" bootloader.file="ATmegaBOOT_168_atmega328.hex" bootloader.unlock_bits="0x3F" bootloader.lock_bits="0x0F" build.mcu="atmega328p" build.f_cpu="16000000L" build.core="arduino" build.variant="standard" runtime.ide.path="C:\Users\jpeletie\Dropbox\Arduino" build.system.path="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\system" runtime.ide.version="105" originalid="atmega328" vm.platform.root.path="C:\Program Files (x86)\Visual Micro\Visual Micro for Arduino\Micro Platforms\arduino10x" build.core.vmresolved="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores\arduino" build.core.parentfolder.vmresolved="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores" build.core.coresparentfolder.vmresolved="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino" vm.core.include="arduino.h" ide.hint="Arduino 0023 and 1.0.x Ide" ide.location.key="Arduino" ide.location.ide.winreg="Arduino 1.0.x Application" ide.location.sketchbook.winreg="Arduino 1.0.x Sketchbook" ide.location.sketchbook.preferences="sketchbook.path" ide.location.sketchbook.default="%MYDOCUMENTS%\arduino" ide.location.preferences="%VM_APPDATA_ROAMING%\arduino\preferences.txt" ide.default.package="arduino" ide.default.platform="avr" ide.multiplatform="true" ide.includes="arduino.h" ide.platformswithoutpackage="true" ide.includes.fallback="wprogram.h" ide.extension="ino" ide.extension.fallback="pde" ide.versionLTEQ="149" ide.exe="arduino.exe" ide.hosts="atmel" ide.url="http://arduino.cc/en/Main/Software" vm.debug="true" software="ARDUINO" ide.appid="arduino10x" location.sketchbook="C:\Users\jpeletie\Dropbox\Arduino\Projects" build.board="AVR_ATMEGA328" vm.boardsource.path="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino" vm.platformname.name="avr" build.arch="AVR" build.variant.vmresolved="C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\variants\standard" vm.runtime.compiler.showwarnings="false" />
+    </Platform>
+    <Compile CompilerErrors="0" ConfigurationName="Debug" StopOnError="False" OptimiseLibs="True" OptimiseCore="True" IsDebugStart="1" BuildPath="C:\Users\jpeletie\AppData\Local\VMicro\Arduino\Builds\EtherSocketTest\atmega328" SketchName="EtherSocketTest" ProjectMacrosHaveChanged="1" McuMacrosHaveChanged="1" ReportDigitalPins="0" ReportAnalogPins="0" ReportI2C="0" ReportFreeMemory="0" IncludeDebug="1" LastDebugPreProcessorDefinitions="VM_DEBUG;VM_DEBUG_ENABLE 1;VM_DEBUG_BANDWIDTH_THROTTLE_MS 50;VM_DEBUGGER_TYPE_HARDWARESERIAL 0;VM_DEBUGGER_TYPE_SOFTWARESERIAL 1;VM_DEBUGGER_TYPE_FASTSERIAL 2;VM_DEBUGGER_TYPE_USB 3;VM_DEBUGGER_TYPE_TEENSY 4;VM_DEBUGGER_TYPE_UART 5;VM_DEBUGGER_TYPE_USART 6;VM_DEBUGGER_TYPE_USBSERIAL 7;VM_DEBUGGER_TYPE_TTYUART 8;VM_DEBUGGER_TYPE_NET_CONSOLE 9;VM_DEBUGGER_TYPE VM_DEBUGGER_TYPE_HARDWARESERIAL;" IncludesDebug="1" IsCompiled="1" />
+    <Debug DebugEnabled="1" />
+    <VCCodeModel>
+      <VCCodeMacros />
+    </VCCodeModel>
+    <BreakPoints>
+      <BreakPoint Index="1" Name="EtherSocketTest.ino, line 18" Id="8b82c703-c25c-4f5e-a557-42042bb7741f" Enabled="1" Message="{millis()}" MessageTextType="2" PreProcessedMessage="{0}" Condition="millis()&gt;0 || millis()&gt;1" ConditionType="1" CurrentHits="0" File="c:\users\jpeletie\dropbox\arduino\libraries\ethersocket\examples\ethersockettest\ethersockettest.ino" FileLine="18" FileColumn="1" FunctionName="" FunctionLineOffset="1" FunctionColumnOffset="1" HitCountTarget="250" HitCountType="4" Language="C++" LocationType="3" Tag="&lt;vmbp Id='8b82c703-c25c-4f5e-a557-42042bb7741f'/&gt;" Type="1" ToString="System.__ComObject" BreakWhenHit="1">
+        <Source>11		if (!eth.begin(mymac, 10))
+12			Serial.println("failed to start ethersocket");
+13	
+14		Serial.println(mymac.b[3]);
+15	
+16	}
+17	
+--&gt;18	void loop()
+19	{
+20	
+21	  /* add main program code here */
+22	
+23	}
+</Source>
+        <MessageVariables>
+          <MessageVariable Name="millis()" Index="1" />
+        </MessageVariables>
+      </BreakPoint>
+    </BreakPoints>
+  </Program>
+</VisualMicro>
