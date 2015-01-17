@@ -6,6 +6,13 @@
 #include <WProgram.h> // Arduino 0022
 #endif
 
+#include <avr/pgmspace.h>
+
+static const uint16_t ETHTYPE_ARP = 0x0806;
+
+static const uint8_t ARP_OPCODE_REPLY_L = 0x02;
+
+
 typedef union u16_t
 {
 	struct
@@ -17,10 +24,14 @@ typedef union u16_t
 };
 
 
-typedef struct nint16_t
+typedef union nint16_t
 {
-	uint8_t h;
-	uint8_t l;
+	uint8_t raw[2];
+	struct
+	{
+		uint8_t h;
+		uint8_t l;
+	};
 
 	uint16_t getValue()
 	{
@@ -49,26 +60,50 @@ typedef union IPAddress
 {
 	uint8_t b[4];
 	nint32_t t;
+	uint32_t u;
+
+	void set(IPAddress& ip)
+	{
+		memcpy(b, &ip, sizeof(IPAddress));
+	}
+	void set_P( PGM_VOID_P ip)
+	{
+		memcpy_P (b, ip, sizeof(IPAddress));
+	}
 };
 
 
 typedef struct MACAddress
 {
 	uint8_t b[6];
+
+	void set(MACAddress& mac)
+	{
+		memcpy(b, &mac, sizeof(MACAddress));
+	}
+
+	void set_P( PGM_VOID_P mac)
+	{
+		memcpy_P (b, mac, sizeof(MACAddress));
+	}
 };
 
 
-typedef struct ARPPacket
+typedef union ARPPacket
 {
-	nint16_t HTYPE;
-	nint16_t PTYPE;
-	uint8_t HLEN;
-	uint8_t PLEN;
-	nint16_t OPER;
-	MACAddress senderMAC;
-	IPAddress senderIP;
-	MACAddress targetMAC;
-	IPAddress targetIP;
+	struct
+	{
+		nint16_t HTYPE;
+		nint16_t PTYPE;
+		uint8_t HLEN;
+		uint8_t PLEN;
+		nint16_t OPER;
+		MACAddress senderMAC;
+		IPAddress senderIP;
+		MACAddress targetMAC;
+		IPAddress targetIP;
+	};
+	uint8_t raw[28];
 };
 
 typedef struct IPHeader
@@ -171,7 +206,12 @@ typedef union EthBuffer
 
 
 
-
+typedef struct ARPEntry
+{
+	IPAddress ip;
+	MACAddress mac;
+	int16_t status_TTL; 
+};
 
 
 

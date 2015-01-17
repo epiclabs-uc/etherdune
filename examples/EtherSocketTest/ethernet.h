@@ -20,24 +20,48 @@
 #endif
 
 #include <avr/pgmspace.h>
-#include "esenc28j60.h"
 #include "net.h"
 #include "inet.h"
+#include "enc28j60constants.h"
+#include "config.h"
 
-class EtherSocket : public ENC28J60 
+static const uint8_t ARP_TABLE_LENGTH = 2;
+static const int16_t MAX_ARP_TTL = 20 * 60; // 20 mins
+
+
+class EtherSocket
 {
-private:
-	MACAddress* mymac;
-	EthBuffer buffer;
+public:
+	static MACAddress localMAC;
+	static IPAddress localIP;
+	static bool broadcast_enabled; //!< True if broadcasts enabled (used to allow temporary disable of broadcast for DHCP or other internal functions)
+	static EthBuffer chunk;
+
 
 public:
-	uint8_t begin(MACAddress& mac, uint8_t cspin);
-	void loop();
+	static uint8_t begin(uint8_t cspin);
+	static void loop();
+	
+
+	static void staticSetup(IPAddress & ip);
+
+	static MACAddress* whoHas(IPAddress& ip);
+
+	static void enableBroadcast(bool temporary = false);
+
+	static bool isLinkUp();
 
 
+private:
+
+	static void processChunk(bool isHeader, uint16_t len);
+	static uint16_t packetReceiveChunk();
+	static void makeWhoHasARPRequest(IPAddress& ip);
+	static void processARPReply();
+	static void tick();
 
 };
 
-extern EtherSocket eth; //!< Global presentation of EtherSocket class
+typedef EtherSocket eth;
 
 #endif

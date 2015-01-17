@@ -21,9 +21,6 @@
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="esenc28j60.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ethernet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,11 +33,14 @@
     <ClInclude Include="inet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="enc28j60constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="esenc28j60.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ethernet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

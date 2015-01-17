@@ -6,3 +6,8 @@
 
 
 
+
+void Socket::begin()
+{
+
+}

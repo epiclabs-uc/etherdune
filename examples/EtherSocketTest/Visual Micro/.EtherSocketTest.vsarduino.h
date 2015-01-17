@@ -12,7 +12,6 @@
 #define _VSARDUINO_H_
 #define __AVR_ATmega328p__
 #define __AVR_ATmega328P__
-#define _VMDEBUG 1
 #define ARDUINO 105
 #define ARDUINO_MAIN
 #define __AVR__
@@ -48,8 +47,8 @@ extern "C" void __cxa_pure_virtual() {;}
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\EtherSocketTest.ino"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\Socket.cpp"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\Socket.h"
-#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\esenc28j60.cpp"
-#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\esenc28j60.h"
+#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\config.h"
+#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\enc28j60constants.h"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\ethernet.cpp"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\ethernet.h"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\inet.h"
