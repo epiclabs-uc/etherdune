@@ -22,6 +22,15 @@ typedef union u16_t
 	};
 	uint16_t v;
 };
+typedef union u32_t
+{
+	struct
+	{
+		u16_t l;
+		u16_t h;
+	};
+	uint32_t v;
+};
 
 
 typedef union nint16_t
@@ -54,6 +63,17 @@ typedef struct nint32_t
 {
 	nint16_t h;
 	nint16_t l;
+
+	uint32_t getValue()
+	{
+		u32_t u;
+		u.h.h = h.h;
+		u.h.l = h.l;
+		u.l.h = l.h;
+		u.l.l = l.l;
+		return u.v;
+	}
+
 };
 
 typedef union IPAddress
@@ -214,6 +234,17 @@ typedef struct ARPEntry
 };
 
 
+static const uint8_t SCK_STATE_CLOSED = 0; // (both server and client) represents no connection state at all.
+static const uint8_t SCK_STATE_LISTEN = 1; // (server) represents waiting for a connection request from any remote TCP and port.
+static const uint8_t SCK_STATE_SYN_SENT = 2; // (client) represents waiting for a matching connection request after having sent a connection request.
+static const uint8_t SCK_STATE_SYN_RECEIVED = 3; // (server) represents waiting for a confirming connection request acknowledgment after having both received and sent a connection request.
+static const uint8_t SCK_STATE_ESTABLISHED = 4; // (both server and client) represents an open connection, data received can be delivered to the user. The normal state for the data transfer phase of the connection.
+static const uint8_t SCK_STATE_FIN_WAIT_1 = 5; // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
+static const uint8_t SCK_STATE_FIN_WAIT_2 = 6; // (both server and client) represents waiting for a connection termination request from the remote TCP.
+static const uint8_t SCK_STATE_CLOSE_WAIT = 7; // (both server and client) represents waiting for a connection termination request from the local user.
+static const uint8_t SCK_STATE_CLOSING = 8; // (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
+static const uint8_t SCK_STATE_LAST_ACK = 9; // (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
+static const uint8_t SCK_STATE_TIME_WAIT = 10; //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
 
 
 

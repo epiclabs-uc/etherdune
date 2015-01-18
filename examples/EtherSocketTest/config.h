@@ -4,6 +4,7 @@
 
 
 // ENC28J60 memory mapping
+#define ENC28J60_MEMSIZE  8192
 
 // The RXSTART_INIT must be zero. See Rev. B4 Silicon Errata point 5.
 // Buffer boundaries applied to internal 8K ram
@@ -20,8 +21,9 @@ static const uint8_t SLOT_SIZE_SHIFT = 9;
 //indicate how to distribute buffer slots. There are up to NUM_SLOTS slots
 //NUM_SLOTS is 10 by default.
 // slot #0 is reserved for ARP requests
-#define MAX_TCP_SOCKETS = 8;
-#define MAX_UDP_SOCKETS = 1;
+static const uint8_t MAX_TCP_SOCKETS = 8;
+static const uint8_t MAX_UDP_SOCKETS = 1;
+static const uint8_t TCP_SRC_PORT_H = 250;
 
 
 

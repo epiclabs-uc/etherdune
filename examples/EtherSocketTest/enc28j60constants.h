@@ -8,7 +8,6 @@
 // - Bank number        (bits 5-6)
 // - MAC/PHY indicator        (bit 7)
 
-#define ENC28J60_MEMSIZE  8192
 
 #define ADDR_MASK        0x1F
 #define BANK_MASK        0x60
