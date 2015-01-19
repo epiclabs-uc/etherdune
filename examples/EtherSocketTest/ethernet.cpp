@@ -17,6 +17,9 @@ bool EtherSocket::broadcast_enabled = false;
 MACAddress EtherSocket::localMAC;
 IPAddress EtherSocket::localIP;
 
+uint8_t EtherSocket::availableSlots = NUM_SLOTS;
+uint16_t EtherSocket::availableSlotBitmap = 0;
+
 
 ARPEntry arpTable[ARP_TABLE_LENGTH];
 EthBuffer EtherSocket::chunk;
@@ -65,34 +68,14 @@ static byte readOp(byte op, byte address) {
 	return result;
 }
 
+
+
 static void writeOp(byte op, byte address, byte data) {
 	enableChip();
 	xferSPI(op | (address & ADDR_MASK));
 	xferSPI(data);
 	disableChip();
 }
-
-static void readBuf(uint16_t len, byte* data) {
-	enableChip();
-	xferSPI(ENC28J60_READ_BUF_MEM);
-	while (len--) {
-		xferSPI(0x00);
-		*data++ = SPDR;
-	}
-	disableChip();
-}
-
-static void writeBuf(uint16_t len, const byte* data) {
-	enableChip();
-	xferSPI(ENC28J60_WRITE_BUF_MEM);
-	while (len--)
-		xferSPI(*data++);
-	disableChip();
-}
-
-
-
-
 
 static void SetBank(byte address) {
 	if ((address & BANK_MASK) != Enc28j60Bank) {
@@ -122,21 +105,62 @@ static void writeReg(byte address, uint16_t data) {
 	writeRegByte(address + 1, data >> 8);
 }
 
+static void readBuf(uint16_t len, byte* data) {
+	enableChip();
+	xferSPI(ENC28J60_READ_BUF_MEM);
+	while (len--) {
+		xferSPI(0x00);
+		*data++ = SPDR;
+	}
+	disableChip();
+}
+
+static void readBuf(uint16_t src, uint16_t len, byte* data)
+{
+	writeReg(ERDPT, src);
+	readBuf(len, data);
+}
+
+static void writeBuf(uint16_t len, const byte* data) {
+	enableChip();
+	xferSPI(ENC28J60_WRITE_BUF_MEM);
+	while (len--)
+		xferSPI(*data++);
+	disableChip();
+}
+
+static void writeBuf(uint16_t dst, uint16_t len, const byte* data)
+{
+
+	writeReg(EWRPT, dst);
+	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
+	writeBuf(len, data);
+
+	//writeReg(ERDPT, txStart);
+}
+
+static void writeByte(byte b)
+{
+	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, b);
+	writeBuf(1, &b);
+}
+static void writeByte(uint16_t dst, byte b)
+{
+	writeBuf(dst, 1, &b);
+}
+
+
+
 void writeSlot(uint8_t slot, uint16_t offset, const byte * data, uint16_t len)
 {
 	uint16_t txStart = SLOT_ADDR(slot);
 	writeReg(EWRPT, txStart+offset);
-	writeOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
 	writeBuf(len, data);
-
-
-	uint8_t buf[50];
-
 	writeReg(ERDPT, txStart);
 
 }
 
-void packetSend(uint8_t slot, uint16_t len)
+void packetSend(uint16_t len)
 {
 	// see http://forum.mysensors.org/topic/536/
 	// while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
@@ -146,12 +170,19 @@ void packetSend(uint8_t slot, uint16_t len)
 		writeOp(ENC28J60_BIT_FIELD_CLR, EIR, EIR_TXERIF);
 	}
 
-	uint16_t txStart = SLOT_ADDR(slot);
-	writeReg(ETXST, txStart);
-	writeReg(ETXND, txStart + len);
+	writeByte(TXSTART_INIT, 0x00); // set the control byte to zero.
+	
+	writeReg(ETXST, TXSTART_INIT);
+	writeReg(ETXND, TXSTART_INIT + len - 1 + 1); // to include the control byte.
 
 	writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
 
+}
+
+void packetSend(uint16_t len, const byte* data)
+{
+	writeBuf(TXSTART_INIT_DATA, len, data);
+	packetSend(len);
 }
 
 void EtherSocket::enableBroadcast(bool temporary) {
@@ -307,7 +338,7 @@ void EtherSocket::processChunk(bool isHeader, uint16_t len)
 	{
 		if (chunk.etherType.getValue() == ETHTYPE_ARP && chunk.arp.OPER.l == ARP_OPCODE_REPLY_L)
 		{
-			Serial.println("ARP Reply received=");
+			Serial.print("ARP Reply received=");
 			Serial.println(chunk.arp.senderMAC.b[1]);
 			processARPReply();
 			
@@ -354,9 +385,9 @@ void EtherSocket::makeWhoHasARPRequest(IPAddress& ip)
 	chunk.arp.targetIP = ip;
 	chunk.arp.senderIP = localIP;
 
-	writeSlot(0,0, chunk.raw, 6 + 6 + 2 + 28);
-	packetSend(0, 6 + 6 + 2 + 28);
+	
 
+	packetSend(6 + 6 + 2 + 28, chunk.raw);
 
 }
 
@@ -376,5 +407,101 @@ void EtherSocket::processARPReply()
 	selectedEntry->status_TTL = MAX_ARP_TTL;
 	selectedEntry->ip = chunk.arp.senderIP;
 	selectedEntry->mac = chunk.arp.senderMAC;
+
+}
+
+uint8_t EtherSocket::getSlot()
+{
+
+	uint16_t mask = 1;
+	for (uint8_t i = 0; i < NUM_SLOTS;i++, mask <<= 1)
+	{
+		if (availableSlotBitmap & mask == 0)
+		{
+			availableSlots--;
+			availableSlotBitmap |= mask;
+			return i;
+		}
+	}
+
+	return 0xFF; // no more slots available.
+}
+
+void EtherSocket::freeSlot(uint8_t slotId)
+{
+	uint16_t mask = 1 << slotId;
+
+	if (availableSlotBitmap & mask)
+	{
+		availableSlots++;
+		availableSlotBitmap &= ~mask;
+	}
+}
+
+/// <summary>
+/// Computes  a TCP/IP-type checksum over the specified buffer
+/// </summary>
+/// <param name="sum">previous checksum of another buffer attached to this one for checksum calculation purposes</param>
+/// <param name="data">pointer to data to calculate checksum of</param>
+/// <param name="len">lenghth of buffer</param>
+/// <param name="carry">previous carry</param>
+/// <param name="odd">Input: Whether the buffer starts at an odd index position, output: whether the next position will be odd</param>
+/// <returns></returns>
+uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd)
+{
+	uint16_t t;
+
+	for (int i = 0; i < len; i++)
+	{
+		if (odd) // odd index
+		{
+			t = data[i];
+		}
+		else
+		{
+			t = ((uint16_t)data[i]) << 8;
+			carry = false;
+		}
+		sum += t;
+		if ((sum <t) && !carry)
+		{
+			sum++;
+			carry = true;
+		}
+
+		odd = !odd;
+	}
+
+	return sum;
+}
+
+/// <summary>
+/// Calculates the checksum of an even number of bytes that start at an even index position.
+/// </summary>
+/// <param name="sum">previous checksum of another buffer attached to this one for checksum calculation purposes</param>
+/// <param name="data">pointer to data to calculate checksum of</param>
+/// <param name="len">lenghth of buffer</param>
+/// <returns></returns>
+uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
+{
+	bool carry = false;
+	bool odd = false;
+	return checksum(sum, data, len, carry, odd);
+}
+
+
+void EtherSocket::sendIPPacket()
+{
+	IPAddress dstIP = chunk.ip.destinationIP;
+	MACAddress* dstMac = whoHas(dstIP);
+
+	if (dstMac == NULL)
+		return;
+
+	chunk.dstMAC = *dstMac;
+	chunk.srcMAC = localMAC;
+	chunk.etherType.setValue(ETHTYPE_IP);
+
+	packetSend(6 + 6 + 2 + chunk.ip.totalLength.getValue(),chunk.raw);
 
 }

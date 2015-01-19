@@ -44,12 +44,18 @@ public:
 	
 
 	static void staticSetup(IPAddress & ip);
-
 	static MACAddress* whoHas(IPAddress& ip);
-
 	static void enableBroadcast(bool temporary = false);
-
 	static bool isLinkUp();
+
+	static uint8_t getSlot();
+	static void freeSlot(uint8_t slotId);
+
+	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd);
+	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len);
+
+	static void sendIPPacket();
+
 
 
 private:
@@ -60,6 +66,8 @@ private:
 	static void processARPReply();
 	static void tick();
 
+	static uint8_t availableSlots;
+	static uint16_t availableSlotBitmap;
 };
 
 typedef EtherSocket eth;

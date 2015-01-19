@@ -2,11 +2,15 @@
 #include "Socket.h"
 #include "inet.h"
 #include "ethernet.h"
+#include "Socket.h"
 #include <avr/pgmspace.h>
 
 MACAddress mymac PROGMEM = { 1,2,3,4,5,6 };
 IPAddress testIP = { 192, 168, 1, 1 };
 IPAddress myIP PROGMEM = { 192, 168, 1, 200 };
+
+
+Socket socket;
 
 void setup()
 {
@@ -20,9 +24,9 @@ void setup()
 
 	Serial.println("waiting for link...");
 
-	//while (!eth::isLinkUp());
+	while (!eth::isLinkUp());
 
-	//Serial.println("link is up");
+	Serial.println("link is up");
 
 
 
@@ -37,7 +41,10 @@ void loop()
 
 	if ((long)(millis() - waitTimer) >= 0)
 	{
-		Serial.println((int) eth::whoHas(testIP));
+		//Serial.println((int) eth::whoHas(testIP));
+
+		socket.connect(testIP, 80);
+
 		waitTimer += 1000;
 	}
 

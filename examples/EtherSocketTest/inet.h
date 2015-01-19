@@ -9,6 +9,8 @@
 #include <avr/pgmspace.h>
 
 static const uint16_t ETHTYPE_ARP = 0x0806;
+static const uint16_t ETHTYPE_IP = 0x0800;
+
 
 static const uint8_t ARP_OPCODE_REPLY_L = 0x02;
 
@@ -36,6 +38,7 @@ typedef union u32_t
 typedef union nint16_t
 {
 	uint8_t raw[2];
+	uint16_t rawu;
 	struct
 	{
 		uint8_t h;
@@ -57,12 +60,22 @@ typedef union nint16_t
 		l = u.l;
 		h = u.h;
 	}
+
+	inline void zero()
+	{
+		rawu = 0;
+	}
 };
 
-typedef struct nint32_t
+typedef union nint32_t
 {
-	nint16_t h;
-	nint16_t l;
+	struct
+	{
+		nint16_t h;
+		nint16_t l;
+	};
+	uint8_t raw[4];
+	uint32_t rawu;
 
 	uint32_t getValue()
 	{
@@ -72,6 +85,24 @@ typedef struct nint32_t
 		u.l.h = l.h;
 		u.l.l = l.l;
 		return u.v;
+	}
+
+	void setValue(uint32_t v)
+	{
+		u32_t u;
+		u.v = v;
+
+		h.h = u.h.h;
+		h.l = u.h.l;
+		l.h = u.l.h;
+		l.l = u.l.l;
+
+
+	}
+
+	inline void zero()
+	{
+		rawu = 0;
 	}
 
 };
@@ -126,30 +157,34 @@ typedef union ARPPacket
 	uint8_t raw[28];
 };
 
-typedef struct IPHeader
+typedef union IPHeader
 {
 	struct
 	{
-		uint8_t IHL : 4;
-		uint8_t version : 4;
+		struct
+		{
+			uint8_t IHL : 4;
+			uint8_t version : 4;
+		};
+		struct
+		{
+			uint8_t ECN : 2;
+			uint8_t DSCP : 6;
+		};
+		nint16_t totalLength;
+		nint16_t identification;
+		struct
+		{
+			uint16_t fragmentOffset : 13;
+			uint8_t flags : 3;
+		};
+		uint8_t TTL;
+		uint8_t protocol;
+		nint16_t checksum;
+		IPAddress sourceIP;
+		IPAddress destinationIP;
 	};
-	struct
-	{
-		uint8_t ECN : 2;
-		uint8_t DSCP : 6;
-	};
-	nint16_t totalLength;
-	nint16_t identification;
-	struct
-	{
-		uint16_t fragmentOffset : 13;
-		uint8_t flags : 3;
-	};
-	uint8_t TTL;
-	uint8_t protocol;
-	nint16_t checksum;
-	IPAddress sourceIP;
-	IPAddress destinationIP;
+	uint8_t raw[20];
 
 };
 
@@ -159,36 +194,36 @@ typedef struct TCPHeader
 	nint16_t destinationPort;
 	nint32_t sequenceNumber;
 	nint32_t acknowledgementNumber;
-	struct
+	
+	union
 	{
-		union
+		struct
 		{
-			struct
-			{
-				uint8_t FIN : 1;
-				uint8_t SYN : 1;
-				uint8_t RST : 1;
-				uint8_t PSH : 1;
-				uint8_t ACK : 1;
-				uint8_t URG : 1;
-				uint8_t ECE : 1;
-				uint8_t CWR : 1;
-			};
-			uint8_t flags;
+			uint8_t NS : 1;
+			uint8_t reserved : 3;
+			uint8_t dataOffset : 4;
+			uint8_t FIN : 1;
+			uint8_t SYN : 1;
+			uint8_t RST : 1;
+			uint8_t PSH : 1;
+			uint8_t ACK : 1;
+			uint8_t URG : 1;
+			uint8_t ECE : 1;
+			uint8_t CWR : 1;
+
 		};
-		uint8_t NS : 1;
-		uint8_t reserved : 3;
-		uint8_t dataOffset : 4;
+		uint16_t flags;
 	};
+
 	nint16_t windowSize;
 	nint16_t checksum;
 	nint16_t urgentPointer;
-	struct options
+	struct 
 	{
 		uint8_t option1;
 		uint8_t option1_length;
 		nint16_t option1_value;
-	};
+	} options;
 };
 
 typedef struct ICMPHeader

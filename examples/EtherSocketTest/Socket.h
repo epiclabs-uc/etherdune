@@ -11,6 +11,7 @@
 
 #include "inet.h"
 #include "config.h"
+#include "ethernet.h"
 
 class Socket;
 
@@ -23,27 +24,29 @@ class Socket
 	 nint16_t dstPort;
 	 uint8_t srcPort_L;
 	 IPAddress dstAddr;
-	 SocketCallback eventHandler=NULL;
+	 SocketCallback eventHandler;
 	 uint8_t id;
-	 uint8_t state = 0;
+	 uint8_t state;
+	 
+	 uint32_t slotMap;
+	 uint8_t numSlots;
+	 
+	 uint8_t currentSlot;
+	 uint8_t currentSlotPos;
 
+	 uint32_t sequenceNumber;
 	
 
 private:
 	
-	 Socket();
-	static Socket sockets[MAX_TCP_SOCKETS];
-	static uint16_t activeSockets;
+	static uint8_t srcPort_L_count;
 
  public:
 
-	 
+	 Socket(SocketCallback eventHandlerCallback = NULL);	 
 	 void connect(IPAddress& ip, uint16_t port);
-	 void release();
 
-	 static void begin();
 
-	 static Socket* create(SocketCallback eventHandlerCallback = NULL);
 
 
 };

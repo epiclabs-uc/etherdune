@@ -10,13 +10,14 @@
 // Buffer boundaries applied to internal 8K ram
 // the entire available packet buffer space is allocated
 
-#define RXSTART_INIT        0x0000  // start of RX buffer, room for 2 packets
-#define RXSTOP_INIT         0x0BFF  // end of RX buffer
+static const uint16_t RXSTART_INIT =         0x0000;  // start of RX buffer, room for 2 packets
+static const uint16_t RXSTOP_INIT=          0x0BFF;  // end of RX buffer
 
-#define TXSTART_INIT        (RXSTOP_INIT+1)  // start of TX buffer
-#define TXSTOP_INIT         (ENC28J60_MEMSIZE-1)  // end of TX buffer
+static const uint16_t TXBUFFER_SIZE = 1024;
+static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
+static const uint16_t TXSTOP_INIT = (TXSTART_INIT + TXBUFFER_SIZE - 1);  // end of TX buffer
 
-static const uint8_t SLOT_SIZE_SHIFT = 9;
+static const uint8_t SLOT_SIZE_SHIFT = 8;
 
 //indicate how to distribute buffer slots. There are up to NUM_SLOTS slots
 //NUM_SLOTS is 10 by default.
@@ -24,7 +25,7 @@ static const uint8_t SLOT_SIZE_SHIFT = 9;
 static const uint8_t MAX_TCP_SOCKETS = 8;
 static const uint8_t MAX_UDP_SOCKETS = 1;
 static const uint8_t TCP_SRC_PORT_H = 250;
-
+static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
 
 
 // max frame length which the conroller will accept:
@@ -36,9 +37,10 @@ static const uint8_t TCP_SRC_PORT_H = 250;
 
 //handy formulas using the above
 static const uint16_t SLOT_SIZE = 1 << SLOT_SIZE_SHIFT;
-static const uint16_t NUM_SLOTS = (ENC28J60_MEMSIZE - (RXSTOP_INIT - RXSTART_INIT + 1)) / SLOT_SIZE;
-#define SLOT_ADDR(x) (TXSTART_INIT + (x << SLOT_SIZE_SHIFT ))
+static const uint16_t NUM_SLOTS = (ENC28J60_MEMSIZE - TXBUFFER_SIZE - (RXSTOP_INIT - RXSTART_INIT + 1)) / SLOT_SIZE;
+#define SLOT_ADDR(x) (TXSTOP_INIT + 1 + (x << SLOT_SIZE_SHIFT ))
 
+static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to make room for the control byte required by ENC28J60
 
 
 #endif
