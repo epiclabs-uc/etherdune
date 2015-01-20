@@ -19,6 +19,7 @@ typedef void(*SocketCallback)(Socket* socket, uint8_t eventType);
 
 class Socket
 {
+	friend class EtherSocket;
  protected:
 
 	 nint16_t dstPort;
@@ -41,10 +42,16 @@ private:
 	
 	static uint8_t srcPort_L_count;
 
+	void tick();
+	
+
  public:
 
 	 Socket(SocketCallback eventHandlerCallback = NULL);	 
+	 ~Socket();
 	 void connect(IPAddress& ip, uint16_t port);
+
+
 
 
 

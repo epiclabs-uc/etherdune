@@ -6,13 +6,19 @@
 
 uint8_t Socket::srcPort_L_count = 0;
 
+
 Socket::Socket(SocketCallback eventHandlerCallback)
 {
 	eventHandler = eventHandlerCallback;
 	state = 0;
 	sequenceNumber = 0;
+	EtherSocket::registerSocket(*this);
 }
 
+Socket::~Socket()
+{
+	EtherSocket::unregisterSocket(*this);
+}
 
 
 void Socket::connect(IPAddress& ip, uint16_t port)
@@ -70,6 +76,14 @@ void Socket::connect(IPAddress& ip, uint16_t port)
 	sum = EtherSocket::checksum(sum, (uint8_t*)&EtherSocket::chunk.tcp, sizeof(TCPHeader));
 	EtherSocket::chunk.tcp.checksum.setValue(~sum);
 
+	state = SCK_STATE_SYN_SENT;
+
 	EtherSocket::sendIPPacket();
+
+
+}
+
+void Socket::tick()
+{
 
 }

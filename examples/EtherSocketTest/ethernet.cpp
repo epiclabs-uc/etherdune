@@ -23,8 +23,10 @@ uint16_t EtherSocket::availableSlotBitmap = 0;
 
 ARPEntry arpTable[ARP_TABLE_LENGTH];
 EthBuffer EtherSocket::chunk;
+Socket* EtherSocket::sockets[MAX_TCP_SOCKETS];
 
 static unsigned long tickTimer = 1000;
+static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
 
 void initSPI() {
 	pinMode(SS, OUTPUT);
@@ -214,6 +216,7 @@ bool EtherSocket::isLinkUp() {
 uint8_t EtherSocket::begin(uint8_t cspin)
 {
 	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
+	memset(sockets, 0, sizeof(Socket*) * MAX_TCP_SOCKETS);
 	
 	if (bitRead(SPCR, SPE) == 0)
 		initSPI();
@@ -317,18 +320,32 @@ void EtherSocket::loop()
 	if ((long)(millis() - tickTimer) >= 0)
 	{
 		tick();
-		tickTimer += 1000;
+		tickTimer += NETWORK_TIMER_RESOLUTION;
 	}
 
 }
 
 void EtherSocket::tick()
 {
-	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
+	
+	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
+		if (sockets[i] != NULL)
+			sockets[i]->tick();
+
+
+	minuteTimer--;
+
+	if (minuteTimer == 0)
 	{
-		if (entry->status_TTL > 0)
-			entry->status_TTL--;
+		minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
+
+		for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
+		{
+			if (entry->status_TTL > 0)
+				entry->status_TTL--;
+		}
 	}
+
 }
 
 
@@ -503,5 +520,30 @@ void EtherSocket::sendIPPacket()
 	chunk.etherType.setValue(ETHTYPE_IP);
 
 	packetSend(6 + 6 + 2 + chunk.ip.totalLength.getValue(),chunk.raw);
+
+}
+
+void EtherSocket::registerSocket(Socket& socket)
+{
+	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
+	{
+		if (sockets[i] == NULL)
+		{
+			sockets[i] = &socket;
+			return;
+		}
+	}
+}
+
+void EtherSocket::unregisterSocket(Socket& socket)
+{
+	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
+	{
+		if (sockets[i] == &socket)
+		{
+			sockets[i] = NULL;
+			return;
+		}
+	}
 
 }

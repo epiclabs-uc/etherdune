@@ -24,13 +24,14 @@
 #include "inet.h"
 #include "enc28j60constants.h"
 #include "config.h"
+#include "Socket.h"
 
-static const uint8_t ARP_TABLE_LENGTH = 2;
-static const int16_t MAX_ARP_TTL = 20 * 60; // 20 mins
 
+class Socket;
 
 class EtherSocket
 {
+	friend class Socket;
 public:
 	static MACAddress localMAC;
 	static IPAddress localIP;
@@ -65,9 +66,13 @@ private:
 	static void makeWhoHasARPRequest(IPAddress& ip);
 	static void processARPReply();
 	static void tick();
+	static void registerSocket(Socket& socket);
+	static void unregisterSocket(Socket&);
 
 	static uint8_t availableSlots;
 	static uint16_t availableSlotBitmap;
+
+	static Socket* sockets[MAX_TCP_SOCKETS];
 };
 
 typedef EtherSocket eth;
