@@ -25,15 +25,19 @@
 #include "enc28j60constants.h"
 #include "config.h"
 #include "Socket.h"
+#include "SlotManager.h"
 
 
 class Socket;
+class SlotManager;
 
 
 
 class EtherSocket
 {
 	friend class Socket;
+	friend class SlotManager;
+
 public:
 	static MACAddress localMAC;
 	static IPAddress localIP;
@@ -51,8 +55,6 @@ public:
 	static void enableBroadcast(bool temporary = false);
 	static bool isLinkUp();
 
-	static uint8_t getSlot();
-	static void freeSlot(uint8_t slotId);
 
 	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd);
 	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len);
@@ -63,8 +65,17 @@ public:
 
 private:
 
-	static void processChunk(uint8_t& handler, uint16_t len);
-	static void processTCPSegment(bool isHeader, uint16_t len);
+	static void writeByte(byte b);
+	static void writeByte(uint16_t dst, byte b);
+	static void writeBuf(uint16_t dst, uint16_t len, const byte* data);
+	static void writeBuf(uint16_t len, const byte* data);
+	static void moveMem(uint16_t dest, uint16_t src, uint16_t len);
+
+	static void packetSend(uint16_t len);
+	static void packetSend(uint16_t len, const byte* data);
+
+	static bool processChunk(uint8_t& handler, uint16_t len);
+	static bool processTCPSegment(bool isHeader, uint16_t len);
 
 	static uint16_t packetReceiveChunk();
 	static void makeWhoHasARPRequest(IPAddress& ip);
@@ -74,11 +85,10 @@ private:
 	static void unregisterSocket(Socket&);
 
 	static Socket* currentSocket;
-
-	static uint8_t availableSlots;
-	static uint16_t availableSlotBitmap;
-
 	static Socket* sockets[MAX_TCP_SOCKETS];
+	
+
+	
 };
 
 typedef EtherSocket eth;

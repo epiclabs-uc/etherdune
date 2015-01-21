@@ -17,14 +17,13 @@ bool EtherSocket::broadcast_enabled = false;
 MACAddress EtherSocket::localMAC;
 IPAddress EtherSocket::localIP;
 
-uint8_t EtherSocket::availableSlots = NUM_SLOTS;
-uint16_t EtherSocket::availableSlotBitmap = 0;
 
 
 ARPEntry arpTable[ARP_TABLE_LENGTH];
 EthBuffer EtherSocket::chunk;
-Socket* EtherSocket::sockets[MAX_TCP_SOCKETS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+Socket* EtherSocket::sockets[MAX_TCP_SOCKETS] = { };
 Socket* EtherSocket::currentSocket = NULL;
+
 
 static unsigned long tickTimer = NETWORK_TIMER_RESOLUTION;
 static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
@@ -124,7 +123,8 @@ static void readBuf(uint16_t src, uint16_t len, byte* data)
 	readBuf(len, data);
 }
 
-static void writeBuf(uint16_t len, const byte* data) {
+void EtherSocket::writeBuf(uint16_t len, const byte* data) 
+{
 	enableChip();
 	xferSPI(ENC28J60_WRITE_BUF_MEM);
 	while (len--)
@@ -132,7 +132,7 @@ static void writeBuf(uint16_t len, const byte* data) {
 	disableChip();
 }
 
-static void writeBuf(uint16_t dst, uint16_t len, const byte* data)
+void EtherSocket::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 {
 
 	writeReg(EWRPT, dst);
@@ -142,28 +142,78 @@ static void writeBuf(uint16_t dst, uint16_t len, const byte* data)
 	//writeReg(ERDPT, txStart);
 }
 
-static void writeByte(byte b)
+void EtherSocket::writeByte(byte b)
 {
 	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, b);
 	writeBuf(1, &b);
 }
-static void writeByte(uint16_t dst, byte b)
+void EtherSocket::writeByte(uint16_t dst, byte b)
 {
 	writeBuf(dst, 1, &b);
 }
 
-
-
-void writeSlot(uint8_t slot, uint16_t offset, const byte * data, uint16_t len)
+static byte readByte(uint16_t src)
 {
-	uint16_t txStart = SLOT_ADDR(slot);
-	writeReg(EWRPT, txStart+offset);
-	writeBuf(len, data);
-	writeReg(ERDPT, txStart);
-
+	byte b;
+	readBuf(src, 1, &b);
 }
 
-void packetSend(uint16_t len)
+
+void EtherSocket::moveMem(uint16_t dest, uint16_t src, uint16_t len)
+{
+	//void
+	//Enc28J60Network::memblock_mv_cb(uint16_t dest, uint16_t src, uint16_t len)
+	//{
+	//as ENC28J60 DMA is unable to copy single bytes:
+	if (len == 1)
+	{
+		writeByte(dest, readByte(src));
+	}
+	else
+	{
+		// calculate address of last byte
+		len += src - 1;
+
+		/*  1. Appropriately program the EDMAST, EDMAND
+		and EDMADST register pairs. The EDMAST
+		registers should point to the first byte to copy
+		from, the EDMAND registers should point to the
+		last byte to copy and the EDMADST registers
+		should point to the first byte in the destination
+		range. The destination range will always be
+		linear, never wrapping at any values except from
+		8191 to 0 (the 8-Kbyte memory boundary).
+		Extreme care should be taken when
+		programming the start and end pointers to
+		prevent a never ending DMA operation which
+		would overwrite the entire 8-Kbyte buffer.
+		*/
+		writeReg(EDMASTL, src);
+		writeReg(EDMADSTL, dest);
+
+		if ((src <= RXSTOP_INIT) && (len > RXSTOP_INIT))len -= (RXSTOP_INIT - RXSTART_INIT);
+		writeReg(EDMANDL, len);
+
+		/*
+		2. If an interrupt at the end of the copy process is
+		desired, set EIE.DMAIE and EIE.INTIE and
+		clear EIR.DMAIF.
+
+		3. Verify that ECON1.CSUMEN is clear. */
+		writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_CSUMEN);
+
+		/* 4. Start the DMA copy by setting ECON1.DMAST. */
+		writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_DMAST);
+
+		// wait until runnig DMA is completed
+		while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_DMAST);
+	}
+}
+
+
+
+
+void EtherSocket::packetSend(uint16_t len)
 {
 	// see http://forum.mysensors.org/topic/536/
 	// while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
@@ -182,7 +232,7 @@ void packetSend(uint16_t len)
 
 }
 
-void packetSend(uint16_t len, const byte* data)
+void EtherSocket::packetSend(uint16_t len, const byte* data)
 {
 	writeBuf(TXSTART_INIT_DATA, len, data);
 	packetSend(len);
@@ -298,7 +348,9 @@ uint16_t EtherSocket::packetReceiveChunk()
 		{
 			chunkLength = min(sizeof(chunk), len);
 			readBuf(chunkLength, chunk.raw);
-			processChunk(handler, chunkLength);
+			if (!processChunk(handler, chunkLength))
+				break;
+
 			len -= chunkLength;
 		}
 		currentSocket = NULL;
@@ -351,7 +403,7 @@ void EtherSocket::tick()
 }
 
 
-void EtherSocket::processChunk(uint8_t& handler, uint16_t len)
+bool EtherSocket::processChunk(uint8_t& handler, uint16_t len)
 {
 	switch (handler)
 	{
@@ -362,31 +414,31 @@ void EtherSocket::processChunk(uint8_t& handler, uint16_t len)
 				Serial.print("ARP Reply received=");
 				Serial.println(chunk.arp.senderMAC.b[1]);
 				processARPReply();
-				return;
+				return false;
 			}
 
 			if (chunk.etherType.getValue() == ETHTYPE_IP && chunk.ip.protocol == IP_PROTO_TCP_V)
 			{
 				handler = 1;
-				processTCPSegment(true, len);
+				return processTCPSegment(true, len);
 			}
 		}break;
 
 		case 1:
 		{
-			processTCPSegment(false, len);
+			return processTCPSegment(false, len);
 		}break;
 
 
 		default:
 		{
-			handler = 0xFF; //discard further chunks of this packet.
+			return false; //discard further chunks of this packet
 		}
 	}
 
 }
 
-void EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
+bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 {
 	if (isHeader)
 	{
@@ -397,7 +449,7 @@ void EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 		}
 	}
 
-	currentSocket->processSegment(isHeader);
+	return currentSocket->processSegment(isHeader);
 
 }
 
@@ -462,33 +514,7 @@ void EtherSocket::processARPReply()
 
 }
 
-uint8_t EtherSocket::getSlot()
-{
 
-	uint16_t mask = 1;
-	for (uint8_t i = 0; i < NUM_SLOTS;i++, mask <<= 1)
-	{
-		if (availableSlotBitmap & mask == 0)
-		{
-			availableSlots--;
-			availableSlotBitmap |= mask;
-			return i;
-		}
-	}
-
-	return 0xFF; // no more slots available.
-}
-
-void EtherSocket::freeSlot(uint8_t slotId)
-{
-	uint16_t mask = 1 << slotId;
-
-	if (availableSlotBitmap & mask)
-	{
-		availableSlots++;
-		availableSlotBitmap &= ~mask;
-	}
-}
 
 /// <summary>
 /// Computes  a TCP/IP-type checksum over the specified buffer

@@ -215,4 +215,8 @@
 #define ENC28J60_SOFT_RESET          0xFF
 
 
+// DMA mode constants
+#define EDMASTL          (0x10|0x00)
+#define EDMADSTL         (0x14|0x00)
+#define EDMANDL          (0x12|0x00)
 #endif

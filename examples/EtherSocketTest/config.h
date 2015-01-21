@@ -17,11 +17,9 @@ static const uint16_t TXBUFFER_SIZE = 1024;
 static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
 static const uint16_t TXSTOP_INIT = (TXSTART_INIT + TXBUFFER_SIZE - 1);  // end of TX buffer
 
-static const uint8_t SLOT_SIZE_SHIFT = 8;
+static const uint8_t SLOT_SIZE_SHIFT = 9; //slot size = 2^SLOT_SIZE_SHIFT, 512 bytes by default.
 
-//indicate how to distribute buffer slots. There are up to NUM_SLOTS slots
-//NUM_SLOTS is 10 by default.
-// slot #0 is reserved for ARP requests
+
 static const uint8_t MAX_TCP_SOCKETS = 8;
 static const uint8_t MAX_UDP_SOCKETS = 1;
 static const uint8_t TCP_SRC_PORT_H = 250;

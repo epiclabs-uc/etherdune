@@ -78,11 +78,13 @@
     <ClInclude Include="ethernet.h" />
     <ClInclude Include="inet.h" />
     <ClInclude Include="net.h" />
+    <ClInclude Include="SlotManager.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ethernet.cpp" />
+    <ClCompile Include="SlotManager.cpp" />
     <ClCompile Include="Socket.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

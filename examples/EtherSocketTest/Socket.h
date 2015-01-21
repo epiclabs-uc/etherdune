@@ -41,10 +41,10 @@ class Socket
 private:
 	
 	static uint8_t srcPort_L_count;
-	void processSegment(bool isHeader);
+	bool processSegment(bool isHeader);
 
 	void tick();
-	
+	void sendSYN();
 
  public:
 	 nint16_t remotePort;
@@ -53,7 +53,8 @@ private:
 	 Socket();	 
 	 ~Socket();
 	 void connect();
-	 void sendSYN();
+	 uint16_t write(uint16_t len, const byte* data);
+	 
 
 	 virtual void onConnect();
 	 virtual void onClose();

@@ -102,7 +102,7 @@ void Socket::sendSYN()
 
 void Socket::tick()
 {
-	Serial.println("tick!");
+	
 	
 	switch (state)
 	{
@@ -116,7 +116,7 @@ void Socket::tick()
 }
 
 
-void Socket::processSegment(bool isHeader)
+bool Socket::processSegment(bool isHeader)
 {
 	Serial.println("segment received");
 	Serial.print("SYN="); Serial.println(EtherSocket::chunk.tcp.SYN);
@@ -124,6 +124,17 @@ void Socket::processSegment(bool isHeader)
 
 	if (isHeader)
 	{
+		uint32_t ackNum = EtherSocket::chunk.tcp.acknowledgementNumber.getValue();
+		if ((int32_t)(sequenceNumber - ackNum) < 0)
+		{
+			sequenceNumber = ackNum;
+		}
+		else
+		{
+			Serial.println("dropped duplicate packet");
+			return false;
+		}
+
 		switch (state)
 		{
 			case SCK_STATE_SYN_SENT:
@@ -138,13 +149,13 @@ void Socket::processSegment(bool isHeader)
 
 			}
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
 
-
+	return true;
 
 }
 

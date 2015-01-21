@@ -45,6 +45,8 @@ extern "C" void __cxa_pure_virtual() {;}
 #include "C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores\arduino\arduino.h"
 #include "C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\EtherSocketTest.ino"
+#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\SlotManager.cpp"
+#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\SlotManager.h"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\Socket.cpp"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\Socket.h"
 #include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\config.h"
