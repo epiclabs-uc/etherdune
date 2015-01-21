@@ -7,9 +7,12 @@
 uint8_t Socket::srcPort_L_count = 0;
 
 
-Socket::Socket(SocketCallback eventHandlerCallback)
+void Socket::onClose() {}
+void Socket::onConnect() {}
+
+Socket::Socket()
 {
-	eventHandler = eventHandlerCallback;
+	
 	state = 0;
 	sequenceNumber = 0;
 	EtherSocket::registerSocket(*this);
@@ -21,11 +24,27 @@ Socket::~Socket()
 }
 
 
-void Socket::connect(IPAddress& ip, uint16_t port)
+void Socket::connect()
 {
-	dstAddr = ip;
-	dstPort.setValue(port);
+
 	srcPort_L = srcPort_L_count++;
+	retries = 0;
+	sendSYN();
+
+
+
+}
+
+void Socket::sendSYN()
+{
+	Serial.println("sendSYN()");
+	retries++;
+	if (retries >= MAX_TCP_CONNECT_RETRIES)
+	{
+		onClose();
+		state = SCK_STATE_CLOSED;
+		return;
+	}
 
 	EtherSocket::chunk.ip.version = 4;
 	EtherSocket::chunk.ip.IHL = 0x05; //20 bytes
@@ -37,14 +56,14 @@ void Socket::connect(IPAddress& ip, uint16_t port)
 	EtherSocket::chunk.ip.protocol = IP_PROTO_TCP_V;
 	EtherSocket::chunk.ip.checksum.setValue(0);
 	EtherSocket::chunk.ip.sourceIP = EtherSocket::localIP;
-	EtherSocket::chunk.ip.destinationIP = ip;
+	EtherSocket::chunk.ip.destinationIP = remoteAddress;
 	EtherSocket::chunk.ip.TTL = 255;
-	EtherSocket::chunk.ip.checksum.setValue(~ EtherSocket::checksum(0, (uint8_t*)&EtherSocket::chunk.ip, sizeof(IPHeader)));
+	EtherSocket::chunk.ip.checksum.setValue(~EtherSocket::checksum(0, (uint8_t*)&EtherSocket::chunk.ip, sizeof(IPHeader)));
 
 
 	EtherSocket::chunk.tcp.sourcePort.h = TCP_SRC_PORT_H;
 	EtherSocket::chunk.tcp.sourcePort.l = srcPort_L;
-	EtherSocket::chunk.tcp.destinationPort = dstPort;
+	EtherSocket::chunk.tcp.destinationPort = remotePort;
 	EtherSocket::chunk.tcp.sequenceNumber.setValue(sequenceNumber);
 	EtherSocket::chunk.tcp.flags = 0x00;
 	EtherSocket::chunk.tcp.SYN = 1;
@@ -57,7 +76,7 @@ void Socket::connect(IPAddress& ip, uint16_t port)
 	EtherSocket::chunk.tcp.options.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
 	EtherSocket::chunk.tcp.dataOffset = 5 + 1; // 5 words normal length + 1 word because of options.
 
-	
+
 	uint16_t sum;
 	sum = EtherSocket::checksum(0, (uint8_t*)&EtherSocket::chunk.ip.sourceIP, sizeof(IPAddress) * 2);
 	nint32_t pseudo;
@@ -68,7 +87,7 @@ void Socket::connect(IPAddress& ip, uint16_t port)
 
 
 
-	
+
 	sum = EtherSocket::checksum(sum, (uint8_t*)&pseudo, sizeof(pseudo));
 
 
@@ -79,11 +98,53 @@ void Socket::connect(IPAddress& ip, uint16_t port)
 	state = SCK_STATE_SYN_SENT;
 
 	EtherSocket::sendIPPacket();
-
-
 }
 
 void Socket::tick()
 {
+	Serial.println("tick!");
+	
+	switch (state)
+	{
+		case SCK_STATE_SYN_SENT:
+		{
+			sendSYN();
+			break;
+		}
+	}
 
 }
+
+
+void Socket::processSegment(bool isHeader)
+{
+	Serial.println("segment received");
+	Serial.print("SYN="); Serial.println(EtherSocket::chunk.tcp.SYN);
+	Serial.print("ACK="); Serial.println(EtherSocket::chunk.tcp.ACK);
+
+	if (isHeader)
+	{
+		switch (state)
+		{
+			case SCK_STATE_SYN_SENT:
+			{
+				if (EtherSocket::chunk.tcp.SYN && EtherSocket::chunk.tcp.ACK)
+				{
+					state = SCK_STATE_ESTABLISHED;
+					onConnect();
+					//now, send SYN ACK
+				}
+
+
+			}
+
+		default:
+			break;
+		}
+	}
+
+
+
+
+}
+

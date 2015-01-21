@@ -23,9 +23,10 @@ uint16_t EtherSocket::availableSlotBitmap = 0;
 
 ARPEntry arpTable[ARP_TABLE_LENGTH];
 EthBuffer EtherSocket::chunk;
-Socket* EtherSocket::sockets[MAX_TCP_SOCKETS];
+Socket* EtherSocket::sockets[MAX_TCP_SOCKETS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+Socket* EtherSocket::currentSocket = NULL;
 
-static unsigned long tickTimer = 1000;
+static unsigned long tickTimer = NETWORK_TIMER_RESOLUTION;
 static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
 
 void initSPI() {
@@ -216,7 +217,7 @@ bool EtherSocket::isLinkUp() {
 uint8_t EtherSocket::begin(uint8_t cspin)
 {
 	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
-	memset(sockets, 0, sizeof(Socket*) * MAX_TCP_SOCKETS);
+	//memset(sockets, 0, sizeof(Socket*) * MAX_TCP_SOCKETS);
 	
 	if (bitRead(SPCR, SPE) == 0)
 		initSPI();
@@ -292,16 +293,15 @@ uint16_t EtherSocket::packetReceiveChunk()
 
 		uint16_t chunkLength;
 
-		bool isHeader = true;
+		uint8_t handler = 0;
 		while (len > 0)
 		{
 			chunkLength = min(sizeof(chunk), len);
 			readBuf(chunkLength, chunk.raw);
-			processChunk(isHeader, chunkLength);
+			processChunk(handler, chunkLength);
 			len -= chunkLength;
-			isHeader = false;
-
 		}
+		currentSocket = NULL;
 
 		if (gNextPacketPtr - 1 > RXSTOP_INIT)
 			writeReg(ERXRDPT, RXSTOP_INIT);
@@ -317,8 +317,10 @@ void EtherSocket::loop()
 {
 	packetReceiveChunk();
 
+
 	if ((long)(millis() - tickTimer) >= 0)
 	{
+		
 		tick();
 		tickTimer += NETWORK_TIMER_RESOLUTION;
 	}
@@ -327,7 +329,7 @@ void EtherSocket::loop()
 
 void EtherSocket::tick()
 {
-	
+
 	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
 		if (sockets[i] != NULL)
 			sockets[i]->tick();
@@ -349,22 +351,55 @@ void EtherSocket::tick()
 }
 
 
-void EtherSocket::processChunk(bool isHeader, uint16_t len)
+void EtherSocket::processChunk(uint8_t& handler, uint16_t len)
 {
-	if (isHeader)
+	switch (handler)
 	{
-		if (chunk.etherType.getValue() == ETHTYPE_ARP && chunk.arp.OPER.l == ARP_OPCODE_REPLY_L)
+		case 0:
 		{
-			Serial.print("ARP Reply received=");
-			Serial.println(chunk.arp.senderMAC.b[1]);
-			processARPReply();
-			
+			if (chunk.etherType.getValue() == ETHTYPE_ARP && chunk.arp.OPER.l == ARP_OPCODE_REPLY_L)
+			{
+				Serial.print("ARP Reply received=");
+				Serial.println(chunk.arp.senderMAC.b[1]);
+				processARPReply();
+				return;
+			}
+
+			if (chunk.etherType.getValue() == ETHTYPE_IP && chunk.ip.protocol == IP_PROTO_TCP_V)
+			{
+				handler = 1;
+				processTCPSegment(true, len);
+			}
+		}break;
+
+		case 1:
+		{
+			processTCPSegment(false, len);
+		}break;
+
+
+		default:
+		{
+			handler = 0xFF; //discard further chunks of this packet.
 		}
 	}
 
 }
 
+void EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
+{
+	if (isHeader)
+	{
+		for (uint8_t i = 0; i < MAX_TCP_SOCKETS; i++)
+		{
+			if (sockets[i]->srcPort_L == chunk.tcp.destinationPort.l && chunk.tcp.destinationPort.h == TCP_SRC_PORT_H)
+				currentSocket = sockets[i];
+		}
+	}
 
+	currentSocket->processSegment(isHeader);
+
+}
 
 
 

@@ -29,6 +29,8 @@
 
 class Socket;
 
+
+
 class EtherSocket
 {
 	friend class Socket;
@@ -61,13 +63,17 @@ public:
 
 private:
 
-	static void processChunk(bool isHeader, uint16_t len);
+	static void processChunk(uint8_t& handler, uint16_t len);
+	static void processTCPSegment(bool isHeader, uint16_t len);
+
 	static uint16_t packetReceiveChunk();
 	static void makeWhoHasARPRequest(IPAddress& ip);
 	static void processARPReply();
 	static void tick();
 	static void registerSocket(Socket& socket);
 	static void unregisterSocket(Socket&);
+
+	static Socket* currentSocket;
 
 	static uint8_t availableSlots;
 	static uint16_t availableSlotBitmap;

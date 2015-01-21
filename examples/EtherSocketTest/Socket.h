@@ -15,17 +15,17 @@
 
 class Socket;
 
-typedef void(*SocketCallback)(Socket* socket, uint8_t eventType);
 
 class Socket
 {
 	friend class EtherSocket;
  protected:
 
-	 nint16_t dstPort;
+
 	 uint8_t srcPort_L;
-	 IPAddress dstAddr;
-	 SocketCallback eventHandler;
+	 uint8_t retries;
+
+	 
 	 uint8_t id;
 	 uint8_t state;
 	 
@@ -41,15 +41,22 @@ class Socket
 private:
 	
 	static uint8_t srcPort_L_count;
+	void processSegment(bool isHeader);
 
 	void tick();
 	
 
  public:
+	 nint16_t remotePort;
+	 IPAddress remoteAddress;
 
-	 Socket(SocketCallback eventHandlerCallback = NULL);	 
+	 Socket();	 
 	 ~Socket();
-	 void connect(IPAddress& ip, uint16_t port);
+	 void connect();
+	 void sendSYN();
+
+	 virtual void onConnect();
+	 virtual void onClose();
 
 
 

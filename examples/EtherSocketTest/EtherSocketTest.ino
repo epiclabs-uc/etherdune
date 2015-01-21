@@ -10,7 +10,33 @@ IPAddress testIP = { 192, 168, 1, 1 };
 IPAddress myIP PROGMEM = { 192, 168, 1, 200 };
 
 
-Socket socket;
+
+
+class MyProtocol : public Socket
+{
+
+public:
+	
+	void onConnect()
+	{
+		Serial.println("on connect");
+
+
+
+	}
+
+	void onClose()
+	{
+		Serial.println("on close");
+	}
+
+
+
+} socket;
+
+
+
+
 
 void setup()
 {
@@ -28,7 +54,10 @@ void setup()
 
 	Serial.println("link is up");
 
+	socket.remoteAddress = testIP;
+	socket.remotePort.setValue(80);
 
+	socket.connect();
 
 }
 
@@ -43,7 +72,7 @@ void loop()
 	{
 		//Serial.println((int) eth::whoHas(testIP));
 
-		socket.connect(testIP, 80);
+
 
 		waitTimer += 1000;
 	}

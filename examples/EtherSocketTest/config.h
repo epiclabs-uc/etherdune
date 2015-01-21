@@ -31,6 +31,8 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200; //ms
 static const uint8_t ARP_TABLE_LENGTH = 2;
 static const int16_t MAX_ARP_TTL = 20; // 20 mins
 
+static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
+
 
 // max frame length which the conroller will accept:
 // (note: maximum ethernet frame length would be 1518)
