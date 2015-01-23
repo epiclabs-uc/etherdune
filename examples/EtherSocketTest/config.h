@@ -2,6 +2,22 @@
 #define __ETHERSOCKET_CONFIG__
 // Ethersocket configuration
 
+#define ETHERSOCKET_DEBUG 0
+
+
+
+#if ETHERSOCKET_DEBUG
+	#define DEBUG(x) x
+#else
+	#define DEBUG(x)
+#endif
+
+#define dprintln(x) DEBUG(Serial.println(x))
+#define dprint(x) DEBUG(Serial.print(x))
+
+
+#define CLOCK(id,x) unsigned long clock##id=millis();x;Serial.print("" #x ": " );Serial.print(millis() - clock##id);Serial.println(" ms.")
+
 
 // ENC28J60 memory mapping
 #define ENC28J60_MEMSIZE  8192
@@ -18,6 +34,7 @@ static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
 static const uint16_t TXSTOP_INIT = (TXSTART_INIT + TXBUFFER_SIZE - 1);  // end of TX buffer
 
 static const uint8_t SLOT_SIZE_SHIFT = 9; //slot size = 2^SLOT_SIZE_SHIFT, 512 bytes by default.
+static const uint8_t MAX_SLOTS_PER_SOCKET = 4;
 
 
 static const uint8_t MAX_TCP_SOCKETS = 8;
@@ -36,6 +53,20 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
 // (note: maximum ethernet frame length would be 1518)
 #define MAX_FRAMELEN      1500
 #define FULL_SPEED  1   // switch to full-speed SPI for bulk transfers
+
+#define NTICKS(ms) ((ms)/NETWORK_TIMER_RESOLUTION)
+
+// TCP timeouts
+static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(3000); // (client) represents waiting for a matching connection request after having sent a connection request.
+static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
+static const uint8_t SCK_TIMEOUT_FIN_WAIT_2 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP.
+static const uint8_t SCK_TIMEOUT_CLOSE_WAIT = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the local user.
+static const uint8_t SCK_TIMEOUT_CLOSING = NTICKS(2000); // (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
+static const uint8_t SCK_TIMEOUT_LAST_ACK = NTICKS(2000); // (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
+static const uint8_t SCK_TIMEOUT_TIME_WAIT = NTICKS(2000); //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
+
+
+
 
 
 

@@ -201,7 +201,7 @@ typedef struct TCPHeader
 		{
 			uint8_t NS : 1;
 			uint8_t reserved : 3;
-			uint8_t dataOffset : 4;
+			uint8_t headerLength : 4;
 			uint8_t FIN : 1;
 			uint8_t SYN : 1;
 			uint8_t RST : 1;
@@ -218,12 +218,15 @@ typedef struct TCPHeader
 	nint16_t windowSize;
 	nint16_t checksum;
 	nint16_t urgentPointer;
-	struct 
-	{
-		uint8_t option1;
-		uint8_t option1_length;
-		nint16_t option1_value;
-	} options;
+};
+
+typedef struct TCPOptions
+{
+
+	uint8_t option1;
+	uint8_t option1_length;
+	nint16_t option1_value;
+
 };
 
 typedef struct ICMPHeader
@@ -234,13 +237,18 @@ typedef struct ICMPHeader
 	uint8_t rest[4];
 };
 
+typedef struct EthernetHeader
+{
+	MACAddress dstMAC;
+	MACAddress srcMAC;
+	nint16_t etherType;
+};
+
 typedef union EthBuffer
 {
 	struct
 	{
-		MACAddress dstMAC;
-		MACAddress srcMAC;
-		nint16_t etherType;
+		EthernetHeader eth;
 		union
 		{
 			ARPPacket arp;
@@ -250,8 +258,13 @@ typedef union EthBuffer
 				union
 				{
 					ICMPHeader icmp;
-					TCPHeader tcp;
+					struct
+					{
+						TCPHeader tcp;
+						TCPOptions tcpOptions;
+					};
 				};
+				
 			};
 
 		};

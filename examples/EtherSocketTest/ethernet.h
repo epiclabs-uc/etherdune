@@ -59,7 +59,7 @@ public:
 	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd);
 	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len);
 
-	static void sendIPPacket();
+	static void sendIPPacket(uint8_t headerLength);
 
 
 

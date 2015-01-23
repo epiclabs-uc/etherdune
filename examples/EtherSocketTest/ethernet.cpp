@@ -161,10 +161,12 @@ static byte readByte(uint16_t src)
 
 void EtherSocket::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 {
-	//void
-	//Enc28J60Network::memblock_mv_cb(uint16_t dest, uint16_t src, uint16_t len)
-	//{
+
 	//as ENC28J60 DMA is unable to copy single bytes:
+	
+	if (len == 0)
+		return;
+
 	if (len == 1)
 	{
 		writeByte(dest, readByte(src));
@@ -172,7 +174,7 @@ void EtherSocket::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 	else
 	{
 		// calculate address of last byte
-		len += src - 1;
+		uint16_t last= len+ src - 1;
 
 		/*  1. Appropriately program the EDMAST, EDMAND
 		and EDMADST register pairs. The EDMAST
@@ -191,8 +193,10 @@ void EtherSocket::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 		writeReg(EDMASTL, src);
 		writeReg(EDMADSTL, dest);
 
-		if ((src <= RXSTOP_INIT) && (len > RXSTOP_INIT))len -= (RXSTOP_INIT - RXSTART_INIT);
-		writeReg(EDMANDL, len);
+		if ((src <= RXSTOP_INIT) && (last > RXSTOP_INIT))
+			last -= (RXSTOP_INIT - RXSTART_INIT);
+		
+		writeReg(EDMANDL, last);
 
 		/*
 		2. If an interrupt at the end of the copy process is
@@ -267,7 +271,8 @@ bool EtherSocket::isLinkUp() {
 uint8_t EtherSocket::begin(uint8_t cspin)
 {
 	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
-	//memset(sockets, 0, sizeof(Socket*) * MAX_TCP_SOCKETS);
+	
+	tickTimer = millis() +NETWORK_TIMER_RESOLUTION;
 	
 	if (bitRead(SPCR, SPE) == 0)
 		initSPI();
@@ -334,6 +339,8 @@ uint16_t EtherSocket::packetReceiveChunk()
 		} header;
 
 		readBuf(sizeof header, (byte*)&header);
+		uint16_t ptr = gNextPacketPtr + sizeof(header);
+
 
 		gNextPacketPtr = header.nextPacket;
 		len = header.byteCount - 4; //remove the CRC count
@@ -344,14 +351,16 @@ uint16_t EtherSocket::packetReceiveChunk()
 		uint16_t chunkLength;
 
 		uint8_t handler = 0;
+		
 		while (len > 0)
 		{
 			chunkLength = min(sizeof(chunk), len);
-			readBuf(chunkLength, chunk.raw);
+			readBuf(ptr,chunkLength, chunk.raw);
 			if (!processChunk(handler, chunkLength))
 				break;
 
 			len -= chunkLength;
+			ptr += chunkLength;
 		}
 		currentSocket = NULL;
 
@@ -374,7 +383,7 @@ void EtherSocket::loop()
 	{
 		
 		tick();
-		tickTimer += NETWORK_TIMER_RESOLUTION;
+		tickTimer = millis()+ NETWORK_TIMER_RESOLUTION;
 	}
 
 }
@@ -409,15 +418,15 @@ bool EtherSocket::processChunk(uint8_t& handler, uint16_t len)
 	{
 		case 0:
 		{
-			if (chunk.etherType.getValue() == ETHTYPE_ARP && chunk.arp.OPER.l == ARP_OPCODE_REPLY_L)
+			if (chunk.eth.etherType.getValue() == ETHTYPE_ARP && chunk.arp.OPER.l == ARP_OPCODE_REPLY_L)
 			{
-				Serial.print("ARP Reply received=");
-				Serial.println(chunk.arp.senderMAC.b[1]);
+				dprint("ARP Reply received=");
+				dprintln(chunk.arp.senderMAC.b[1]);
 				processARPReply();
 				return false;
 			}
 
-			if (chunk.etherType.getValue() == ETHTYPE_IP && chunk.ip.protocol == IP_PROTO_TCP_V)
+			if (chunk.eth.etherType.getValue() == ETHTYPE_IP && chunk.ip.protocol == IP_PROTO_TCP_V)
 			{
 				handler = 1;
 				return processTCPSegment(true, len);
@@ -444,12 +453,29 @@ bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 	{
 		for (uint8_t i = 0; i < MAX_TCP_SOCKETS; i++)
 		{
-			if (sockets[i]->srcPort_L == chunk.tcp.destinationPort.l && chunk.tcp.destinationPort.h == TCP_SRC_PORT_H)
-				currentSocket = sockets[i];
+			Socket* sck = sockets[i];
+			if (sck && (sck->state != SCK_STATE_CLOSED) &&
+				(sck->srcPort_L == chunk.tcp.destinationPort.l) &&
+				(chunk.tcp.destinationPort.h == TCP_SRC_PORT_H))
+			{
+				currentSocket = sck;
+				dprint("SocketIndex="); dprintln(i);
+
+				break;
+			}
 		}
+
 	}
 
-	return currentSocket->processSegment(isHeader);
+	if (!currentSocket)
+	{
+		dprintln("packet sent to unopened port.");
+		return false; //packet sent to unopened port.
+	}
+
+	dprint("CurrentSocket="); dprintln(currentSocket->srcPort_L);
+
+	return currentSocket->processSegment(isHeader, len);
 
 }
 
@@ -477,9 +503,9 @@ MACAddress* EtherSocket::whoHas(IPAddress& ip)
 
 void EtherSocket::makeWhoHasARPRequest(IPAddress& ip)
 {
-	memset(&chunk.dstMAC, 0xFF, sizeof(MACAddress));
-	chunk.srcMAC = chunk.arp.senderMAC = localMAC;
-	chunk.etherType.setValue(ETHTYPE_ARP);
+	memset(&chunk.eth.dstMAC, 0xFF, sizeof(MACAddress));
+	chunk.eth.srcMAC = chunk.arp.senderMAC = localMAC;
+	chunk.eth.etherType.setValue(ETHTYPE_ARP);
 	chunk.arp.HTYPE.setValue(0x0001);
 	chunk.arp.PTYPE.setValue(0x0800);
 	chunk.arp.HLEN = 0x06;
@@ -568,7 +594,7 @@ uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
 }
 
 
-void EtherSocket::sendIPPacket()
+void EtherSocket::sendIPPacket(uint8_t headerLength)
 {
 	IPAddress dstIP = chunk.ip.destinationIP;
 	MACAddress* dstMac = whoHas(dstIP);
@@ -576,11 +602,12 @@ void EtherSocket::sendIPPacket()
 	if (dstMac == NULL)
 		return;
 
-	chunk.dstMAC = *dstMac;
-	chunk.srcMAC = localMAC;
-	chunk.etherType.setValue(ETHTYPE_IP);
+	chunk.eth.dstMAC = *dstMac;
+	chunk.eth.srcMAC = localMAC;
+	chunk.eth.etherType.setValue(ETHTYPE_IP);
 
-	packetSend(6 + 6 + 2 + chunk.ip.totalLength.getValue(),chunk.raw);
+	writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, chunk.raw);
+	packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
 
 }
 
