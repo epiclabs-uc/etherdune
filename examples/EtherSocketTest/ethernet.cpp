@@ -355,9 +355,12 @@ uint16_t EtherSocket::packetReceiveChunk()
 		while (len > 0)
 		{
 			chunkLength = min(sizeof(chunk), len);
-			readBuf(ptr,chunkLength, chunk.raw);
+			
+			readBuf(ptr,chunkLength,(byte*) &chunk);
+
 			if (!processChunk(handler, chunkLength))
 				break;
+
 
 			len -= chunkLength;
 			ptr += chunkLength;
@@ -374,8 +377,10 @@ uint16_t EtherSocket::packetReceiveChunk()
 
 }
 
+
 void EtherSocket::loop()
 {
+
 	packetReceiveChunk();
 
 
@@ -388,12 +393,19 @@ void EtherSocket::loop()
 
 }
 
+
+
 void EtherSocket::tick()
 {
 
+
+
 	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
-		if (sockets[i] != NULL)
-			sockets[i]->tick();
+	{
+		Socket* sck = sockets[i];
+		if (sck != NULL)
+			sck->tick();
+	}
 
 
 	minuteTimer--;
@@ -418,39 +430,76 @@ bool EtherSocket::processChunk(uint8_t& handler, uint16_t len)
 	{
 		case 0:
 		{
-			if (chunk.eth.etherType.getValue() == ETHTYPE_ARP && chunk.arp.OPER.l == ARP_OPCODE_REPLY_L)
+			switch (chunk.eth.etherType.getValue())
 			{
-				dprint("ARP Reply received=");
-				dprintln(chunk.arp.senderMAC.b[1]);
-				processARPReply();
-				return false;
+				case ETHTYPE_ARP:
+				{
+					switch (chunk.arp.OPER.l)
+					{
+						case ARP_OPCODE_REPLY_L:
+						{
+							Serial.println(80);
+							dprint("ARP Reply received=");
+							dprintln(chunk.arp.senderMAC.b[1]);
+							processARPReply();
+							Serial.println(81);
+							return false;
+						}break;
+
+						case ARP_OPCODE_REQ_L:
+						{
+							if (chunk.arp.targetIP.u == localIP.u)
+								makeARPReply();
+							return false;
+						}break;
+					}
+				}break;
+
+
+
+				case ETHTYPE_IP:
+				{
+					switch (chunk.ip.protocol)
+					{
+						case IP_PROTO_TCP_V:
+						{
+							handler = 1;
+							return processTCPSegment(true, len);
+						};
+
+						case IP_PROTO_ICMP_V:
+						{
+							return false;
+						}
+					}
+				}break;
+
 			}
 
-			if (chunk.eth.etherType.getValue() == ETHTYPE_IP && chunk.ip.protocol == IP_PROTO_TCP_V)
-			{
-				handler = 1;
-				return processTCPSegment(true, len);
-			}
+
+
 		}break;
 
-		case 1:
-		{
-			return processTCPSegment(false, len);
-		}break;
+	case 1:
+	{
+		return processTCPSegment(false, len);
+	}break;
 
 
-		default:
-		{
-			return false; //discard further chunks of this packet
-		}
+	default:
+	{
+		return false; //discard further chunks of this packet
+	}
 	}
 
 }
 
 bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 {
+
 	if (isHeader)
 	{
+
 		for (uint8_t i = 0; i < MAX_TCP_SOCKETS; i++)
 		{
 			Socket* sck = sockets[i];
@@ -459,8 +508,6 @@ bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 				(chunk.tcp.destinationPort.h == TCP_SRC_PORT_H))
 			{
 				currentSocket = sck;
-				dprint("SocketIndex="); dprintln(i);
-
 				break;
 			}
 		}
@@ -473,7 +520,6 @@ bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 		return false; //packet sent to unopened port.
 	}
 
-	dprint("CurrentSocket="); dprintln(currentSocket->srcPort_L);
 
 	return currentSocket->processSegment(isHeader, len);
 
@@ -517,22 +563,41 @@ void EtherSocket::makeWhoHasARPRequest(IPAddress& ip)
 
 	
 
-	packetSend(6 + 6 + 2 + 28, chunk.raw);
+	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
 
+}
+
+void EtherSocket::makeARPReply()
+{
+	chunk.arp.targetMAC = chunk.eth.dstMAC = chunk.eth.srcMAC;
+	chunk.arp.senderMAC = chunk.eth.srcMAC = localMAC;
+	chunk.arp.OPER.l = ARP_OPCODE_REPLY_L;
+	chunk.arp.targetIP = chunk.arp.senderIP;
+	chunk.arp.senderIP = localIP;
+
+	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
 }
 
 void EtherSocket::processARPReply()
 {
 	int16_t lowest = MAX_ARP_TTL;
-	ARPEntry * selectedEntry;
+	ARPEntry * selectedEntry=NULL;
 	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
 	{
-		if (entry->status_TTL < lowest)
+		if (entry->ip.u == chunk.arp.senderIP.u)
+		{
+			selectedEntry = entry;
+			break;
+		}
+
+		if (entry->status_TTL <= lowest)
 		{
 			lowest = entry->status_TTL;
 			selectedEntry = entry;
 		}
 	}
+
+	DEBUG(if (!selectedEntry)	{ dprintln("busted");		while (1); });
 
 	selectedEntry->status_TTL = MAX_ARP_TTL;
 	selectedEntry->ip = chunk.arp.senderIP;
@@ -596,6 +661,8 @@ uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
 
 void EtherSocket::sendIPPacket(uint8_t headerLength)
 {
+
+
 	IPAddress dstIP = chunk.ip.destinationIP;
 	MACAddress* dstMac = whoHas(dstIP);
 
@@ -611,23 +678,24 @@ void EtherSocket::sendIPPacket(uint8_t headerLength)
 
 }
 
-void EtherSocket::registerSocket(Socket& socket)
+void EtherSocket::registerSocket(Socket* socket)
 {
+
 	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
 	{
 		if (sockets[i] == NULL)
 		{
-			sockets[i] = &socket;
+			sockets[i] = socket;
 			return;
 		}
 	}
 }
 
-void EtherSocket::unregisterSocket(Socket& socket)
+void EtherSocket::unregisterSocket(Socket* socket)
 {
 	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
 	{
-		if (sockets[i] == &socket)
+		if (sockets[i] == socket)
 		{
 			sockets[i] = NULL;
 			return;

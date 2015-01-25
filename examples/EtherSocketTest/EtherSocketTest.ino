@@ -35,6 +35,7 @@ public:
 
 	void onReceive(uint16_t len, const byte* data)
 	{
+		
 		Serial.print("onReceive: "); Serial.print(len); Serial.println(" bytes");
 	}
 
@@ -46,11 +47,22 @@ public:
 
 unsigned long waitTimer = 0;
 void setup()
-{
+{	
+	pinMode(5, OUTPUT);
+	pinMode(6, OUTPUT);
+	F6L;
+	F5L;
+
+
 	Serial.begin(115200);
 
 	Serial.println("Press any key to start...");
+
 	while (!Serial.available());
+
+
+
+
 
 
 	eth::localIP.set_P(&myIP);
@@ -68,7 +80,17 @@ void setup()
 	socket.remoteAddress = testIP;
 	socket.remotePort.setValue(80);
 
+	//Serial.print("resolving IP...");
+	//while (!eth::whoHas(testIP))
+	//	EtherSocket::packetReceiveChunk();
+
+	//Serial.println("resolved.");
+
+	
+
+
 	socket.connect();
+		
 	waitTimer = millis()+1000;
 }
 
@@ -80,11 +102,11 @@ void loop()
 
 	if ((long)(millis() - waitTimer) >= 0)
 	{
-		Serial.println((int) eth::whoHas(testIP));
-		Serial.println("alive");
+		//Serial.println((int) eth::whoHas(testIP));
+		Serial.print("alive"); Serial.println(millis());
 
 
-		waitTimer += millis() + 1000;
+		waitTimer = millis() + 1000;
 	}
 
 

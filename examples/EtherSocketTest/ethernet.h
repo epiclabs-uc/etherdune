@@ -77,14 +77,18 @@ private:
 	static bool processChunk(uint8_t& handler, uint16_t len);
 	static bool processTCPSegment(bool isHeader, uint16_t len);
 
-	static uint16_t packetReceiveChunk();
+public: static uint16_t packetReceiveChunk();
 	static void makeWhoHasARPRequest(IPAddress& ip);
+	static void makeARPReply();
 	static void processARPReply();
 	static void tick();
-	static void registerSocket(Socket& socket);
-	static void unregisterSocket(Socket&);
+	static void registerSocket(Socket* socket);
+	static void unregisterSocket(Socket*);
 
 	static Socket* currentSocket;
+	
+	
+public:	
 	static Socket* sockets[MAX_TCP_SOCKETS];
 	
 

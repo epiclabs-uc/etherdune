@@ -2,7 +2,7 @@
 #define __ETHERSOCKET_CONFIG__
 // Ethersocket configuration
 
-#define ETHERSOCKET_DEBUG 0
+#define ETHERSOCKET_DEBUG 1
 
 
 
@@ -14,6 +14,12 @@
 
 #define dprintln(x) DEBUG(Serial.println(x))
 #define dprint(x) DEBUG(Serial.print(x))
+
+#define F6H digitalWrite(6,HIGH)
+#define F5H digitalWrite(5,HIGH)
+#define F6L digitalWrite(6,LOW)
+#define F5L digitalWrite(5,LOW)
+
 
 
 #define CLOCK(id,x) unsigned long clock##id=millis();x;Serial.print("" #x ": " );Serial.print(millis() - clock##id);Serial.println(" ms.")

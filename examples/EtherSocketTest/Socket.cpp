@@ -16,19 +16,21 @@ Socket::Socket()
 	
 	state = SCK_STATE_CLOSED;
 	sequenceNumber = 0;
-	EtherSocket::registerSocket(*this);
+	stateTimer = 0;
+
+	EtherSocket::registerSocket(this);
 }
 
 Socket::~Socket()
 {
-	EtherSocket::unregisterSocket(*this);
+	EtherSocket::unregisterSocket(this);
 }
 
 
 void Socket::connect()
 {
 	srandom(millis() + analogRead(A1) + analogRead(A5));
-	srcPort_L = random();//srcPort_L_count++;
+	srcPort_L =  random();//srcPort_L_count++;
 	ackNumber = 0;
 
 	setState(SCK_STATE_SYN_SENT,SCK_TIMEOUT_SYN_SENT);
@@ -177,7 +179,9 @@ void Socket::close()
 
 void Socket::tick()
 {
-	
+
+
+
 	dprint("state="); DEBUG(printState());
 	
 	if (stateTimer==1) //handle timeouts

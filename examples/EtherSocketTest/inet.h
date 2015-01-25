@@ -13,6 +13,7 @@ static const uint16_t ETHTYPE_IP = 0x0800;
 
 
 static const uint8_t ARP_OPCODE_REPLY_L = 0x02;
+static const uint8_t ARP_OPCODE_REQ_L = 0x01;
 
 
 typedef union u16_t
@@ -278,7 +279,7 @@ typedef struct ARPEntry
 {
 	IPAddress ip;
 	MACAddress mac;
-	int16_t status_TTL; 
+	int8_t status_TTL; 
 };
 
 
