@@ -11,7 +11,6 @@ IPAddress myIP PROGMEM = { 192, 168, 1, 222 };
 
 
 
-
 class MyProtocol : public Socket
 {
 
@@ -48,10 +47,7 @@ public:
 unsigned long waitTimer = 0;
 void setup()
 {	
-	pinMode(5, OUTPUT);
-	pinMode(6, OUTPUT);
-	F6L;
-	F5L;
+
 
 
 	Serial.begin(115200);
