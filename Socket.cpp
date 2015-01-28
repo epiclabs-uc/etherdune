@@ -18,12 +18,12 @@ Socket::Socket()
 	sequenceNumber = 0;
 	stateTimer = 0;
 
-	EtherSocket::registerSocket(this);
+	EtherFlow::registerSocket(this);
 }
 
 Socket::~Socket()
 {
-	EtherSocket::unregisterSocket(this);
+	EtherFlow::unregisterSocket(this);
 }
 
 
@@ -42,36 +42,36 @@ void Socket::connect()
 
 void Socket::preparePacket(bool options, uint16_t dataLength)
 {
-	EtherSocket::chunk.ip.version = 4;
-	EtherSocket::chunk.ip.IHL = 0x05; //20 bytes
-	EtherSocket::chunk.ip.raw[1] = 0x00; //DSCP/ECN=0;
+	EtherFlow::chunk.ip.version = 4;
+	EtherFlow::chunk.ip.IHL = 0x05; //20 bytes
+	EtherFlow::chunk.ip.raw[1] = 0x00; //DSCP/ECN=0;
 	
-	EtherSocket::chunk.ip.totalLength.setValue(dataLength + (options ? 
+	EtherFlow::chunk.ip.totalLength.setValue(dataLength + (options ? 
 		sizeof(IPHeader) + sizeof(TCPOptions) + sizeof(TCPHeader) :
 		sizeof(IPHeader) + sizeof(TCPHeader)));
 
-	EtherSocket::chunk.ip.identification.setValue(0);
-	EtherSocket::chunk.ip.flags = 0;
-	EtherSocket::chunk.ip.fragmentOffset = 0;
-	EtherSocket::chunk.ip.protocol = IP_PROTO_TCP_V;
-	EtherSocket::chunk.ip.checksum.setValue(0);
-	EtherSocket::chunk.ip.sourceIP = EtherSocket::localIP;
-	EtherSocket::chunk.ip.destinationIP = remoteAddress;
-	EtherSocket::chunk.ip.TTL = 255;
-	EtherSocket::chunk.ip.checksum.setValue(~EtherSocket::checksum(0, (uint8_t*)&EtherSocket::chunk.ip, sizeof(IPHeader)));
+	EtherFlow::chunk.ip.identification.setValue(0);
+	EtherFlow::chunk.ip.flags = 0;
+	EtherFlow::chunk.ip.fragmentOffset = 0;
+	EtherFlow::chunk.ip.protocol = IP_PROTO_TCP_V;
+	EtherFlow::chunk.ip.checksum.setValue(0);
+	EtherFlow::chunk.ip.sourceIP = EtherFlow::localIP;
+	EtherFlow::chunk.ip.destinationIP = remoteAddress;
+	EtherFlow::chunk.ip.TTL = 255;
+	EtherFlow::chunk.ip.checksum.setValue(~EtherFlow::checksum(0, (uint8_t*)&EtherFlow::chunk.ip, sizeof(IPHeader)));
 
-	EtherSocket::chunk.tcp.sourcePort.h = TCP_SRC_PORT_H;
-	EtherSocket::chunk.tcp.sourcePort.l = srcPort_L;
-	EtherSocket::chunk.tcp.destinationPort = remotePort;
-	EtherSocket::chunk.tcp.sequenceNumber.setValue(sequenceNumber);
-	EtherSocket::chunk.tcp.flags = 0x00;
+	EtherFlow::chunk.tcp.sourcePort.h = TCP_SRC_PORT_H;
+	EtherFlow::chunk.tcp.sourcePort.l = srcPort_L;
+	EtherFlow::chunk.tcp.destinationPort = remotePort;
+	EtherFlow::chunk.tcp.sequenceNumber.setValue(sequenceNumber);
+	EtherFlow::chunk.tcp.flags = 0x00;
 
-	EtherSocket::chunk.tcp.windowSize.setValue(512);
-	EtherSocket::chunk.tcp.acknowledgementNumber.setValue(ackNumber);
-	EtherSocket::chunk.tcp.checksum.zero();
-	EtherSocket::chunk.tcp.urgentPointer.zero();
+	EtherFlow::chunk.tcp.windowSize.setValue(512);
+	EtherFlow::chunk.tcp.acknowledgementNumber.setValue(ackNumber);
+	EtherFlow::chunk.tcp.checksum.zero();
+	EtherFlow::chunk.tcp.urgentPointer.zero();
 
-	EtherSocket::chunk.tcp.headerLength = options ? (sizeof(TCPHeader) + sizeof(TCPOptions)) / 4 : sizeof(TCPHeader) / 4;
+	EtherFlow::chunk.tcp.headerLength = options ? (sizeof(TCPHeader) + sizeof(TCPOptions)) / 4 : sizeof(TCPHeader) / 4;
 
 	
 }
@@ -86,9 +86,9 @@ void Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChe
 	pseudo.h.l = IP_PROTO_TCP_V;
 	pseudo.l.setValue(dataLength + headerLength);
 
-	sum = EtherSocket::checksum(0, (uint8_t*)&EtherSocket::chunk.ip.sourceIP, sizeof(IPAddress) * 2);
-	sum = EtherSocket::checksum(sum, (uint8_t*)&pseudo, sizeof(pseudo));
-	sum = EtherSocket::checksum(sum, (uint8_t*)&EtherSocket::chunk.tcp, headerLength);
+	sum = EtherFlow::checksum(0, (uint8_t*)&EtherFlow::chunk.ip.sourceIP, sizeof(IPAddress) * 2);
+	sum = EtherFlow::checksum(sum, (uint8_t*)&pseudo, sizeof(pseudo));
+	sum = EtherFlow::checksum(sum, (uint8_t*)&EtherFlow::chunk.tcp, headerLength);
 
 	sum += dataChecksum;
 
@@ -98,7 +98,7 @@ void Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChe
 		sum++;
 	}
 
-	EtherSocket::chunk.tcp.checksum.setValue(~sum);
+	EtherFlow::chunk.tcp.checksum.setValue(~sum);
 }
 
 void Socket::setState(uint8_t newState, uint8_t timeout)
@@ -115,16 +115,16 @@ void Socket::sendSYN()
 
 	preparePacket(true,0);
 	
-	EtherSocket::chunk.tcp.SYN = 1;
+	EtherFlow::chunk.tcp.SYN = 1;
 	
-	EtherSocket::chunk.tcpOptions.option1 = 0x02;
-	EtherSocket::chunk.tcpOptions.option1_length = 0x04;
-	EtherSocket::chunk.tcpOptions.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
+	EtherFlow::chunk.tcpOptions.option1 = 0x02;
+	EtherFlow::chunk.tcpOptions.option1_length = 0x04;
+	EtherFlow::chunk.tcpOptions.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
 	
 
 	calcTCPChecksum(true, 0,0);
 
-	EtherSocket::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader) + sizeof(TCPOptions));
+	EtherFlow::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader) + sizeof(TCPOptions));
 }
 
 void Socket::sendFIN()
@@ -133,13 +133,13 @@ void Socket::sendFIN()
 
 	preparePacket(false, 0);
 
-	EtherSocket::chunk.tcp.FIN = 1;
-	EtherSocket::chunk.tcp.ACK = 1;
+	EtherFlow::chunk.tcp.FIN = 1;
+	EtherFlow::chunk.tcp.ACK = 1;
 
 	calcTCPChecksum(false, 0, 0);
 
 
-	EtherSocket::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
+	EtherFlow::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
 }
 
 
@@ -239,13 +239,13 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 	if (isHeader)
 	{
 		dprintln("Header");
-		dprint("SYN="); dprint(EtherSocket::chunk.tcp.SYN);	
-		dprint(";ACK="); dprint(EtherSocket::chunk.tcp.ACK);
-		dprint(";FIN="); dprint(EtherSocket::chunk.tcp.FIN);
-		dprint(";RST="); dprintln(EtherSocket::chunk.tcp.RST);
+		dprint("SYN="); dprint(EtherFlow::chunk.tcp.SYN);	
+		dprint(";ACK="); dprint(EtherFlow::chunk.tcp.ACK);
+		dprint(";FIN="); dprint(EtherFlow::chunk.tcp.FIN);
+		dprint(";RST="); dprintln(EtherFlow::chunk.tcp.RST);
 
-		uint32_t incomingAckNum = EtherSocket::chunk.tcp.acknowledgementNumber.getValue();
-		uint32_t incomingSeqNum = EtherSocket::chunk.tcp.sequenceNumber.getValue();
+		uint32_t incomingAckNum = EtherFlow::chunk.tcp.acknowledgementNumber.getValue();
+		uint32_t incomingSeqNum = EtherFlow::chunk.tcp.sequenceNumber.getValue();
 
 		int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 		int32_t bytesReceived; // = (int32_t)(incomingSeqNum - ackNumber);
@@ -257,7 +257,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 		dprint("incomingSeqNum="); dprintln(incomingSeqNum);
 		dprint("localAckNum="); dprintln(ackNumber);
 
-		if (EtherSocket::chunk.tcp.RST)
+		if (EtherFlow::chunk.tcp.RST)
 		{
 			terminate();
 			return false;
@@ -267,7 +267,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 			sequenceNumber += bytesAck;
 
 
-		if (state == SCK_STATE_SYN_SENT && EtherSocket::chunk.tcp.SYN && EtherSocket::chunk.tcp.ACK)
+		if (state == SCK_STATE_SYN_SENT && EtherFlow::chunk.tcp.SYN && EtherFlow::chunk.tcp.ACK)
 		{
 			ackNumber = incomingSeqNum + 1;
 			setState(SCK_STATE_ESTABLISHED,0);
@@ -282,15 +282,15 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 			return false;
 		}
 
-		uint16_t headerLength = sizeof(IPHeader) + EtherSocket::chunk.tcp.headerLength * 4;
-		bytesReceived = EtherSocket::chunk.ip.totalLength.getValue() - headerLength;
+		uint16_t headerLength = sizeof(IPHeader) + EtherFlow::chunk.tcp.headerLength * 4;
+		bytesReceived = EtherFlow::chunk.ip.totalLength.getValue() - headerLength;
 		ackNumber += bytesReceived;
 		dprint("bytesReceived="); dprintln(bytesReceived);
 
 		releaseWindow(bytesAck);
 		writeBuffer(0, 0); // trigger send an ACK of what we have.
 
-		if (EtherSocket::chunk.tcp.FIN)
+		if (EtherFlow::chunk.tcp.FIN)
 			ackNumber++;
 
 
@@ -301,9 +301,9 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 				uint16_t slen = min(bytesReceived, sizeof(EthBuffer) - sizeof(EthernetHeader) - headerLength);
 				
 				if (slen>0)
-					onReceive(slen, EtherSocket::chunk.raw + sizeof(EthernetHeader) + headerLength);
+					onReceive(slen, EtherFlow::chunk.raw + sizeof(EthernetHeader) + headerLength);
 
-				if (EtherSocket::chunk.tcp.FIN)
+				if (EtherFlow::chunk.tcp.FIN)
 				{
 					setState(SCK_STATE_CLOSE_WAIT, 0);
 					//sendFIN();
@@ -316,7 +316,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 
 			case SCK_STATE_FIN_WAIT_1:
 			{
-				if (EtherSocket::chunk.tcp.FIN)
+				if (EtherFlow::chunk.tcp.FIN)
 					setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
 				else
 					setState(SCK_STATE_FIN_WAIT_2, SCK_TIMEOUT_FIN_WAIT_2);
@@ -324,7 +324,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 			}break;
 			case SCK_STATE_FIN_WAIT_2:
 			{
-				if (EtherSocket::chunk.tcp.FIN)
+				if (EtherFlow::chunk.tcp.FIN)
 					setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
 
 			}break;
@@ -349,7 +349,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 	else
 	{
 		dprintln("more data");
-		onReceive(len, EtherSocket::chunk.raw);
+		onReceive(len, EtherFlow::chunk.raw);
 	}
 
 	return true;
@@ -374,15 +374,15 @@ void Socket::processOutgoingBuffer()
 	{
 		dataLength = moveSlotToTXBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader), n, dataChecksum);
 		preparePacket(false, dataLength);
-		EtherSocket::chunk.tcp.sequenceNumber.setValue(nSeq);
-		EtherSocket::chunk.tcp.ACK = 1;
+		EtherFlow::chunk.tcp.sequenceNumber.setValue(nSeq);
+		EtherFlow::chunk.tcp.ACK = 1;
 
 		dprint("dataLength="); dprint(dataLength);
 		dprint(";dataChecksum="); dprintln(dataChecksum);
 
 		calcTCPChecksum(false, dataLength, dataChecksum);
 
-		EtherSocket::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
+		EtherFlow::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
 
 		nSeq += dataLength;
 	}

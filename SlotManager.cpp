@@ -1,5 +1,5 @@
 #include "SlotManager.h"
-#include "ethernet.h"
+#include "EtherFlow.h"
 
 
 uint8_t SlotManager::availableSlots = NUM_SLOTS;
@@ -84,10 +84,10 @@ uint16_t SlotManager::writeBuffer(uint16_t len, const uint8_t* data)
 
 		uint16_t slen = min(SLOT_SIZE - w, len);
 
-		EtherSocket::writeBuf(SLOT_ADDR(slotId) + w, slen, ptr);
+		EtherFlow::writeBuf(SLOT_ADDR(slotId) + w, slen, ptr);
 		w += slen;
 		
-		slotChecksum[slotId] = EtherSocket::checksum(slotChecksum[slotId], ptr, slen, carry, odd);
+		slotChecksum[slotId] = EtherFlow::checksum(slotChecksum[slotId], ptr, slen, carry, odd);
 		slotData[slotId] = w;
 		ptr += slen;
 		len -= slen;
@@ -113,7 +113,7 @@ uint16_t SlotManager::moveSlotToTXBuffer(uint16_t offset, uint8_t index, uint16_
 		if (i == 0)
 			w = SLOT_SIZE;
 
-		EtherSocket::moveMem(TXSTART_INIT_DATA + offset, SLOT_ADDR(s), dataMoved);
+		EtherFlow::moveMem(TXSTART_INIT_DATA + offset, SLOT_ADDR(s), dataMoved);
 
 		checksum = slotChecksum[s];
 

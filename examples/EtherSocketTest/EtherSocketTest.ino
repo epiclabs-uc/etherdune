@@ -1,8 +1,7 @@
 
-#include "Socket.h"
-#include "inet.h"
-#include "ethernet.h"
-#include "Socket.h"
+#include <Socket.h>
+#include <inet.h>
+#include <EtherFlow.h>
 #include <avr/pgmspace.h>
 
 MACAddress mymac PROGMEM = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
@@ -65,7 +64,7 @@ void setup()
 	eth::localMAC.set_P( &mymac);
 
 	if (!eth::begin(10))
-		Serial.println("failed to start ethersocket");
+		Serial.println("failed to start EtherFlow");
 
 	Serial.println("waiting for link...");
 
@@ -78,7 +77,7 @@ void setup()
 
 	//Serial.print("resolving IP...");
 	//while (!eth::whoHas(testIP))
-	//	EtherSocket::packetReceiveChunk();
+	//	EtherFlow::packetReceiveChunk();
 
 	//Serial.println("resolved.");
 
@@ -94,7 +93,7 @@ void setup()
 
 void loop()
 {
-	EtherSocket::loop();
+	EtherFlow::loop();
 
 	if ((long)(millis() - waitTimer) >= 0)
 	{

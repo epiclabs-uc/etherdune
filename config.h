@@ -1,12 +1,12 @@
-#ifndef __ETHERSOCKET_CONFIG__
-#define __ETHERSOCKET_CONFIG__
-// Ethersocket configuration
+#ifndef __EtherFlow_CONFIG__
+#define __EtherFlow_CONFIG__
+// EtherFlow configuration
 
-#define ETHERSOCKET_DEBUG 1
+#define EtherFlow_DEBUG 1
 
 
 
-#if ETHERSOCKET_DEBUG
+#if EtherFlow_DEBUG
 	#define DEBUG(x) x
 #else
 	#define DEBUG(x)

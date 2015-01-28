@@ -33,7 +33,7 @@ class SlotManager;
 
 
 
-class EtherSocket
+class EtherFlow
 {
 	friend class Socket;
 	friend class SlotManager;
@@ -95,6 +95,6 @@ public:
 	
 };
 
-typedef EtherSocket eth;
+typedef EtherFlow eth;
 
 #endif

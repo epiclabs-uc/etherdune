@@ -12,7 +12,7 @@
 #include "inet.h"
 #include "config.h"
 #include "SlotManager.h"
-#include "ethernet.h"
+#include "EtherFlow.h"
 
 class Socket;
 
@@ -20,7 +20,7 @@ class Socket;
 
 class Socket : public SlotManager
 {
-	friend class EtherSocket;
+	friend class EtherFlow;
 	friend class SlotManager;
  protected:
 

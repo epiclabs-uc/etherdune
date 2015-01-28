@@ -1,6 +1,6 @@
 
 
-#include "ethernet.h"
+#include "EtherFlow.h"
 #include <stdarg.h>
 #include <avr/eeprom.h>
 
@@ -11,18 +11,18 @@ uint8_t selectPin;
 static byte Enc28j60Bank;
 static int gNextPacketPtr;
 
-bool EtherSocket::broadcast_enabled = false;
+bool EtherFlow::broadcast_enabled = false;
 
 
-MACAddress EtherSocket::localMAC;
-IPAddress EtherSocket::localIP;
+MACAddress EtherFlow::localMAC;
+IPAddress EtherFlow::localIP;
 
 
 
 ARPEntry arpTable[ARP_TABLE_LENGTH];
-EthBuffer EtherSocket::chunk;
-Socket* EtherSocket::sockets[MAX_TCP_SOCKETS] = { };
-Socket* EtherSocket::currentSocket = NULL;
+EthBuffer EtherFlow::chunk;
+Socket* EtherFlow::sockets[MAX_TCP_SOCKETS] = { };
+Socket* EtherFlow::currentSocket = NULL;
 
 
 static unsigned long tickTimer = NETWORK_TIMER_RESOLUTION;
@@ -123,7 +123,7 @@ static void readBuf(uint16_t src, uint16_t len, byte* data)
 	readBuf(len, data);
 }
 
-void EtherSocket::writeBuf(uint16_t len, const byte* data) 
+void EtherFlow::writeBuf(uint16_t len, const byte* data) 
 {
 	enableChip();
 	xferSPI(ENC28J60_WRITE_BUF_MEM);
@@ -132,7 +132,7 @@ void EtherSocket::writeBuf(uint16_t len, const byte* data)
 	disableChip();
 }
 
-void EtherSocket::writeBuf(uint16_t dst, uint16_t len, const byte* data)
+void EtherFlow::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 {
 
 	writeReg(EWRPT, dst);
@@ -142,12 +142,12 @@ void EtherSocket::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 	//writeReg(ERDPT, txStart);
 }
 
-void EtherSocket::writeByte(byte b)
+void EtherFlow::writeByte(byte b)
 {
 	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, b);
 	writeBuf(1, &b);
 }
-void EtherSocket::writeByte(uint16_t dst, byte b)
+void EtherFlow::writeByte(uint16_t dst, byte b)
 {
 	writeBuf(dst, 1, &b);
 }
@@ -159,7 +159,7 @@ static byte readByte(uint16_t src)
 }
 
 
-void EtherSocket::moveMem(uint16_t dest, uint16_t src, uint16_t len)
+void EtherFlow::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 {
 
 	//as ENC28J60 DMA is unable to copy single bytes:
@@ -217,7 +217,7 @@ void EtherSocket::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 
 
 
-void EtherSocket::packetSend(uint16_t len)
+void EtherFlow::packetSend(uint16_t len)
 {
 	// see http://forum.mysensors.org/topic/536/
 	// while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
@@ -236,13 +236,13 @@ void EtherSocket::packetSend(uint16_t len)
 
 }
 
-void EtherSocket::packetSend(uint16_t len, const byte* data)
+void EtherFlow::packetSend(uint16_t len, const byte* data)
 {
 	writeBuf(TXSTART_INIT_DATA, len, data);
 	packetSend(len);
 }
 
-void EtherSocket::enableBroadcast(bool temporary) {
+void EtherFlow::enableBroadcast(bool temporary) {
 	writeRegByte(ERXFCON, readRegByte(ERXFCON) | ERXFCON_BCEN);
 	if (!temporary)
 		broadcast_enabled = true;
@@ -264,11 +264,11 @@ static uint16_t readPhyByte(byte address) {
 	return readRegByte(MIRD + 1);
 }
 
-bool EtherSocket::isLinkUp() {
+bool EtherFlow::isLinkUp() {
 	return (readPhyByte(PHSTAT2) >> 2) & 1;
 }
 
-uint8_t EtherSocket::begin(uint8_t cspin)
+uint8_t EtherFlow::begin(uint8_t cspin)
 {
 	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
 	
@@ -324,7 +324,7 @@ uint8_t EtherSocket::begin(uint8_t cspin)
 
 }
 
-uint16_t EtherSocket::packetReceiveChunk()
+uint16_t EtherFlow::packetReceiveChunk()
 {
 	uint16_t len = 0;
 	if (readRegByte(EPKTCNT) > 0)
@@ -378,7 +378,7 @@ uint16_t EtherSocket::packetReceiveChunk()
 }
 
 
-void EtherSocket::loop()
+void EtherFlow::loop()
 {
 
 	packetReceiveChunk();
@@ -395,7 +395,7 @@ void EtherSocket::loop()
 
 
 
-void EtherSocket::tick()
+void EtherFlow::tick()
 {
 
 
@@ -424,7 +424,7 @@ void EtherSocket::tick()
 }
 
 
-bool EtherSocket::processChunk(uint8_t& handler, uint16_t len)
+bool EtherFlow::processChunk(uint8_t& handler, uint16_t len)
 {
 	switch (handler)
 	{
@@ -494,7 +494,7 @@ bool EtherSocket::processChunk(uint8_t& handler, uint16_t len)
 
 }
 
-bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
+bool EtherFlow::processTCPSegment(bool isHeader, uint16_t len)
 {
 
 	if (isHeader)
@@ -527,7 +527,7 @@ bool EtherSocket::processTCPSegment(bool isHeader, uint16_t len)
 
 
 
-MACAddress* EtherSocket::whoHas(IPAddress& ip)
+MACAddress* EtherFlow::whoHas(IPAddress& ip)
 {
 	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH-1);entry >= arpTable;entry--)
 	{
@@ -547,7 +547,7 @@ MACAddress* EtherSocket::whoHas(IPAddress& ip)
 
 
 
-void EtherSocket::makeWhoHasARPRequest(IPAddress& ip)
+void EtherFlow::makeWhoHasARPRequest(IPAddress& ip)
 {
 	memset(&chunk.eth.dstMAC, 0xFF, sizeof(MACAddress));
 	chunk.eth.srcMAC = chunk.arp.senderMAC = localMAC;
@@ -567,7 +567,7 @@ void EtherSocket::makeWhoHasARPRequest(IPAddress& ip)
 
 }
 
-void EtherSocket::makeARPReply()
+void EtherFlow::makeARPReply()
 {
 	chunk.arp.targetMAC = chunk.eth.dstMAC = chunk.eth.srcMAC;
 	chunk.arp.senderMAC = chunk.eth.srcMAC = localMAC;
@@ -578,7 +578,7 @@ void EtherSocket::makeARPReply()
 	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
 }
 
-void EtherSocket::processARPReply()
+void EtherFlow::processARPReply()
 {
 	int16_t lowest = MAX_ARP_TTL;
 	ARPEntry * selectedEntry=NULL;
@@ -616,7 +616,7 @@ void EtherSocket::processARPReply()
 /// <param name="carry">previous carry</param>
 /// <param name="odd">Input: Whether the buffer starts at an odd index position, output: whether the next position will be odd</param>
 /// <returns></returns>
-uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd)
+uint16_t EtherFlow::checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd)
 {
 	uint16_t t;
 
@@ -651,7 +651,7 @@ uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len, 
 /// <param name="data">pointer to data to calculate checksum of</param>
 /// <param name="len">lenghth of buffer</param>
 /// <returns></returns>
-uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
+uint16_t EtherFlow::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
 {
 	bool carry = false;
 	bool odd = false;
@@ -659,7 +659,7 @@ uint16_t EtherSocket::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
 }
 
 
-void EtherSocket::sendIPPacket(uint8_t headerLength)
+void EtherFlow::sendIPPacket(uint8_t headerLength)
 {
 
 
@@ -678,7 +678,7 @@ void EtherSocket::sendIPPacket(uint8_t headerLength)
 
 }
 
-void EtherSocket::registerSocket(Socket* socket)
+void EtherFlow::registerSocket(Socket* socket)
 {
 
 	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
@@ -691,7 +691,7 @@ void EtherSocket::registerSocket(Socket* socket)
 	}
 }
 
-void EtherSocket::unregisterSocket(Socket* socket)
+void EtherFlow::unregisterSocket(Socket* socket)
 {
 	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
 	{
