@@ -27,13 +27,12 @@
 #include "Socket.h"
 #include "SlotManager.h"
 
-
 class Socket;
 class SlotManager;
 
 
 
-class EtherFlow
+class EtherFlow 
 {
 	friend class Socket;
 	friend class SlotManager;

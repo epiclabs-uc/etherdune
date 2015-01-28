@@ -19,7 +19,7 @@ public:
 	{
 		Serial.println("on connect");
 
-		char * req = "GET / HTTP/1.1\r\nAccept:*/*\r\n\r\n";
+		char * req = "GET / HTTP/1.1\r\nAccept:*" "/" "*\r\n\r\n";
 
 		write(strlen(req), (byte*) req);
 

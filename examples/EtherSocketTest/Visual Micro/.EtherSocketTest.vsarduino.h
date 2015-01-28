@@ -44,5 +44,5 @@ extern "C" void __cxa_pure_virtual() {;}
 
 #include "C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores\arduino\arduino.h"
 #include "C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
-#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherSocket\examples\EtherSocketTest\EtherSocketTest.ino"
+#include "C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow\examples\EtherSocketTest\EtherSocketTest.ino"
 #endif
