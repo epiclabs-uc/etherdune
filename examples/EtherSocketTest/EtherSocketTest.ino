@@ -1,8 +1,11 @@
 
+#include "Checksum.h"
 #include <Socket.h>
 #include <inet.h>
 #include <EtherFlow.h>
 #include <avr/pgmspace.h>
+
+
 
 MACAddress mymac PROGMEM = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
 IPAddress testIP = { 192, 168, 1, 89 };

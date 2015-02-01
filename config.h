@@ -1,5 +1,12 @@
 #ifndef __EtherFlow_CONFIG__
 #define __EtherFlow_CONFIG__
+
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
 // EtherFlow configuration
 
 #define EtherFlow_DEBUG 1
@@ -31,6 +38,9 @@ static const uint16_t RXSTOP_INIT=          0x0BFF;  // end of RX buffer
 static const uint16_t TXBUFFER_SIZE = 1024;
 static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
 static const uint16_t TXSTOP_INIT = (TXSTART_INIT + TXBUFFER_SIZE - 1);  // end of TX buffer
+
+static const uint16_t SHARED_BUFFER_INIT = TXSTOP_INIT + 1;
+static const uint16_t SHARED_BUFFER_CAPACITY = ENC28J60_MEMSIZE - SHARED_BUFFER_INIT;
 
 static const uint8_t SLOT_SIZE_SHIFT = 9; //slot size = 2^SLOT_SIZE_SHIFT, 512 bytes by default.
 static const uint8_t MAX_SLOTS_PER_SOCKET = 4;

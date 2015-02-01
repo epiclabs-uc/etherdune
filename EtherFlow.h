@@ -29,13 +29,15 @@
 
 class Socket;
 class SlotManager;
-
+class SharedBuffer;
 
 
 class EtherFlow 
 {
 	friend class Socket;
 	friend class SlotManager;
+	friend class SharedBuffer;
+
 
 public:
 	static MACAddress localMAC;
@@ -69,6 +71,9 @@ private:
 	static void writeBuf(uint16_t dst, uint16_t len, const byte* data);
 	static void writeBuf(uint16_t len, const byte* data);
 	static void moveMem(uint16_t dest, uint16_t src, uint16_t len);
+	static void readBuf(uint16_t src, uint16_t len, byte* data);
+	static void readBuf(uint16_t len, byte* data);
+	static byte readByte(uint16_t src);
 
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);

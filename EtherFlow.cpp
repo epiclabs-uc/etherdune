@@ -107,7 +107,7 @@ static void writeReg(byte address, uint16_t data) {
 	writeRegByte(address + 1, data >> 8);
 }
 
-static void readBuf(uint16_t len, byte* data) {
+void EtherFlow::readBuf(uint16_t len, byte* data) {
 	enableChip();
 	xferSPI(ENC28J60_READ_BUF_MEM);
 	while (len--) {
@@ -117,7 +117,7 @@ static void readBuf(uint16_t len, byte* data) {
 	disableChip();
 }
 
-static void readBuf(uint16_t src, uint16_t len, byte* data)
+void EtherFlow::readBuf(uint16_t src, uint16_t len, byte* data)
 {
 	writeReg(ERDPT, src);
 	readBuf(len, data);
@@ -152,7 +152,7 @@ void EtherFlow::writeByte(uint16_t dst, byte b)
 	writeBuf(dst, 1, &b);
 }
 
-static byte readByte(uint16_t src)
+byte EtherFlow::readByte(uint16_t src)
 {
 	byte b;
 	readBuf(src, 1, &b);
@@ -659,6 +659,8 @@ uint16_t EtherFlow::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
 }
 
 
+
+
 void EtherFlow::sendIPPacket(uint8_t headerLength)
 {
 
@@ -677,6 +679,9 @@ void EtherFlow::sendIPPacket(uint8_t headerLength)
 	packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
 
 }
+
+
+
 
 void EtherFlow::registerSocket(Socket* socket)
 {

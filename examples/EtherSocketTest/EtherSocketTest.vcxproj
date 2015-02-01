@@ -73,17 +73,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Checksum.h" />
     <ClInclude Include="..\..\config.h" />
     <ClInclude Include="..\..\enc28j60constants.h" />
     <ClInclude Include="..\..\EtherFlow.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\net.h" />
+    <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\SlotManager.h" />
     <ClInclude Include="..\..\Socket.h" />
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
+    <ClCompile Include="..\..\SharedBuffer.cpp" />
     <ClCompile Include="..\..\SlotManager.cpp" />
     <ClCompile Include="..\..\Socket.cpp" />
   </ItemGroup>

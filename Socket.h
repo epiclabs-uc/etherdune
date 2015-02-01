@@ -12,13 +12,13 @@
 #include "inet.h"
 #include "config.h"
 #include "SlotManager.h"
+#include "SharedBuffer.h"
 #include "EtherFlow.h"
 
 class Socket;
 
 
-
-class Socket : public SlotManager
+class Socket : public SlotManager, public SharedBuffer
 {
 	friend class EtherFlow;
 	friend class SlotManager;
