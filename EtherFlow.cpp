@@ -503,8 +503,7 @@ bool EtherFlow::processTCPSegment(bool isHeader, uint16_t len)
 		{
 			Socket* sck = sockets[i];
 			if (sck && (sck->state != SCK_STATE_CLOSED) &&
-				(sck->srcPort_L == chunk.tcp.destinationPort.l) &&
-				(chunk.tcp.destinationPort.h == TCP_SRC_PORT_H))
+				(sck->localPort.rawu == chunk.tcp.destinationPort.rawu) )
 			{
 				currentSocket = sck;
 				break;

@@ -26,6 +26,10 @@ public:
 
 		write(strlen(req), (byte*) req);
 
+		char* hola = "HOLA!!";
+
+		send(strlen(hola), (byte*)hola);
+
 	}
 
 	void onClose()
@@ -88,6 +92,8 @@ void setup()
 
 
 	socket.connect();
+	
+
 		
 	waitTimer = millis()+1000;
 }

@@ -24,7 +24,6 @@ class Socket : public SharedBuffer
  protected:
 
 
-	 uint8_t srcPort_L;
 	 uint8_t stateTimer;
 
 	 
@@ -42,7 +41,10 @@ private:
 	bool sendAck;
 	bool processSegment(bool isHeader, uint16_t len);
 	void processOutgoingBuffer();
-	void preparePacket(bool options, uint16_t dataLength);
+	uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
+
+	void prepareTCPPacket(bool options, uint16_t dataLength);
+	void prepareIPPacket();
 	void releaseWindow(int32_t& bytesAck);
 	void calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
 
@@ -57,12 +59,14 @@ private:
 
  public:
 	 nint16_t remotePort;
+	 nint16_t localPort;
 	 IPAddress remoteAddress;
 
 	 Socket();	 
 	 ~Socket();
 	 void connect();
 	 uint16_t write(uint16_t len, const byte* data);
+	 uint16_t send(uint16_t len, const byte* data);
 	 void close();
 	 void terminate();
 	 

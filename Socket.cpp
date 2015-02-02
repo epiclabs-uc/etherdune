@@ -32,7 +32,8 @@ Socket::~Socket()
 void Socket::connect()
 {
 	srandom(millis() + analogRead(A1) + analogRead(A5));
-	srcPort_L =  random();//srcPort_L_count++;
+	localPort.l =  random();//srcPort_L_count++;
+	localPort.h = TCP_SRC_PORT_H;
 	ackNumber = 0;
 
 	setState(SCK_STATE_SYN_SENT,SCK_TIMEOUT_SYN_SENT);
@@ -42,27 +43,34 @@ void Socket::connect()
 
 }
 
-void Socket::preparePacket(bool options, uint16_t dataLength)
+void Socket::prepareIPPacket()
 {
 	EtherFlow::chunk.ip.version = 4;
 	EtherFlow::chunk.ip.IHL = 0x05; //20 bytes
 	EtherFlow::chunk.ip.raw[1] = 0x00; //DSCP/ECN=0;
-	
-	EtherFlow::chunk.ip.totalLength.setValue(dataLength + (options ? 
-		sizeof(IPHeader) + sizeof(TCPOptions) + sizeof(TCPHeader) :
-		sizeof(IPHeader) + sizeof(TCPHeader)));
-
 	EtherFlow::chunk.ip.identification.setValue(0);
 	EtherFlow::chunk.ip.flags = 0;
 	EtherFlow::chunk.ip.fragmentOffset = 0;
-	EtherFlow::chunk.ip.protocol = IP_PROTO_TCP_V;
 	EtherFlow::chunk.ip.checksum.setValue(0);
 	EtherFlow::chunk.ip.sourceIP = EtherFlow::localIP;
 	EtherFlow::chunk.ip.destinationIP = remoteAddress;
 	EtherFlow::chunk.ip.TTL = 255;
 	EtherFlow::chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&EtherFlow::chunk.ip);
-	EtherFlow::chunk.tcp.sourcePort.h = TCP_SRC_PORT_H;
-	EtherFlow::chunk.tcp.sourcePort.l = srcPort_L;
+}
+
+void Socket::prepareTCPPacket(bool options, uint16_t dataLength)
+{
+	
+	EtherFlow::chunk.ip.totalLength.setValue(dataLength + (options ? 
+		sizeof(IPHeader) + sizeof(TCPOptions) + sizeof(TCPHeader) :
+		sizeof(IPHeader) + sizeof(TCPHeader)));
+
+	EtherFlow::chunk.ip.protocol = IP_PROTO_TCP_V;
+
+	prepareIPPacket();
+
+	
+	EtherFlow::chunk.tcp.sourcePort = localPort;
 	EtherFlow::chunk.tcp.destinationPort = remotePort;
 	EtherFlow::chunk.tcp.sequenceNumber.setValue(sequenceNumber);
 	EtherFlow::chunk.tcp.flags = 0x00;
@@ -77,18 +85,23 @@ void Socket::preparePacket(bool options, uint16_t dataLength)
 	
 }
 
+uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
+{
+	nint32_t pseudo;
+	pseudo.h.h = 0;
+	pseudo.h.l = protocol;
+	pseudo.l.setValue(length);
+
+	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&EtherFlow::chunk.ip.sourceIP);
+	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
+}
+
 void Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
 {
 	
 	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
 	
-	nint32_t pseudo;
-	pseudo.h.h = 0;
-	pseudo.h.l = IP_PROTO_TCP_V;
-	pseudo.l.setValue(dataLength + headerLength);
-
-	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&EtherFlow::chunk.ip.sourceIP);
-	sum = Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
+	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP_V, dataLength + headerLength);
 	sum = Checksum::calc(sum, headerLength, (uint8_t*)&EtherFlow::chunk.tcp);
 	sum = Checksum::add(sum, dataChecksum);
 
@@ -107,7 +120,7 @@ void Socket::sendSYN()
 {
 	dprintln("sendSYN()");
 
-	preparePacket(true,0);
+	prepareTCPPacket(true,0);
 	
 	EtherFlow::chunk.tcp.SYN = 1;
 	
@@ -125,7 +138,7 @@ void Socket::sendFIN()
 {
 	dprintln("sendFIN()");
 
-	preparePacket(false, 0);
+	prepareTCPPacket(false, 0);
 
 	EtherFlow::chunk.tcp.FIN = 1;
 	EtherFlow::chunk.tcp.ACK = 1;
@@ -353,6 +366,29 @@ uint16_t Socket::write(uint16_t len, const byte* data)
 	return SharedBuffer::write(len, data);
 }
 
+uint16_t Socket::send(uint16_t len, const byte* data)
+{
+	EtherFlow::writeBuf(TXSTART_INIT_DATA + sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader), len, data);
+
+
+	EtherFlow::chunk.ip.totalLength.setValue(len + sizeof(IPHeader) + sizeof(UDPHeader));
+	EtherFlow::chunk.ip.protocol = IP_PROTO_UDP_V;
+	prepareIPPacket();
+
+	EtherFlow::chunk.udp.sourcePort = localPort;
+	EtherFlow::chunk.udp.destinationPort = remotePort;
+	EtherFlow::chunk.udp.dataLength.setValue(len+sizeof(UDPHeader));
+	EtherFlow::chunk.udp.checksum.zero();
+
+	uint16_t checksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, len + sizeof(UDPHeader));
+	checksum = Checksum::calc(checksum, sizeof(UDPHeader), (uint8_t*)&EtherFlow::chunk.udp);
+
+	EtherFlow::chunk.udp.checksum.rawu = ~ Checksum::calc(checksum, len , data);
+
+	EtherFlow::sendIPPacket(sizeof(IPHeader) + sizeof(UDPHeader));
+
+}
+
 
 void Socket::processOutgoingBuffer()
 {
@@ -365,7 +401,7 @@ void Socket::processOutgoingBuffer()
 	{
 		sendAck = false;
 		dataLength = fillTxBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader), dataChecksum);
-		preparePacket(false, dataLength);
+		prepareTCPPacket(false, dataLength);
 		EtherFlow::chunk.tcp.sequenceNumber.setValue(nSeq);
 		EtherFlow::chunk.tcp.ACK = 1;
 

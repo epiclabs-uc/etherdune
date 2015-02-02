@@ -230,6 +230,15 @@ typedef struct TCPOptions
 
 };
 
+typedef struct UDPHeader
+{
+	nint16_t sourcePort;
+	nint16_t destinationPort;
+	nint16_t dataLength;
+	nint16_t checksum;
+};
+
+
 typedef struct ICMPHeader
 {
 	uint8_t type;
@@ -259,11 +268,13 @@ typedef union EthBuffer
 				union
 				{
 					ICMPHeader icmp;
+					UDPHeader udp;
 					struct
 					{
 						TCPHeader tcp;
 						TCPOptions tcpOptions;
 					};
+
 				};
 				
 			};
