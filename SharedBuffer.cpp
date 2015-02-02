@@ -21,6 +21,8 @@ uint16_t SharedBuffer::writeAt(uint16_t index, uint16_t len, const byte* data)
 		EtherFlow::writeBuf(SHARED_BUFFER_INIT + index, len, data);
 		index += len;
 		if (index == SHARED_BUFFER_CAPACITY) index = 0;
+
+
 	}
 	// Write in two steps
 	else
@@ -80,6 +82,15 @@ uint16_t SharedBuffer::readAt(uint16_t index, uint16_t len, byte* data)
 
 uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 {
+	int16_t availableSpace = SHARED_BUFFER_CAPACITY - usedSpace - sizeof(BufferHeader);
+	if (availableSpace < 0)
+		availableSpace = 0;
+
+	len = min(len, availableSpace);
+
+	if (len == 0)
+		return len;
+
 	BufferHeader header;
 	header.length = len;
 	header.checksum = Checksum::calc(len,data);
@@ -89,6 +100,7 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 	uint16_t h = head;
 	append(sizeof(header), (byte*)&header);
 	append(len, data);
+	
 
 	if (lastWritten != 0xFFFF)
 		writeAt(lastWritten, sizeof(h), (byte*)&h);
@@ -97,6 +109,7 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 
 	lastWritten = h;
 
+	return len;
 }
 
 uint16_t SharedBuffer::release()
@@ -134,14 +147,16 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum )
 {
 
 	BufferHeader header;
+	checksum = 0;
 
 	uint16_t txPtr = TXSTART_INIT_DATA + dstOffset;
 	bool startOdd = txPtr & 1;
 
 	uint16_t n = next;
-	while (readAt(n, sizeof(header), (byte*)&header), n!=0xFFF && (txPtr + header.length <= TXSTOP_INIT+1))
+	while (readAt(n, sizeof(header), (byte*)&header), n!=0xFFFF && (txPtr + header.length <= TXSTOP_INIT+1))
 	{
-		EtherFlow::moveMem(txPtr, n + sizeof(header), header.length);
+
+		EtherFlow::moveMem(txPtr, SHARED_BUFFER_INIT + n + sizeof(header), header.length);
 
 		checksum = Checksum::add(checksum, header.checksum, startOdd ^ (txPtr & 1));
 

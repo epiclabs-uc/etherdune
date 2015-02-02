@@ -3,7 +3,7 @@
 #include "EtherFlow.h"
 #include <stdarg.h>
 #include <avr/eeprom.h>
-
+#include "Checksum.h"
 
 
 
@@ -134,7 +134,6 @@ void EtherFlow::writeBuf(uint16_t len, const byte* data)
 
 void EtherFlow::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 {
-
 	writeReg(EWRPT, dst);
 	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
 	writeBuf(len, data);
@@ -604,61 +603,6 @@ void EtherFlow::processARPReply()
 	selectedEntry->mac = chunk.arp.senderMAC;
 
 }
-
-
-
-/// <summary>
-/// Computes  a TCP/IP-type checksum over the specified buffer
-/// </summary>
-/// <param name="sum">previous checksum of another buffer attached to this one for checksum calculation purposes</param>
-/// <param name="data">pointer to data to calculate checksum of</param>
-/// <param name="len">lenghth of buffer</param>
-/// <param name="carry">previous carry</param>
-/// <param name="odd">Input: Whether the buffer starts at an odd index position, output: whether the next position will be odd</param>
-/// <returns></returns>
-uint16_t EtherFlow::checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd)
-{
-	uint16_t t;
-
-	for (int i = 0; i < len; i++)
-	{
-		if (odd) // odd index
-		{
-			t = data[i];
-		}
-		else
-		{
-			t = ((uint16_t)data[i]) << 8;
-			carry = false;
-		}
-		sum += t;
-		if ((sum <t) && !carry)
-		{
-			sum++;
-			carry = true;
-		}
-
-		odd = !odd;
-	}
-
-	return sum;
-}
-
-/// <summary>
-/// Calculates the checksum of an even number of bytes that start at an even index position.
-/// </summary>
-/// <param name="sum">previous checksum of another buffer attached to this one for checksum calculation purposes</param>
-/// <param name="data">pointer to data to calculate checksum of</param>
-/// <param name="len">lenghth of buffer</param>
-/// <returns></returns>
-uint16_t EtherFlow::checksum(uint16_t sum, const uint8_t *data, uint16_t len)
-{
-	bool carry = false;
-	bool odd = false;
-	return checksum(sum, data, len, carry, odd);
-}
-
-
 
 
 void EtherFlow::sendIPPacket(uint8_t headerLength)

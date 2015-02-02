@@ -47,3 +47,8 @@ uint16_t Checksum::calc(uint16_t len, const uint8_t *data)
 	return sum;
 
 }
+
+uint16_t Checksum::calc(uint16_t checksum, uint16_t len, const uint8_t *data)
+{
+	return add(checksum, calc(len, data));
+}

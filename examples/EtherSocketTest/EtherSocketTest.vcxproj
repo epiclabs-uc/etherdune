@@ -80,7 +80,6 @@
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\net.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
-    <ClInclude Include="..\..\SlotManager.h" />
     <ClInclude Include="..\..\Socket.h" />
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
   </ItemGroup>
@@ -88,7 +87,6 @@
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
-    <ClCompile Include="..\..\SlotManager.cpp" />
     <ClCompile Include="..\..\Socket.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

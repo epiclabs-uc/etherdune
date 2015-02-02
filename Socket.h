@@ -11,17 +11,16 @@
 
 #include "inet.h"
 #include "config.h"
-#include "SlotManager.h"
 #include "SharedBuffer.h"
 #include "EtherFlow.h"
 
 class Socket;
 
 
-class Socket : public SlotManager, public SharedBuffer
+class Socket : public SharedBuffer
 {
 	friend class EtherFlow;
-	friend class SlotManager;
+
  protected:
 
 
@@ -40,6 +39,7 @@ class Socket : public SlotManager, public SharedBuffer
 private:
 	
 	static uint8_t srcPort_L_count;
+	bool sendAck;
 	bool processSegment(bool isHeader, uint16_t len);
 	void processOutgoingBuffer();
 	void preparePacket(bool options, uint16_t dataLength);

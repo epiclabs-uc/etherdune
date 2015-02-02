@@ -25,7 +25,8 @@
 #include "enc28j60constants.h"
 #include "config.h"
 #include "Socket.h"
-#include "SlotManager.h"
+
+
 
 class Socket;
 class SlotManager;
@@ -35,7 +36,6 @@ class SharedBuffer;
 class EtherFlow 
 {
 	friend class Socket;
-	friend class SlotManager;
 	friend class SharedBuffer;
 
 
@@ -56,9 +56,6 @@ public:
 	static void enableBroadcast(bool temporary = false);
 	static bool isLinkUp();
 
-
-	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len, bool &carry, bool& odd);
-	static uint16_t checksum(uint16_t sum, const uint8_t *data, uint16_t len);
 
 	static void sendIPPacket(uint8_t headerLength);
 

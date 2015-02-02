@@ -23,7 +23,7 @@ class SharedBuffer
 	static uint16_t writeAt(uint16_t index, uint16_t len, const byte* data);
 	static uint16_t readAt(uint16_t index, uint16_t len, byte* data );
 
-
+protected:
 	uint16_t next;
 	uint16_t lastWritten;
 	

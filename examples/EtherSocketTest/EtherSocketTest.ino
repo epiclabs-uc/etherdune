@@ -8,7 +8,7 @@
 
 
 MACAddress mymac PROGMEM = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
-IPAddress testIP = { 192, 168, 1, 89 };
+IPAddress testIP = { 192, 168, 1, 88 };
 IPAddress myIP PROGMEM = { 192, 168, 1, 222 };
 
 

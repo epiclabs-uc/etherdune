@@ -3,6 +3,7 @@
 // 
 
 #include "Socket.h"
+#include "Checksum.h"
 
 uint8_t Socket::srcPort_L_count = 0;
 
@@ -17,6 +18,7 @@ Socket::Socket()
 	state = SCK_STATE_CLOSED;
 	sequenceNumber = 0;
 	stateTimer = 0;
+	sendAck = false;
 
 	EtherFlow::registerSocket(this);
 }
@@ -58,8 +60,7 @@ void Socket::preparePacket(bool options, uint16_t dataLength)
 	EtherFlow::chunk.ip.sourceIP = EtherFlow::localIP;
 	EtherFlow::chunk.ip.destinationIP = remoteAddress;
 	EtherFlow::chunk.ip.TTL = 255;
-	EtherFlow::chunk.ip.checksum.setValue(~EtherFlow::checksum(0, (uint8_t*)&EtherFlow::chunk.ip, sizeof(IPHeader)));
-
+	EtherFlow::chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&EtherFlow::chunk.ip);
 	EtherFlow::chunk.tcp.sourcePort.h = TCP_SRC_PORT_H;
 	EtherFlow::chunk.tcp.sourcePort.l = srcPort_L;
 	EtherFlow::chunk.tcp.destinationPort = remotePort;
@@ -78,7 +79,7 @@ void Socket::preparePacket(bool options, uint16_t dataLength)
 
 void Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
 {
-	uint16_t sum;
+	
 	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
 	
 	nint32_t pseudo;
@@ -86,19 +87,12 @@ void Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChe
 	pseudo.h.l = IP_PROTO_TCP_V;
 	pseudo.l.setValue(dataLength + headerLength);
 
-	sum = EtherFlow::checksum(0, (uint8_t*)&EtherFlow::chunk.ip.sourceIP, sizeof(IPAddress) * 2);
-	sum = EtherFlow::checksum(sum, (uint8_t*)&pseudo, sizeof(pseudo));
-	sum = EtherFlow::checksum(sum, (uint8_t*)&EtherFlow::chunk.tcp, headerLength);
+	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&EtherFlow::chunk.ip.sourceIP);
+	sum = Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
+	sum = Checksum::calc(sum, headerLength, (uint8_t*)&EtherFlow::chunk.tcp);
+	sum = Checksum::add(sum, dataChecksum);
 
-	sum += dataChecksum;
-
-	if (sum < dataChecksum)
-	{
-		dprintln("carry??");
-		sum++;
-	}
-
-	EtherFlow::chunk.tcp.checksum.setValue(~sum);
+	EtherFlow::chunk.tcp.checksum.rawu= ~sum;
 }
 
 void Socket::setState(uint8_t newState, uint8_t timeout)
@@ -271,14 +265,15 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 		{
 			ackNumber = incomingSeqNum + 1;
 			setState(SCK_STATE_ESTABLISHED,0);
-			writeBuffer(0, 0);
 			onConnect();
+			sendAck = true;
 			return false;
 		}
 
 		if (ackNumber != incomingSeqNum)
 		{
 			dprintln("dropped packet out of sequence.");
+			sendAck = true;
 			return false;
 		}
 
@@ -288,7 +283,8 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 		dprint("bytesReceived="); dprintln(bytesReceived);
 
 		releaseWindow(bytesAck);
-		writeBuffer(0, 0); // trigger send an ACK of what we have.
+		sendAck = true;
+		
 
 		if (EtherFlow::chunk.tcp.FIN)
 			ackNumber++;
@@ -339,12 +335,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 				break;
 		}
 
-		
-		
-		
-		
-
-
+	
 	}
 	else
 	{
@@ -359,7 +350,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 
 uint16_t Socket::write(uint16_t len, const byte* data)
 {
-	return writeBuffer(len, data);
+	return SharedBuffer::write(len, data);
 }
 
 
@@ -370,9 +361,10 @@ void Socket::processOutgoingBuffer()
 	uint16_t dataChecksum;
 	//dprint("processOutgoingBuffer, numSlots="); dprintln(numSlots);
 	
-	for (uint8_t n = numSlots; n > 0; n--)
+	if (next != 0xFFFF || sendAck)
 	{
-		dataLength = moveSlotToTXBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader), n, dataChecksum);
+		sendAck = false;
+		dataLength = fillTxBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader), dataChecksum);
 		preparePacket(false, dataLength);
 		EtherFlow::chunk.tcp.sequenceNumber.setValue(nSeq);
 		EtherFlow::chunk.tcp.ACK = 1;
@@ -385,18 +377,18 @@ void Socket::processOutgoingBuffer()
 		EtherFlow::sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
 
 		nSeq += dataLength;
+
 	}
 
 }
 
 void Socket::releaseWindow(int32_t& bytesAck)
 {
-	uint16_t bytesReleased;
 	
-	do
+	while (bytesAck > 0 && next != 0xFFFF)
 	{
-		bytesAck -= releaseFirstSlot();
-	} while (bytesAck > 0 && numSlots>0);
+		bytesAck -= release();
+	} ;
 
 	DEBUG(if (bytesAck < 0) dprintln("released too much ?!"));
 
