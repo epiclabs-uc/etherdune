@@ -12,12 +12,12 @@
 #include "inet.h"
 #include "config.h"
 #include "SharedBuffer.h"
-#include "EtherFlow.h"
+#include "NetworkService.h"
 
 class Socket;
 
 
-class Socket : public SharedBuffer
+class Socket : private NetworkService
 {
 	friend class EtherFlow;
 
@@ -25,21 +25,22 @@ class Socket : public SharedBuffer
 
 
 	 uint8_t stateTimer;
-
-	 
 	 uint8_t state;
-	 
-
-
 	 uint32_t sequenceNumber;
 	 uint32_t ackNumber;
+
+	 SharedBuffer buffer;
 	
 
 private:
 	
 	static uint8_t srcPort_L_count;
 	bool sendAck;
-	bool processSegment(bool isHeader, uint16_t len);
+	
+	bool processHeader();
+	bool processData(uint16_t len, uint8_t* data);
+
+
 	void processOutgoingBuffer();
 	uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
 
@@ -63,7 +64,6 @@ private:
 	 IPAddress remoteAddress;
 
 	 Socket();	 
-	 ~Socket();
 	 void connect();
 	 uint16_t write(uint16_t len, const byte* data);
 	 uint16_t send(uint16_t len, const byte* data);

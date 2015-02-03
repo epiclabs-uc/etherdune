@@ -24,26 +24,25 @@
 #include "inet.h"
 #include "enc28j60constants.h"
 #include "config.h"
-#include "Socket.h"
-
+#include "NetworkService.h"
 
 
 class Socket;
-class SlotManager;
 class SharedBuffer;
+class NetworkService;
 
 
 class EtherFlow 
 {
 	friend class Socket;
 	friend class SharedBuffer;
+	friend class NetworkService;
 
 
 public:
-	static MACAddress localMAC;
-	static IPAddress localIP;
+
 	static bool broadcast_enabled; //!< True if broadcasts enabled (used to allow temporary disable of broadcast for DHCP or other internal functions)
-	static EthBuffer chunk;
+	
 
 
 public:
@@ -51,13 +50,13 @@ public:
 	static void loop();
 	
 
-	static void staticSetup(IPAddress & ip);
-	static MACAddress* whoHas(IPAddress& ip);
+
+	
 	static void enableBroadcast(bool temporary = false);
 	static bool isLinkUp();
 
 
-	static void sendIPPacket(uint8_t headerLength);
+	
 
 
 
@@ -75,27 +74,15 @@ private:
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
 
-	static bool processChunk(uint8_t& handler, uint16_t len);
-	static bool processTCPSegment(bool isHeader, uint16_t len);
 
-public: static uint16_t packetReceiveChunk();
-	static void makeWhoHasARPRequest(IPAddress& ip);
-	static void makeARPReply();
-	static void processARPReply();
-	static void tick();
-	static void registerSocket(Socket* socket);
-	static void unregisterSocket(Socket*);
 
-	static Socket* currentSocket;
-	
-	
-public:	
-	static Socket* sockets[MAX_TCP_SOCKETS];
+public: 
+	static uint16_t packetReceiveChunk();
+
+
 	
 
 	
 };
-
-typedef EtherFlow eth;
 
 #endif

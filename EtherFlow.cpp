@@ -14,19 +14,6 @@ static int gNextPacketPtr;
 bool EtherFlow::broadcast_enabled = false;
 
 
-MACAddress EtherFlow::localMAC;
-IPAddress EtherFlow::localIP;
-
-
-
-ARPEntry arpTable[ARP_TABLE_LENGTH];
-EthBuffer EtherFlow::chunk;
-Socket* EtherFlow::sockets[MAX_TCP_SOCKETS] = { };
-Socket* EtherFlow::currentSocket = NULL;
-
-
-static unsigned long tickTimer = NETWORK_TIMER_RESOLUTION;
-static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
 
 void initSPI() {
 	pinMode(SS, OUTPUT);
@@ -269,9 +256,9 @@ bool EtherFlow::isLinkUp() {
 
 uint8_t EtherFlow::begin(uint8_t cspin)
 {
-	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
 	
-	tickTimer = millis() +NETWORK_TIMER_RESOLUTION;
+	
+	
 	
 	if (bitRead(SPCR, SPE) == 0)
 		initSPI();
@@ -300,12 +287,12 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 	writeReg(MAIPG, 0x0C12);
 	writeRegByte(MABBIPG, 0x12);
 	writeReg(MAMXFL, MAX_FRAMELEN);
-	writeRegByte(MAADR5, localMAC.b[0]);
-	writeRegByte(MAADR4, localMAC.b[1]);
-	writeRegByte(MAADR3, localMAC.b[2]);
-	writeRegByte(MAADR2, localMAC.b[3]);
-	writeRegByte(MAADR1, localMAC.b[4]);
-	writeRegByte(MAADR0, localMAC.b[5]);
+	writeRegByte(MAADR5, NetworkService::localMAC.b[0]);
+	writeRegByte(MAADR4, NetworkService::localMAC.b[1]);
+	writeRegByte(MAADR3, NetworkService::localMAC.b[2]);
+	writeRegByte(MAADR2, NetworkService::localMAC.b[3]);
+	writeRegByte(MAADR1, NetworkService::localMAC.b[4]);
+	writeRegByte(MAADR0, NetworkService::localMAC.b[5]);
 	writePhy(PHCON2, PHCON2_HDLDIS);
 	SetBank(ECON1);
 	writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
@@ -348,23 +335,23 @@ uint16_t EtherFlow::packetReceiveChunk()
 			len = 0;
 
 		uint16_t chunkLength;
-
-		uint8_t handler = 0;
+		bool isHeader = true;
+		
 		
 		while (len > 0)
 		{
-			chunkLength = min(sizeof(chunk), len);
+			chunkLength = min(sizeof(EthBuffer), len);
 			
-			readBuf(ptr,chunkLength,(byte*) &chunk);
+			readBuf(ptr,chunkLength,(byte*) &NetworkService::chunk);
 
-			if (!processChunk(handler, chunkLength))
+			if (!NetworkService::processChunk(isHeader,chunkLength))
 				break;
 
+			isHeader = false;
 
 			len -= chunkLength;
 			ptr += chunkLength;
 		}
-		currentSocket = NULL;
 
 		if (gNextPacketPtr - 1 > RXSTOP_INIT)
 			writeReg(ERXRDPT, RXSTOP_INIT);
@@ -379,275 +366,9 @@ uint16_t EtherFlow::packetReceiveChunk()
 
 void EtherFlow::loop()
 {
-
 	packetReceiveChunk();
-
-
-	if ((long)(millis() - tickTimer) >= 0)
-	{
-		
-		tick();
-		tickTimer = millis()+ NETWORK_TIMER_RESOLUTION;
-	}
-
-}
-
-
-
-void EtherFlow::tick()
-{
-
-
-
-	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
-	{
-		Socket* sck = sockets[i];
-		if (sck != NULL)
-			sck->tick();
-	}
-
-
-	minuteTimer--;
-
-	if (minuteTimer == 0)
-	{
-		minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
-
-		for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
-		{
-			if (entry->status_TTL > 0)
-				entry->status_TTL--;
-		}
-	}
-
-}
-
-
-bool EtherFlow::processChunk(uint8_t& handler, uint16_t len)
-{
-	switch (handler)
-	{
-		case 0:
-		{
-			switch (chunk.eth.etherType.getValue())
-			{
-				case ETHTYPE_ARP:
-				{
-					switch (chunk.arp.OPER.l)
-					{
-						case ARP_OPCODE_REPLY_L:
-						{
-							Serial.println(80);
-							dprint("ARP Reply received=");
-							dprintln(chunk.arp.senderMAC.b[1]);
-							processARPReply();
-							Serial.println(81);
-							return false;
-						}break;
-
-						case ARP_OPCODE_REQ_L:
-						{
-							if (chunk.arp.targetIP.u == localIP.u)
-								makeARPReply();
-							return false;
-						}break;
-					}
-				}break;
-
-
-
-				case ETHTYPE_IP:
-				{
-					switch (chunk.ip.protocol)
-					{
-						case IP_PROTO_TCP_V:
-						{
-							handler = 1;
-							return processTCPSegment(true, len);
-						};
-
-						case IP_PROTO_ICMP_V:
-						{
-							return false;
-						}
-					}
-				}break;
-
-			}
-
-
-
-		}break;
-
-	case 1:
-	{
-		return processTCPSegment(false, len);
-	}break;
-
-
-	default:
-	{
-		return false; //discard further chunks of this packet
-	}
-	}
-
-}
-
-bool EtherFlow::processTCPSegment(bool isHeader, uint16_t len)
-{
-
-	if (isHeader)
-	{
-
-		for (uint8_t i = 0; i < MAX_TCP_SOCKETS; i++)
-		{
-			Socket* sck = sockets[i];
-			if (sck && (sck->state != SCK_STATE_CLOSED) &&
-				(sck->localPort.rawu == chunk.tcp.destinationPort.rawu) )
-			{
-				currentSocket = sck;
-				break;
-			}
-		}
-
-	}
-
-	if (!currentSocket)
-	{
-		dprintln("packet sent to unopened port.");
-		return false; //packet sent to unopened port.
-	}
-
-
-	return currentSocket->processSegment(isHeader, len);
-
-}
-
-
-
-MACAddress* EtherFlow::whoHas(IPAddress& ip)
-{
-	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH-1);entry >= arpTable;entry--)
-	{
-		if (ip.u == entry->ip.u && entry->status_TTL > 0)
-		{
-			entry->status_TTL = MAX_ARP_TTL;
-			return &entry->mac;
-		}
-	}
-
-	makeWhoHasARPRequest(ip);
-
-	return NULL;
-
-
-}
-
-
-
-void EtherFlow::makeWhoHasARPRequest(IPAddress& ip)
-{
-	memset(&chunk.eth.dstMAC, 0xFF, sizeof(MACAddress));
-	chunk.eth.srcMAC = chunk.arp.senderMAC = localMAC;
-	chunk.eth.etherType.setValue(ETHTYPE_ARP);
-	chunk.arp.HTYPE.setValue(0x0001);
-	chunk.arp.PTYPE.setValue(0x0800);
-	chunk.arp.HLEN = 0x06;
-	chunk.arp.PLEN = 0x04;
-	chunk.arp.OPER.setValue(0x0001);
-	memset(&chunk.arp.targetMAC, 0x00, sizeof(MACAddress));
-	chunk.arp.targetIP = ip;
-	chunk.arp.senderIP = localIP;
-
-	
-
-	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
-
-}
-
-void EtherFlow::makeARPReply()
-{
-	chunk.arp.targetMAC = chunk.eth.dstMAC = chunk.eth.srcMAC;
-	chunk.arp.senderMAC = chunk.eth.srcMAC = localMAC;
-	chunk.arp.OPER.l = ARP_OPCODE_REPLY_L;
-	chunk.arp.targetIP = chunk.arp.senderIP;
-	chunk.arp.senderIP = localIP;
-
-	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
-}
-
-void EtherFlow::processARPReply()
-{
-	int16_t lowest = MAX_ARP_TTL;
-	ARPEntry * selectedEntry=NULL;
-	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
-	{
-		if (entry->ip.u == chunk.arp.senderIP.u)
-		{
-			selectedEntry = entry;
-			break;
-		}
-
-		if (entry->status_TTL <= lowest)
-		{
-			lowest = entry->status_TTL;
-			selectedEntry = entry;
-		}
-	}
-
-	DEBUG(if (!selectedEntry)	{ dprintln("busted");		while (1); });
-
-	selectedEntry->status_TTL = MAX_ARP_TTL;
-	selectedEntry->ip = chunk.arp.senderIP;
-	selectedEntry->mac = chunk.arp.senderMAC;
-
-}
-
-
-void EtherFlow::sendIPPacket(uint8_t headerLength)
-{
-
-
-	IPAddress dstIP = chunk.ip.destinationIP;
-	MACAddress* dstMac = whoHas(dstIP);
-
-	if (dstMac == NULL)
-		return;
-
-	chunk.eth.dstMAC = *dstMac;
-	chunk.eth.srcMAC = localMAC;
-	chunk.eth.etherType.setValue(ETHTYPE_IP);
-
-	writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, chunk.raw);
-	packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
-
 }
 
 
 
 
-void EtherFlow::registerSocket(Socket* socket)
-{
-
-	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
-	{
-		if (sockets[i] == NULL)
-		{
-			sockets[i] = socket;
-			return;
-		}
-	}
-}
-
-void EtherFlow::unregisterSocket(Socket* socket)
-{
-	for (int i = 0; i < MAX_TCP_SOCKETS; i++)
-	{
-		if (sockets[i] == socket)
-		{
-			sockets[i] = NULL;
-			return;
-		}
-	}
-
-}

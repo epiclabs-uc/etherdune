@@ -46,8 +46,6 @@ static const uint8_t SLOT_SIZE_SHIFT = 9; //slot size = 2^SLOT_SIZE_SHIFT, 512 b
 static const uint8_t MAX_SLOTS_PER_SOCKET = 4;
 
 
-static const uint8_t MAX_TCP_SOCKETS = 8;
-static const uint8_t MAX_UDP_SOCKETS = 1;
 static const uint8_t TCP_SRC_PORT_H = 250;
 static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
 

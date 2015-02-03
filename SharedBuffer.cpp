@@ -5,11 +5,17 @@
 
 uint16_t SharedBuffer::head = 0;
 uint16_t SharedBuffer::usedSpace = 0;
+List SharedBuffer::bufferList;
 
 
-SharedBuffer::SharedBuffer() :next(0xFFFF), lastWritten(0xFFFF)
+SharedBuffer::SharedBuffer() :nextRead(0xFFFF), lastWritten(0xFFFF)
 {
+	bufferList.add(this);
+}
 
+SharedBuffer::~SharedBuffer()
+{
+	bufferList.remove(this);
 }
 
 
@@ -105,7 +111,7 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 	if (lastWritten != 0xFFFF)
 		writeAt(lastWritten, sizeof(h), (byte*)&h);
 	else
-		next = h;
+		nextRead = h;
 
 	lastWritten = h;
 
@@ -114,28 +120,27 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 
 uint16_t SharedBuffer::release()
 {
-	if (next == 0xFFFF)
+	if (nextRead == 0xFFFF)
 		return 0;
 
 	BufferHeader header;
 
-	readAt(next, sizeof(header), (byte*) &header);
+	readAt(nextRead, sizeof(header), (byte*) &header);
 	
-	next = header.nextIndex;
+	nextRead = header.nextIndex;
 
 	uint16_t usedSpace=0;
 
-	for (uint8_t i = 0; i < MAX_TCP_SOCKETS; i++)
+	for (SharedBuffer* s = (SharedBuffer*)bufferList.first; s->nextItem != NULL; s = (SharedBuffer*)s->nextItem)
 	{
-		SharedBuffer* s = (SharedBuffer*)EtherFlow::sockets[i];
-
-		if (s == NULL || s->next==0xFFFF)
+		if (s->nextRead == 0xFFFF)
 			continue;
 
-		uint16_t d = (s->next < head) ? head - s->next : SHARED_BUFFER_CAPACITY - s->next + head;
-		
+		uint16_t d = (s->nextRead < head) ? head - s->nextRead : SHARED_BUFFER_CAPACITY - s->nextRead + head;
+
 		if (d > usedSpace)
 			usedSpace = d;
+
 	}
 
 	return header.length;
@@ -152,7 +157,7 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum )
 	uint16_t txPtr = TXSTART_INIT_DATA + dstOffset;
 	bool startOdd = txPtr & 1;
 
-	uint16_t n = next;
+	uint16_t n = nextRead;
 	while (readAt(n, sizeof(header), (byte*)&header), n!=0xFFFF && (txPtr + header.length <= TXSTOP_INIT+1))
 	{
 

@@ -4,7 +4,7 @@
 
 
 #include "config.h"
-
+#include "List.h"
 
 struct BufferHeader
 {
@@ -14,8 +14,9 @@ struct BufferHeader
 };
 
 
-class SharedBuffer
+class SharedBuffer : ListItem
 {
+	
 	static uint16_t head;
 	static uint16_t usedSpace;
 
@@ -23,8 +24,13 @@ class SharedBuffer
 	static uint16_t writeAt(uint16_t index, uint16_t len, const byte* data);
 	static uint16_t readAt(uint16_t index, uint16_t len, byte* data );
 
-protected:
-	uint16_t next;
+	static List bufferList;
+
+public:
+	SharedBuffer* next;
+
+
+	uint16_t nextRead;
 	uint16_t lastWritten;
 	
 	uint16_t write(uint16_t len, const byte* data);
@@ -35,6 +41,7 @@ protected:
 
 public:
 	SharedBuffer();
+	~SharedBuffer();
 
 
 
