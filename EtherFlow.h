@@ -1,3 +1,5 @@
+#ifndef ESEthernet_h
+#define ESEthernet_h
 
 // PIN Connections (Using Arduino UNO):
 //   VCC -   3.3V
@@ -9,17 +11,11 @@
 //
 #define __PROG_TYPES_COMPAT__
 
-#ifndef ESEthernet_h
-#define ESEthernet_h
 
 
-#if ARDUINO >= 100
-#include <Arduino.h> // Arduino 1.0
-#else
-#include <WProgram.h> // Arduino 0022
-#endif
 
-#include <avr/pgmspace.h>
+#include <ACross/ACross.h>
+
 #include "net.h"
 #include "inet.h"
 #include "enc28j60constants.h"

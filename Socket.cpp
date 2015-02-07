@@ -31,8 +31,9 @@ Socket::~Socket()
 
 void Socket::connect()
 {
-	srandom(millis() + analogRead(A1) + analogRead(A5));
-	localPort.l =  random();//srcPort_L_count++;
+	
+	randomSeed(millis() + analogRead(A1) + analogRead(A5));
+	localPort.l =  random(255);//srcPort_L_count++;
 	localPort.h = TCP_SRC_PORT_H;
 	ackNumber = 0;
 
@@ -307,7 +308,7 @@ bool Socket::processSegment(bool isHeader, uint16_t len)
 		{
 			case SCK_STATE_ESTABLISHED:
 			{
-				uint16_t slen = min(bytesReceived, sizeof(EthBuffer) - sizeof(EthernetHeader) - headerLength);
+				uint16_t slen =(uint16_t) min(bytesReceived, sizeof(EthBuffer) - sizeof(EthernetHeader) - headerLength);
 				
 				if (slen>0)
 					onReceive(slen, EtherFlow::chunk.raw + sizeof(EthernetHeader) + headerLength);
@@ -387,6 +388,7 @@ uint16_t Socket::send(uint16_t len, const byte* data)
 
 	EtherFlow::sendIPPacket(sizeof(IPHeader) + sizeof(UDPHeader));
 
+	return len;
 }
 
 

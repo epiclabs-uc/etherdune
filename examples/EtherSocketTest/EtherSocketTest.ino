@@ -1,9 +1,8 @@
-
-#include "Checksum.h"
-#include <Socket.h>
-#include <inet.h>
-#include <EtherFlow.h>
-#include <avr/pgmspace.h>
+#include <ACross/ACross.h>
+#include <EtherFlow/Checksum.h>
+#include <EtherFlow/Socket.h>
+#include <EtherFlow/inet.h>
+#include <EtherFlow/EtherFlow.h>
 
 
 
@@ -42,10 +41,11 @@ public:
 	{
 		
 		Serial.print("onReceive: "); Serial.print(len); Serial.println(" bytes");
+
 	}
 
 
-} socket;
+} sck;
 
 
 
@@ -79,8 +79,8 @@ void setup()
 
 	Serial.println("link is up");
 
-	socket.remoteAddress = testIP;
-	socket.remotePort.setValue(80);
+	sck.remoteAddress = testIP;
+	sck.remotePort.setValue(80);
 
 	//Serial.print("resolving IP...");
 	//while (!eth::whoHas(testIP))
@@ -91,7 +91,7 @@ void setup()
 	
 
 
-	socket.connect();
+	sck.connect();
 	
 
 		

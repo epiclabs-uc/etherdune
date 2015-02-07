@@ -1,11 +1,7 @@
 #ifndef __EtherFlow_CONFIG__
 #define __EtherFlow_CONFIG__
 
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
+#include <ACross/ACross.h>
 
 // EtherFlow configuration
 
@@ -19,8 +15,7 @@
 	#define DEBUG(x)
 #endif
 
-#define dprintln(x) DEBUG(Serial.println(x))
-#define dprint(x) DEBUG(Serial.print(x))
+
 
 #define CLOCK(id,x) unsigned long clock##id=millis();x;Serial.print("" #x ": " );Serial.print(millis() - clock##id);Serial.println(" ms.")
 

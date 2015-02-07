@@ -153,8 +153,11 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum )
 	bool startOdd = txPtr & 1;
 
 	uint16_t n = next;
-	while (readAt(n, sizeof(header), (byte*)&header), n!=0xFFFF && (txPtr + header.length <= TXSTOP_INIT+1))
+	while (n!=0xFFFF)
 	{
+		readAt(n, sizeof(header), (byte*)&header);
+		if ((txPtr + header.length > TXSTOP_INIT + 1))
+			break;
 
 		EtherFlow::moveMem(txPtr, SHARED_BUFFER_INIT + n + sizeof(header), header.length);
 

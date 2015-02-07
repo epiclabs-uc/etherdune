@@ -1,9 +1,10 @@
 
-
+#include <ACross/ACross.h>
 #include "EtherFlow.h"
 #include <stdarg.h>
-#include <avr/eeprom.h>
 #include "Checksum.h"
+
+#include <ACross/SPI.h>
 
 
 
@@ -28,55 +29,63 @@ Socket* EtherFlow::currentSocket = NULL;
 static unsigned long tickTimer = NETWORK_TIMER_RESOLUTION;
 static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
 
-void initSPI() {
-	pinMode(SS, OUTPUT);
-	digitalWrite(SS, HIGH);
-	pinMode(MOSI, OUTPUT);
-	pinMode(SCK, OUTPUT);
-	pinMode(MISO, INPUT);
-
-	digitalWrite(MOSI, HIGH);
-	digitalWrite(MOSI, LOW);
-	digitalWrite(SCK, LOW);
-
-	SPCR = bit(SPE) | bit(MSTR); // 8 MHz @ 16
-	bitSet(SPSR, SPI2X);
+void initSPI() 
+{
+	ACross::SPI::init();
 }
 
-static void enableChip() {
-	cli();
-	digitalWrite(selectPin, LOW);
-}
+//static void enableChip() {
+//	cli();
+//	digitalWrite(selectPin, LOW);
+//}
+//
+//static void disableChip() {
+//	digitalWrite(selectPin, HIGH);
+//	sei();
+//}
 
-static void disableChip() {
-	digitalWrite(selectPin, HIGH);
-	sei();
-}
-
-static void xferSPI(byte data) {
-	SPDR = data;
-	while (!(SPSR&(1 << SPIF)))
-		;
-}
+//static void xferSPI(byte data) {
+//	SPDR = data;
+//	while (!(SPSR&(1 << SPIF)))
+//		;
+//}
 
 static byte readOp(byte op, byte address) {
-	enableChip();
-	xferSPI(op | (address & ADDR_MASK));
-	xferSPI(0x00);
-	if (address & 0x80)
-		xferSPI(0x00);
-	byte result = SPDR;
-	disableChip();
-	return result;
+	//enableChip();
+	//xferSPI(op | (address & ADDR_MASK));
+	//xferSPI(0x00);
+	//if (address & 0x80)
+	//	xferSPI(0x00);
+	//byte result = SPDR;
+	//disableChip();
+	//return result;
+
+	uint8_t b[3];
+	b[0] = op | (address & ADDR_MASK);
+	b[1] = 0;
+	b[2] = 0;
+
+	uint16_t sendLength = (address & 0x80) ? 3 : 2;
+
+	ACross::SPI::sendReceive(selectPin, sendLength, b, 1, b);
+
+	return b[0];
+
 }
 
 
 
 static void writeOp(byte op, byte address, byte data) {
-	enableChip();
-	xferSPI(op | (address & ADDR_MASK));
-	xferSPI(data);
-	disableChip();
+	//enableChip();
+	//xferSPI(op | (address & ADDR_MASK));
+	//xferSPI(data);
+	//disableChip();
+
+	byte b[2];
+
+	b[0] = op | (address & ADDR_MASK);
+	b[1] = data;
+	ACross::SPI::send(selectPin, 2, b);
 }
 
 static void SetBank(byte address) {
@@ -108,13 +117,18 @@ static void writeReg(byte address, uint16_t data) {
 }
 
 void EtherFlow::readBuf(uint16_t len, byte* data) {
-	enableChip();
-	xferSPI(ENC28J60_READ_BUF_MEM);
-	while (len--) {
-		xferSPI(0x00);
-		*data++ = SPDR;
-	}
-	disableChip();
+	//enableChip();
+	//xferSPI(ENC28J60_READ_BUF_MEM);
+	//while (len--) {
+	//	xferSPI(0x00);
+	//	*data++ = SPDR;
+	//}
+	//disableChip();
+
+	uint8_t b = ENC28J60_READ_BUF_MEM;
+	ACross::SPI::sendReceive(selectPin, 1, &b, len, data);
+
+
 }
 
 void EtherFlow::readBuf(uint16_t src, uint16_t len, byte* data)
@@ -125,11 +139,17 @@ void EtherFlow::readBuf(uint16_t src, uint16_t len, byte* data)
 
 void EtherFlow::writeBuf(uint16_t len, const byte* data) 
 {
-	enableChip();
-	xferSPI(ENC28J60_WRITE_BUF_MEM);
-	while (len--)
-		xferSPI(*data++);
-	disableChip();
+	//enableChip();
+	//xferSPI(ENC28J60_WRITE_BUF_MEM);
+	//while (len--)
+	//	xferSPI(*data++);
+	//disableChip();
+
+	uint8_t* b = new uint8_t[len + 1];
+	b[0] = ENC28J60_WRITE_BUF_MEM;
+	memcpy(b + 1, data, len);
+	ACross::SPI::send(selectPin, len + 1, b);
+
 }
 
 void EtherFlow::writeBuf(uint16_t dst, uint16_t len, const byte* data)
@@ -155,6 +175,7 @@ byte EtherFlow::readByte(uint16_t src)
 {
 	byte b;
 	readBuf(src, 1, &b);
+	return b;
 }
 
 
@@ -273,11 +294,13 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 	
 	tickTimer = millis() +NETWORK_TIMER_RESOLUTION;
 	
-	if (bitRead(SPCR, SPE) == 0)
-		initSPI();
+//	if (bitRead(SPCR, SPE) == 0)
+	
+	initSPI();
 	selectPin = cspin;
 	pinMode(selectPin, OUTPUT);
-	disableChip();
+	pinMode(selectPin, HIGH);
+
 
 	writeOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
 	delay(2); // errata B7/2

@@ -1,12 +1,8 @@
 #ifndef __inet_h_
 #define __inet_h_
-#if ARDUINO >= 100
-#include <Arduino.h> // Arduino 1.0
-#else
-#include <WProgram.h> // Arduino 0022
-#endif
 
-#include <avr/pgmspace.h>
+#include <ACross/ACross.h>
+
 
 static const uint16_t ETHTYPE_ARP = 0x0806;
 static const uint16_t ETHTYPE_IP = 0x0800;
@@ -177,7 +173,7 @@ typedef union IPHeader
 		struct
 		{
 			uint16_t fragmentOffset : 13;
-			uint8_t flags : 3;
+			uint16_t flags : 3;
 		};
 		uint8_t TTL;
 		uint8_t protocol;
