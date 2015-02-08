@@ -26,7 +26,7 @@ uint16_t Checksum::add(uint16_t a, uint16_t b, bool odd)
 
 uint16_t Checksum::calc(uint16_t len, const uint8_t *data)
 {
-	uint16_t t;
+
 	uint16_t sum = 0;
 
 	const uint16_t *dataptr;
