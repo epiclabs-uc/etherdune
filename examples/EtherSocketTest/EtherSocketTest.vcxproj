@@ -44,10 +44,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores\arduino;C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\variants\standard;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow\utility;C:\Users\jpeletie\Dropbox\Arduino\libraries;C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\libraries;C:\Program Files (x86)\Visual Micro\Visual Micro for Arduino\Micro Platforms\default\debuggers;C:\Users\jpeletie\Dropbox\Arduino\Projects\libraries;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\avr\include\;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\avr\include\avr\;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\avr\;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\cores\arduino;C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\variants\standard;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow\examples\EtherSocketTest;C:\Users\jpeletie\Dropbox\Arduino\libraries\ACross;C:\Users\jpeletie\Dropbox\Arduino\libraries\ACross\utility;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow\utility;C:\Users\jpeletie\Dropbox\Arduino\libraries;C:\Users\jpeletie\Dropbox\Arduino\hardware\arduino\libraries;C:\Program Files (x86)\Visual Micro\Visual Micro for Arduino\Micro Platforms\default\debuggers;C:\Users\jpeletie\Dropbox\Arduino\Projects\libraries;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\avr\include\;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\avr\include\avr\;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\avr\;c:\users\jpeletie\dropbox\arduino\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow\examples\EtherSocketTest\Visual Micro\.EtherSocketTest.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;ARDUINO=106;ARDUINO_MAIN;__AVR__;__avr__;F_CPU=16000000L;__cplusplus;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;ARDUINO=106;ARDUINO_MAIN;__AVR__;__avr__;F_CPU=16000000L;__cplusplus;GCC_VERSION=40301;ARDUINO_ARCH_AVR;ARDUINO_AVR_ATMEGA328;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -73,25 +73,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ARP.h" />
+    <ClInclude Include="..\..\..\ACross\SPI.h" />
     <ClInclude Include="..\..\Checksum.h" />
     <ClInclude Include="..\..\config.h" />
     <ClInclude Include="..\..\enc28j60constants.h" />
     <ClInclude Include="..\..\EtherFlow.h" />
     <ClInclude Include="..\..\inet.h" />
-    <ClInclude Include="..\..\List.h" />
     <ClInclude Include="..\..\net.h" />
-    <ClInclude Include="..\..\NetworkService.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ARP.cpp" />
+    <ClCompile Include="..\..\..\ACross\SPI.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
-    <ClCompile Include="..\..\List.cpp" />
-    <ClCompile Include="..\..\NetworkService.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
     <ClCompile Include="..\..\Socket.cpp" />
   </ItemGroup>

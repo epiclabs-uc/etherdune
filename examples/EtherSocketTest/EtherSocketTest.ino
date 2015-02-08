@@ -1,8 +1,8 @@
-
-#include "Checksum.h"
-#include <Socket.h>
-#include <inet.h>
-#include <avr/pgmspace.h>
+#include <ACross/ACross.h>
+#include <EtherFlow/Checksum.h>
+#include <EtherFlow/Socket.h>
+#include <EtherFlow/inet.h>
+#include <EtherFlow/EtherFlow.h>
 
 
 
@@ -21,7 +21,7 @@ public:
 	{
 		Serial.println("on connect");
 
-		char * req = "GET / HTTP/1.1\r\nAccept: *" "/" "*\r\n\r\n";
+		char * req = "GET / HTTP/1.1\r\nAccept:*" "/" "*\r\n\r\n";
 
 		write(strlen(req), (byte*) req);
 
@@ -41,31 +41,16 @@ public:
 	{
 		
 		Serial.print("onReceive: "); Serial.print(len); Serial.println(" bytes");
+
 	}
 
 
-} ;
+} sck;
 
 
 
 
 unsigned long waitTimer = 0;
-MyProtocol& socket()
-{
-	static MyProtocol* sck = new MyProtocol();
-	return *sck;
-}
-//void setup()
-//{
-//	
-//
-//	Serial.begin(115200);
-//
-//	Serial.println("Press any key to start...");
-//
-//	while (!Serial.available());
-//}
-
 void setup()
 {	
 
@@ -82,20 +67,20 @@ void setup()
 
 
 
-	net::localIP.set_P(&myIP);
-	net::localMAC.set_P( &mymac);
+	eth::localIP.set_P(&myIP);
+	eth::localMAC.set_P( &mymac);
 
-	if (!net::begin(10))
+	if (!eth::begin(10))
 		Serial.println("failed to start EtherFlow");
 
 	Serial.println("waiting for link...");
 
-	while (!net::isLinkUp());
+	while (!eth::isLinkUp());
 
 	Serial.println("link is up");
 
-	socket().remoteAddress = testIP;
-	socket().remotePort.setValue(80);
+	sck.remoteAddress = testIP;
+	sck.remotePort.setValue(80);
 
 	//Serial.print("resolving IP...");
 	//while (!eth::whoHas(testIP))
@@ -106,7 +91,7 @@ void setup()
 	
 
 
-	socket().connect();
+	sck.connect();
 	
 
 		
@@ -117,7 +102,7 @@ void setup()
 
 void loop()
 {
-	net::loop();
+	EtherFlow::loop();
 
 	if ((long)(millis() - waitTimer) >= 0)
 	{
