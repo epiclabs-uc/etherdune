@@ -21,31 +21,9 @@ void initSPI()
 	ACross::SPI::init();
 }
 
-//static void enableChip() {
-//	cli();
-//	digitalWrite(selectPin, LOW);
-//}
-//
-//static void disableChip() {
-//	digitalWrite(selectPin, HIGH);
-//	sei();
-//}
 
-//static void xferSPI(byte data) {
-//	SPDR = data;
-//	while (!(SPSR&(1 << SPIF)))
-//		;
-//}
-
-static byte readOp(byte op, byte address) {
-	//enableChip();
-	//xferSPI(op | (address & ADDR_MASK));
-	//xferSPI(0x00);
-	//if (address & 0x80)
-	//	xferSPI(0x00);
-	//byte result = SPDR;
-	//disableChip();
-	//return result;
+static byte readOp(byte op, byte address) 
+{
 
 	uint8_t b[3];
 	b[0] = op | (address & ADDR_MASK);
@@ -62,20 +40,15 @@ static byte readOp(byte op, byte address) {
 
 
 
-static void writeOp(byte op, byte address, byte data) {
-	//enableChip();
-	//xferSPI(op | (address & ADDR_MASK));
-	//xferSPI(data);
-	//disableChip();
+static void writeOp(byte op, byte address, byte data) 
+{
 
-	byte b[2];
-
-	b[0] = op | (address & ADDR_MASK);
-	b[1] = data;
-	ACross::SPI::send(selectPin, 2, b);
+	op |= address & ADDR_MASK;
+	ACross::SPI::send(selectPin, 1, &op, 1, &data);
 }
 
-static void SetBank(byte address) {
+static void SetBank(byte address) 
+{
 	if ((address & BANK_MASK) != Enc28j60Bank) {
 		writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_BSEL1 | ECON1_BSEL0);
 		Enc28j60Bank = address & BANK_MASK;
@@ -83,39 +56,35 @@ static void SetBank(byte address) {
 	}
 }
 
-static byte readRegByte(byte address) {
+static byte readRegByte(byte address) 
+{
 	SetBank(address);
 	return readOp(ENC28J60_READ_CTRL_REG, address);
 }
 
-static uint16_t readReg(byte address) {
+static uint16_t readReg(byte address) 
+{
 	return readRegByte(address) + (readRegByte(address + 1) << 8);
 }
 
 
-static void writeRegByte(byte address, byte data) {
+static void writeRegByte(byte address, byte data) 
+{
 	SetBank(address);
 	writeOp(ENC28J60_WRITE_CTRL_REG, address, data);
 }
 
-static void writeReg(byte address, uint16_t data) {
+static void writeReg(byte address, uint16_t data) 
+{
 	writeRegByte(address, (uint8_t) data);
 	writeRegByte(address + 1, data >> 8);
 }
 
-void EtherFlow::readBuf(uint16_t len, byte* data) {
-	//enableChip();
-	//xferSPI(ENC28J60_READ_BUF_MEM);
-	//while (len--) {
-	//	xferSPI(0x00);
-	//	*data++ = SPDR;
-	//}
-	//disableChip();
+void EtherFlow::readBuf(uint16_t len, byte* data) 
+{
 
 	uint8_t b = ENC28J60_READ_BUF_MEM;
 	ACross::SPI::sendReceive(selectPin, 1, &b, len, data);
-
-
 }
 
 void EtherFlow::readBuf(uint16_t src, uint16_t len, byte* data)
@@ -126,31 +95,21 @@ void EtherFlow::readBuf(uint16_t src, uint16_t len, byte* data)
 
 void EtherFlow::writeBuf(uint16_t len, const byte* data) 
 {
-	//enableChip();
-	//xferSPI(ENC28J60_WRITE_BUF_MEM);
-	//while (len--)
-	//	xferSPI(*data++);
-	//disableChip();
 
-	uint8_t* b = new uint8_t[len + 1];
-	b[0] = ENC28J60_WRITE_BUF_MEM;
-	memcpy(b + 1, data, len);
-	ACross::SPI::send(selectPin, len + 1, b);
+	uint8_t b = ENC28J60_WRITE_BUF_MEM;
+	ACross::SPI::send(selectPin, 1, &b, len, (uint8_t*)data);
 
 }
 
 void EtherFlow::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 {
 	writeReg(EWRPT, dst);
-	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
 	writeBuf(len, data);
 
-	//writeReg(ERDPT, txStart);
 }
 
 void EtherFlow::writeByte(byte b)
 {
-	//writeOp(ENC28J60_WRITE_BUF_MEM, 0, b);
 	writeBuf(1, &b);
 }
 void EtherFlow::writeByte(uint16_t dst, byte b)

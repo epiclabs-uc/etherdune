@@ -1,2 +1,5 @@
 /examples/EtherSocketTest/*.sdf
 *.suo
+Debug-pc
+*.sdf
+*.opensdf
