@@ -8,19 +8,19 @@ NetworkService* NetworkService::currentService = NULL;
 MACAddress NetworkService::localMAC;
 IPAddress NetworkService::localIP;
 
-static unsigned long tickTimer = NETWORK_TIMER_RESOLUTION;
+static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
 EthBuffer NetworkService::chunk;
 
 
-bool NetworkService::processHeader(){}
-bool NetworkService::processData(uint16_t len, uint8_t* data){}
+bool NetworkService::processHeader(){ return false; }
+bool NetworkService::processData(uint16_t len, uint8_t* data){ return false; }
 void NetworkService::tick(){}
 
 
 bool NetworkService::begin(uint8_t cspin)
 {
 	tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
-	return EtherFlow::begin(cspin);
+	return 0!= EtherFlow::begin(cspin);
 }
 
 ARPService& NetworkService::ARP()
@@ -32,7 +32,7 @@ ARPService& NetworkService::ARP()
 
 NetworkService::NetworkService()
 {
-	dprintln("NetworkService::NetworkService");
+	
 	activeServices.add(this);
 }
 NetworkService::~NetworkService()
@@ -70,7 +70,7 @@ void NetworkService::loop()
 {
 	EtherFlow::loop();
 
-	if ((long)(millis() - tickTimer) >= 0)
+	if ((int32_t)(millis() - tickTimer) >= 0)
 	{
 
 		for (NetworkService* service = (NetworkService*)activeServices.first; service != NULL; service = (NetworkService*)service->nextItem)

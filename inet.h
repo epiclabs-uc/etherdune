@@ -12,7 +12,7 @@ static const uint8_t ARP_OPCODE_REPLY_L = 0x02;
 static const uint8_t ARP_OPCODE_REQ_L = 0x01;
 
 
-typedef union u16_t
+union u16_t
 {
 	struct
 	{
@@ -21,7 +21,7 @@ typedef union u16_t
 	};
 	uint16_t v;
 };
-typedef union u32_t
+union u32_t
 {
 	struct
 	{
@@ -32,7 +32,7 @@ typedef union u32_t
 };
 
 
-typedef union nint16_t
+union nint16_t
 {
 	uint8_t raw[2];
 	uint16_t rawu;
@@ -64,7 +64,7 @@ typedef union nint16_t
 	}
 };
 
-typedef union nint32_t
+union nint32_t
 {
 	struct
 	{
@@ -104,7 +104,7 @@ typedef union nint32_t
 
 };
 
-typedef union IPAddress
+union IPAddress
 {
 	uint8_t b[4];
 	nint32_t t;
@@ -121,7 +121,7 @@ typedef union IPAddress
 };
 
 
-typedef struct MACAddress
+struct MACAddress
 {
 	uint8_t b[6];
 
@@ -137,7 +137,7 @@ typedef struct MACAddress
 };
 
 
-typedef union ARPPacket
+union ARPPacket
 {
 	struct
 	{
@@ -154,7 +154,7 @@ typedef union ARPPacket
 	uint8_t raw[28];
 };
 
-typedef union IPHeader
+union IPHeader
 {
 	struct
 	{
@@ -185,7 +185,7 @@ typedef union IPHeader
 
 };
 
-typedef struct TCPHeader
+struct TCPHeader
 {
 	nint16_t sourcePort;
 	nint16_t destinationPort;
@@ -217,7 +217,7 @@ typedef struct TCPHeader
 	nint16_t urgentPointer;
 };
 
-typedef struct TCPOptions
+struct TCPOptions
 {
 
 	uint8_t option1;
@@ -226,7 +226,7 @@ typedef struct TCPOptions
 
 };
 
-typedef struct UDPHeader
+struct UDPHeader
 {
 	nint16_t sourcePort;
 	nint16_t destinationPort;
@@ -235,7 +235,7 @@ typedef struct UDPHeader
 };
 
 
-typedef struct ICMPHeader
+struct ICMPHeader
 {
 	uint8_t type;
 	uint8_t code;
@@ -243,14 +243,14 @@ typedef struct ICMPHeader
 	uint8_t rest[4];
 };
 
-typedef struct EthernetHeader
+struct EthernetHeader
 {
 	MACAddress dstMAC;
 	MACAddress srcMAC;
 	nint16_t etherType;
 };
 
-typedef union EthBuffer
+union EthBuffer
 {
 	struct
 	{
@@ -282,7 +282,7 @@ typedef union EthBuffer
 
 
 
-typedef struct ARPEntry
+struct ARPEntry
 {
 	IPAddress ip;
 	MACAddress mac;

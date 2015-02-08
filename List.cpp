@@ -6,12 +6,12 @@
 
 ListItem::ListItem() :nextItem(NULL)
 {
-	dprintln("ListItem::ListItem");
+	
 }
 
 List::List() : first(NULL)
 {
-	dprintln("List::List");
+	
 }
 
 void List::add(ListItem* item)

@@ -74,22 +74,29 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\ACross\SPI.h" />
+    <ClInclude Include="..\..\ARP.h" />
     <ClInclude Include="..\..\Checksum.h" />
     <ClInclude Include="..\..\config.h" />
     <ClInclude Include="..\..\enc28j60constants.h" />
     <ClInclude Include="..\..\EtherFlow.h" />
     <ClInclude Include="..\..\inet.h" />
+    <ClInclude Include="..\..\List.h" />
     <ClInclude Include="..\..\net.h" />
+    <ClInclude Include="..\..\NetworkService.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\ACross\SPI.cpp" />
+    <ClCompile Include="..\..\ARP.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
+    <ClCompile Include="..\..\List.cpp" />
+    <ClCompile Include="..\..\NetworkService.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
     <ClCompile Include="..\..\Socket.cpp" />
+    <ClCompile Include="EtherSocketTest-pc.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

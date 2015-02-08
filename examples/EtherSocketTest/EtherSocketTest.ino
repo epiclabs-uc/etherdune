@@ -67,15 +67,15 @@ void setup()
 
 
 
-	eth::localIP.set_P(&myIP);
-	eth::localMAC.set_P( &mymac);
+	net::localIP.set_P(&myIP);
+	net::localMAC.set_P( &mymac);
 
-	if (!eth::begin(10))
+	if (!net::begin(10))
 		Serial.println("failed to start EtherFlow");
 
 	Serial.println("waiting for link...");
 
-	while (!eth::isLinkUp());
+	while (!net::isLinkUp());
 
 	Serial.println("link is up");
 
@@ -102,7 +102,7 @@ void setup()
 
 void loop()
 {
-	EtherFlow::loop();
+	NetworkService::loop();
 
 	if ((long)(millis() - waitTimer) >= 0)
 	{

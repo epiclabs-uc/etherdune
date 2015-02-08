@@ -99,7 +99,7 @@ static void writeRegByte(byte address, byte data) {
 }
 
 static void writeReg(byte address, uint16_t data) {
-	writeRegByte(address, data);
+	writeRegByte(address, (uint8_t) data);
 	writeRegByte(address + 1, data >> 8);
 }
 

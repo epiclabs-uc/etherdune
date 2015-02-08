@@ -27,14 +27,19 @@ bool ARPService::processHeader()
 			dprintln(chunk.arp.senderMAC.b[1]);
 			processARPReply();
 
-			return false;
+			return true;
 		}break;
 
 		case ARP_OPCODE_REQ_L:
 		{
 			if (chunk.arp.targetIP.u == localIP.u)
 				makeARPReply();
-			return false;
+			return true;
+		}break;
+
+		default:
+		{
+			return true;
 		}break;
 	}
 }
