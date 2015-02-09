@@ -1,6 +1,6 @@
 #include <ACross/ACross.h>
 #include <EtherFlow/Checksum.h>
-#include <EtherFlow/Socket.h>
+#include <EtherFlow/TCPSocket.h>
 #include <EtherFlow/inet.h>
 #include <EtherFlow/EtherFlow.h>
 
@@ -12,7 +12,7 @@ IPAddress myIP PROGMEM = { 192, 168, 1, 222 };
 
 
 
-class MyProtocol : public Socket
+class MyProtocol : public TCPSocket
 {
 
 public:
@@ -25,9 +25,7 @@ public:
 
 		write(strlen(req), (byte*) req);
 
-		char* hola = "HOLA!!";
 
-		send(strlen(hola), (byte*)hola);
 
 	}
 

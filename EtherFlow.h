@@ -26,13 +26,16 @@
 class Socket;
 class SharedBuffer;
 class NetworkService;
-
+class TCPSocket;
+class UDPSocket;
 
 class EtherFlow 
 {
 	friend class Socket;
 	friend class SharedBuffer;
 	friend class NetworkService;
+	friend class TCPSocket;
+	friend class UDPSocket;
 
 
 public:
