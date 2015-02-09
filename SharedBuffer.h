@@ -35,6 +35,7 @@ public:
 	
 	uint16_t write(uint16_t len, const byte* data);
 	uint16_t release();
+	void flush();
 
 	uint16_t fillTxBuffer(uint16_t dstOffset, uint16_t& checksum);
 

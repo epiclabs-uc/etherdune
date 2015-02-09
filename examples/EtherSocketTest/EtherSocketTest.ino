@@ -1,6 +1,8 @@
 #include <ACross/ACross.h>
 #include <EtherFlow/Checksum.h>
 #include <EtherFlow/TCPSocket.h>
+#include <EtherFlow/UDPSocket.h>
+
 #include <EtherFlow/inet.h>
 #include <EtherFlow/EtherFlow.h>
 
@@ -45,6 +47,18 @@ public:
 
 } sck;
 
+
+class MyUDP : public UDPSocket
+{
+
+public:
+	void onReceive(uint16_t len, uint16_t datagramLength, const byte* data)
+	{
+		Serial.print("on UDP receive");
+	}
+
+
+}udp;
 
 
 
@@ -91,6 +105,14 @@ void setup()
 
 	sck.connect();
 	
+	
+	udp.localPort.setValue(1111);
+	udp.remotePort.setValue(53);
+	udp.remoteAddress = testIP;
+
+	udp.write(strlen("HELLO WORLD"),(uint8_t*) "HELLO WORLD");
+
+	udp.send();
 
 		
 	waitTimer = millis()+1000;

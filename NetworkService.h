@@ -30,7 +30,7 @@ protected:
 
 	virtual void tick();
 
-	static void sendIPPacket(uint8_t headerLength);
+	static bool sendIPPacket(uint8_t headerLength);
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
 

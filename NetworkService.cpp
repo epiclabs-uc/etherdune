@@ -82,7 +82,7 @@ void NetworkService::loop()
 	}
 }
 
-void NetworkService::sendIPPacket(uint8_t headerLength)
+bool NetworkService::sendIPPacket(uint8_t headerLength)
 {
 
 
@@ -90,7 +90,7 @@ void NetworkService::sendIPPacket(uint8_t headerLength)
 	MACAddress* dstMac = ARP().whoHas(dstIP);
 
 	if (dstMac == NULL)
-		return;
+		return false;
 
 	chunk.eth.dstMAC = *dstMac;
 	chunk.eth.srcMAC = localMAC;
@@ -99,6 +99,7 @@ void NetworkService::sendIPPacket(uint8_t headerLength)
 	EtherFlow::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, chunk.raw);
 	EtherFlow::packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
 
+	return true;
 }
 
 bool NetworkService::isLinkUp()

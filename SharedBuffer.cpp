@@ -16,6 +16,7 @@ SharedBuffer::SharedBuffer() :nextRead(0xFFFF), lastWritten(0xFFFF)
 
 SharedBuffer::~SharedBuffer()
 {
+	flush();
 	bufferList.remove(this);
 }
 
@@ -146,6 +147,11 @@ uint16_t SharedBuffer::release()
 
 	return header.length;
 
+}
+
+void SharedBuffer::flush()
+{
+	while (release());
 }
 
 
