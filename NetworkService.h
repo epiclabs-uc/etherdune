@@ -6,6 +6,7 @@
 
 class ARPService;
 class EtherFlow;
+class DNSClient;
 
 class NetworkService : private ListItem
 {
@@ -22,6 +23,7 @@ private:
 protected:
 
 	static ARPService& ARP();
+	
 
 	static EthBuffer chunk;
 
@@ -44,7 +46,7 @@ public:
 	static bool begin(uint8_t cspin);
 	static bool isLinkUp();
 	static void loop();
-
+	static DNSClient& DNS();
 };
 
 typedef NetworkService net;

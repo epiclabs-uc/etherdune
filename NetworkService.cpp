@@ -1,5 +1,6 @@
 #include "NetworkService.h"
 #include "ARP.h"
+#include "DNS.h"
 
 List NetworkService::activeServices;
 
@@ -28,6 +29,13 @@ ARPService& NetworkService::ARP()
 	static ARPService* arp = new ARPService();
 
 	return *arp;
+}
+
+DNSClient& NetworkService::DNS()
+{
+	static DNSClient* dns = new DNSClient();
+
+	return *dns;
 }
 
 NetworkService::NetworkService()

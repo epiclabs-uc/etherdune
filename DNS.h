@@ -1,17 +1,29 @@
 #ifndef __DNS__
 #define __DNS__
 
-#include "NetworkService.h"
+#include "UDPSocket.h"
 
-class DNS : public NetworkService
+class DNSClient : public UDPSocket
 {
+	friend class NetworkService;
+
+private:
+	uint16_t identification;
+
+	void onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
+	DNSClient();
+
 public:
 
-	IPAddress resolve(const char* name);
-	//único slot para una única pregunta
-	//queda libre una vez retornado el valor o pasado un tiempo
-	//¿calcular checksum de la cadena a modo de recordar el identificador de query DNS?
+	bool resolve(const char* name);
+	void setDNSAddress(const IPAddress& dnsServerIP);
+
+	IPAddress resolvedIP;
+
+
+
 
 };
+
 
 #endif

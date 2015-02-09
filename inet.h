@@ -66,13 +66,14 @@ union nint16_t
 
 union nint32_t
 {
+	uint32_t rawu;
 	struct
 	{
 		nint16_t h;
 		nint16_t l;
 	};
 	uint8_t raw[4];
-	uint32_t rawu;
+	
 
 	uint32_t getValue()
 	{
@@ -234,6 +235,36 @@ struct UDPHeader
 	nint16_t checksum;
 };
 
+struct DNSHeader
+{
+	uint16_t identification;
+	union
+	{
+		struct
+		{
+			uint8_t RD : 1;
+			uint8_t TC : 1;
+			uint8_t AA : 1;
+			uint8_t opcode : 4;
+			uint8_t QR : 1;
+			uint8_t rcode : 4;
+			uint8_t reserved : 3;
+			uint8_t RA : 1;
+		};
+		uint16_t flags;
+	};
+	nint16_t numberOfQuestions;
+	nint16_t numberOfAnswerRRs;
+	nint16_t numberOfAuthorityRRs;
+	nint16_t numberOfAdditionalRRs;
+
+	void zero()
+	{
+		memset(this, 0, sizeof(DNSHeader));
+	}
+
+};
+
 
 struct ICMPHeader
 {
@@ -264,7 +295,11 @@ union EthBuffer
 				union
 				{
 					ICMPHeader icmp;
-					UDPHeader udp;
+					struct
+					{
+						UDPHeader udp;
+						DNSHeader dns;
+					};
 					struct
 					{
 						TCPHeader tcp;

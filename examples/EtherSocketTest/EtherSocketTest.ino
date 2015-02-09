@@ -5,7 +5,7 @@
 
 #include <EtherFlow/inet.h>
 #include <EtherFlow/EtherFlow.h>
-
+#include <EtherFlow/DNS.h>
 
 
 MACAddress mymac PROGMEM = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
@@ -77,8 +77,6 @@ void setup()
 
 
 
-
-
 	net::localIP.set_P(&myIP);
 	net::localMAC.set_P( &mymac);
 
@@ -100,7 +98,8 @@ void setup()
 
 	//Serial.println("resolved.");
 
-	
+	net::DNS().setDNSAddress(testIP);
+	net::DNS().resolve("www.friendev.com");
 
 
 	sck.connect();
