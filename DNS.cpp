@@ -8,21 +8,21 @@ void DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, cons
 	if (datagramLength != 0)
 	{
 		scanner.reset();
+		receivedId = chunk.dns.identification;
 	}
 
 	while (fragmentLength--)
 	{
 		if (scanner.scan(*data, &resolvedIP))
 		{
-			return;
+			identification = receivedId;
 		}
 
 		data++;
 	}
-
 }
 
-DNSClient::DNSClient() : identification(0)
+DNSClient::DNSClient() : identification(0), timer(0)
 {
 	remotePort.setValue(53);
 	scanner.setPattern(catchDNSResponse);
@@ -32,19 +32,20 @@ void DNSClient::setDNSAddress(const IPAddress& dnsServerIP)
 {
 	remoteAddress = dnsServerIP;
 }
+
 bool DNSClient::resolve(const char* name)
 {
 
 	uint8_t* b = chunk.raw;
 	uint8_t* label = b;
 	b++;
-	
-	for (*label = 0; *name != 0; name++,b++)
+
+	for (*label = 0; *name != 0; name++, b++)
 	{
 		if (*name == '.')
 		{
 			label = b;
-			
+
 			*label = 0;
 		}
 		else
@@ -58,13 +59,16 @@ bool DNSClient::resolve(const char* name)
 
 	uint16_t id = Checksum::calc(b - chunk.raw, chunk.raw);
 
-	if (identification == 0)
+	if (identification == id)
+		return true;
+
+	if (timer == 0)
 	{
 
 		DNSHeader header;
 		header.zero();
 		header.identification = id;
-		/* 
+		/*
 		header.QR = 0; // query
 		header.opcode = 0; // standard query;
 		*/
@@ -82,17 +86,19 @@ bool DNSClient::resolve(const char* name)
 		write(b - chunk.raw, chunk.raw);
 
 		if (send())
-			identification = id;
-
-
+			timer = DNS_TIMEOUT_QUERY;
 	}
-	else
-	{
-
-	}
-
 
 	return false;
+}
 
+void DNSClient::tick()
+{
+	if (timer > 0)
+	{
+		timer--;
+	}
+
+	UDPSocket::tick();
 }
 

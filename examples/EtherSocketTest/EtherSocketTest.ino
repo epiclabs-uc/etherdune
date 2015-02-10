@@ -135,6 +135,10 @@ void loop()
 		//Serial.println((int) eth::whoHas(testIP));
 		Serial.print("alive"); Serial.println(millis());
 
+		if (net::DNS().resolve("www.friendev.com"))
+		{
+			Serial.print("resolved. IP="); Serial.println(net::DNS().resolvedIP.b[0]);
+		}
 
 		waitTimer = millis() + 1000;
 	}

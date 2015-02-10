@@ -11,11 +11,14 @@ class DNSClient : public UDPSocket
 
 private:
 	uint16_t identification;
+	uint16_t receivedId;
+	uint8_t timer;
 
 	FlowScanner scanner;
 
 	void onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
 	DNSClient();
+	void tick();
 
 public:
 
