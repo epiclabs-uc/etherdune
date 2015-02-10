@@ -60,7 +60,7 @@ bool UDPSocket::processHeader()
 {
 	if (!(
 		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
-		chunk.ip.protocol == IP_PROTO_TCP_V &&
+		chunk.ip.protocol == IP_PROTO_UDP_V &&
 		localPort.rawu == chunk.udp.destinationPort.rawu))
 	{
 		return false;

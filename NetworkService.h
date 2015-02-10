@@ -36,12 +36,16 @@ protected:
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
 
+	static bool sameLAN(IPAddress& dst);
+
 	NetworkService();
 	~NetworkService();
 
 public:
 	static MACAddress localMAC;
 	static IPAddress localIP;
+	static IPAddress gatewayIP;
+	static IPAddress netmask;
 
 	static bool begin(uint8_t cspin);
 	static bool isLinkUp();

@@ -8,6 +8,8 @@ List NetworkService::activeServices;
 NetworkService* NetworkService::currentService = NULL;
 MACAddress NetworkService::localMAC;
 IPAddress NetworkService::localIP;
+IPAddress NetworkService::gatewayIP;
+IPAddress NetworkService::netmask;
 
 static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
 EthBuffer NetworkService::chunk;
@@ -93,8 +95,8 @@ void NetworkService::loop()
 bool NetworkService::sendIPPacket(uint8_t headerLength)
 {
 
+	IPAddress dstIP = sameLAN(chunk.ip.destinationIP) ? chunk.ip.destinationIP : gatewayIP;
 
-	IPAddress dstIP = chunk.ip.destinationIP;
 	MACAddress* dstMac = ARP().whoHas(dstIP);
 
 	if (dstMac == NULL)
@@ -122,4 +124,16 @@ void NetworkService::packetSend(uint16_t len)
 void NetworkService::packetSend(uint16_t len, const byte* data)
 {
 	EtherFlow::packetSend(len, data);
+}
+
+bool NetworkService::sameLAN(IPAddress& dst)
+{
+	if (localIP.b[0] == 0 || dst.b[0] == 0) 
+		return false;
+
+	for (int i = 0; i < 4; i++)
+		if ((localIP.b[i] & netmask.b[i]) != (dst.b[i] & netmask.b[i]))
+			return false;
+
+	return true;
 }

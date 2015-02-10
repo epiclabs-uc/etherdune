@@ -1,15 +1,31 @@
 #include "DNS.h"
 #include "Checksum.h"
 
+DEFINE_FLOWPATTERN(catchDNSResponse, "%*[\0]\x01" "%*[\0]\x01" "%*4c" "%*[\0]\x04" "%4c");
+
 void DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data)
 {
+	if (datagramLength != 0)
+	{
+		scanner.reset();
+	}
 
+	while (fragmentLength--)
+	{
+		if (scanner.scan(*data, &resolvedIP))
+		{
+			return;
+		}
+
+		data++;
+	}
 
 }
 
 DNSClient::DNSClient() : identification(0)
 {
 	remotePort.setValue(53);
+	scanner.setPattern(catchDNSResponse);
 }
 
 void DNSClient::setDNSAddress(const IPAddress& dnsServerIP)
@@ -54,10 +70,12 @@ bool DNSClient::resolve(const char* name)
 		*/
 		header.RD = 1; //recursion desired
 		header.numberOfQuestions.setValue(1); //only one question
+
+		//queryType = 1 (A query), queryClass=1 (Internet Address);
 		b++;
-		
 		*((uint32_t*)b) = 0x01000100; //queryType = 1 (A query), queryClass=1 (Internet Address);
-		
+
+
 		b += 4;
 
 		write(sizeof(header), (uint8_t*)&header);

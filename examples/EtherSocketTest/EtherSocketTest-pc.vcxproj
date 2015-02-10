@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\FlowScanner\FlowScanner.cpp" />
     <ClCompile Include="..\..\ARP.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\DNS.cpp" />
@@ -97,6 +98,7 @@
     <None Include="EtherSocketTest.ino" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\FlowScanner\FlowScanner.h" />
     <ClInclude Include="..\..\ARP.h" />
     <ClInclude Include="..\..\Checksum.h" />
     <ClInclude Include="..\..\config.h" />

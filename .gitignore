@@ -3,3 +3,4 @@
 Debug-pc
 *.sdf
 *.opensdf
+/examples/EtherSocketTest/Debug/*.log

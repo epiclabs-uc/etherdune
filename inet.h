@@ -119,6 +119,7 @@ union IPAddress
 	{
 		memcpy_P (b, ip, sizeof(IPAddress));
 	}
+
 };
 
 

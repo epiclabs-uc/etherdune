@@ -6,11 +6,15 @@
 #include <EtherFlow/inet.h>
 #include <EtherFlow/EtherFlow.h>
 #include <EtherFlow/DNS.h>
+#include <FlowScanner/FlowScanner.h>
 
 
 MACAddress mymac PROGMEM = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
 IPAddress testIP = { 192, 168, 1, 88 };
+IPAddress gatewayIP PROGMEM = { 192, 168, 1, 1 };
 IPAddress myIP PROGMEM = { 192, 168, 1, 222 };
+IPAddress netmask PROGMEM = { 255, 255, 255, 0 };
+IPAddress dns = { 8, 8, 8, 8 };
 
 
 
@@ -79,6 +83,9 @@ void setup()
 
 	net::localIP.set_P(&myIP);
 	net::localMAC.set_P( &mymac);
+	net::gatewayIP.set_P(&gatewayIP);
+	net::netmask.set_P(&netmask);
+
 
 	if (!net::begin(10))
 		Serial.println("failed to start EtherFlow");
@@ -98,20 +105,20 @@ void setup()
 
 	//Serial.println("resolved.");
 
-	net::DNS().setDNSAddress(testIP);
+	net::DNS().setDNSAddress(dns);
 	net::DNS().resolve("www.friendev.com");
 
 
 	sck.connect();
 	
 	
-	udp.localPort.setValue(1111);
-	udp.remotePort.setValue(53);
-	udp.remoteAddress = testIP;
+	//udp.localPort.setValue(1111);
+	//udp.remotePort.setValue(53);
+	//udp.remoteAddress = testIP;
 
-	udp.write(strlen("HELLO WORLD"),(uint8_t*) "HELLO WORLD");
+	//udp.write(strlen("HELLO WORLD"),(uint8_t*) "HELLO WORLD");
 
-	udp.send();
+	//udp.send();
 
 		
 	waitTimer = millis()+1000;
