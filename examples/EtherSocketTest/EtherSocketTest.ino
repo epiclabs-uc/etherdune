@@ -14,8 +14,7 @@ IPAddress testIP = { 192, 168, 1, 88 };
 IPAddress gatewayIP PROGMEM = { 192, 168, 1, 1 };
 IPAddress myIP PROGMEM = { 192, 168, 1, 222 };
 IPAddress netmask PROGMEM = { 255, 255, 255, 0 };
-IPAddress dns = { 8, 8, 8, 8 };
-
+IPAddress dns PROGMEM = { 8, 8, 8, 8 };
 
 
 class MyProtocol : public TCPSocket
@@ -96,7 +95,7 @@ void setup()
 
 	Serial.println("link is up");
 
-	sck.remoteAddress = testIP;
+	sck.remoteIP = testIP;
 	sck.remotePort.setValue(80);
 
 	//Serial.print("resolving IP...");
@@ -105,8 +104,8 @@ void setup()
 
 	//Serial.println("resolved.");
 
-	net::DNS().setDNSAddress(dns);
-	net::DNS().resolve("www.friendev.com");
+	net::DNS.serverIP().set_P(&dns);
+	net::DNS.resolve("www.peletier.com");
 
 
 	sck.connect();
@@ -114,7 +113,7 @@ void setup()
 	
 	//udp.localPort.setValue(1111);
 	//udp.remotePort.setValue(53);
-	//udp.remoteAddress = testIP;
+	//udp.remoteIP = testIP;
 
 	//udp.write(strlen("HELLO WORLD"),(uint8_t*) "HELLO WORLD");
 
@@ -135,9 +134,9 @@ void loop()
 		//Serial.println((int) eth::whoHas(testIP));
 		Serial.print("alive"); Serial.println(millis());
 
-		if (net::DNS().resolve("www.friendev.com"))
+		if (net::DNS.resolve("www.friendev.com"))
 		{
-			Serial.print("resolved. IP="); Serial.println(net::DNS().resolvedIP.b[0]);
+			Serial.print("resolved. IP="); Serial.println(net::DNS.resolvedIP.b[0]);
 		}
 
 		waitTimer = millis() + 1000;

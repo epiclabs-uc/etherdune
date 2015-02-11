@@ -3,6 +3,10 @@
 #include "DNS.h"
 
 List NetworkService::activeServices;
+List SharedBuffer::bufferList;
+
+ARPService NetworkService::ARP;
+DNSClient NetworkService::DNS;
 
 
 NetworkService* NetworkService::currentService = NULL;
@@ -26,19 +30,6 @@ bool NetworkService::begin(uint8_t cspin)
 	return 0!= EtherFlow::begin(cspin);
 }
 
-ARPService& NetworkService::ARP()
-{
-	static ARPService* arp = new ARPService();
-
-	return *arp;
-}
-
-DNSClient& NetworkService::DNS()
-{
-	static DNSClient* dns = new DNSClient();
-
-	return *dns;
-}
 
 NetworkService::NetworkService()
 {
@@ -97,7 +88,7 @@ bool NetworkService::sendIPPacket(uint8_t headerLength)
 
 	IPAddress dstIP = sameLAN(chunk.ip.destinationIP) ? chunk.ip.destinationIP : gatewayIP;
 
-	MACAddress* dstMac = ARP().whoHas(dstIP);
+	MACAddress* dstMac = ARP.whoHas(dstIP);
 
 	if (dstMac == NULL)
 		return false;

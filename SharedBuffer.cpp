@@ -5,7 +5,6 @@
 
 uint16_t SharedBuffer::head = 0;
 uint16_t SharedBuffer::usedSpace = 0;
-List SharedBuffer::bufferList;
 
 
 
@@ -130,6 +129,9 @@ uint16_t SharedBuffer::release()
 	readAt(nextRead, sizeof(header), (byte*) &header);
 	
 	nextRead = header.nextIndex;
+
+	if (nextRead == 0xFFFF)
+		lastWritten = 0xFFFF;
 
 	uint16_t usedSpace=0;
 

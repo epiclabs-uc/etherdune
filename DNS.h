@@ -5,7 +5,7 @@
 #include "UDPSocket.h"
 #include <FlowScanner/FlowScanner.h>
 
-class DNSClient : public UDPSocket
+class DNSClient : protected UDPSocket
 {
 	friend class NetworkService;
 
@@ -17,13 +17,17 @@ private:
 	FlowScanner scanner;
 
 	void onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
-	DNSClient();
+	
 	void tick();
 
 public:
-
+	DNSClient();
 	bool resolve(const char* name);
-	void setDNSAddress(const IPAddress& dnsServerIP);
+
+	inline IPAddress& serverIP()
+	{
+		return remoteIP;
+	}
 
 	IPAddress resolvedIP;
 

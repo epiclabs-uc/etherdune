@@ -42,6 +42,8 @@ static const uint8_t MAX_SLOTS_PER_SOCKET = 4;
 
 
 static const uint8_t TCP_SRC_PORT_H = 250;
+static const uint8_t UDP_SRC_PORT_H = 240;
+
 static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
 
 static const uint16_t NETWORK_TIMER_RESOLUTION = 1000; //ms

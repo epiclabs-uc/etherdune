@@ -7,6 +7,8 @@ void UDPSocket::onReceive(uint16_t fragmentLength, uint16_t datagramLength, cons
 
 UDPSocket::UDPSocket() :sending(false)
 {
+	localPort.l = random(255); //srcPort_L_count++;
+	localPort.h = UDP_SRC_PORT_H;
 }
 
 void UDPSocket::write(uint16_t length, uint8_t* data)

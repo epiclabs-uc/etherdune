@@ -28,11 +28,6 @@ DNSClient::DNSClient() : identification(0), timer(0)
 	scanner.setPattern(catchDNSResponse);
 }
 
-void DNSClient::setDNSAddress(const IPAddress& dnsServerIP)
-{
-	remoteAddress = dnsServerIP;
-}
-
 bool DNSClient::resolve(const char* name)
 {
 
@@ -95,9 +90,7 @@ bool DNSClient::resolve(const char* name)
 void DNSClient::tick()
 {
 	if (timer > 0)
-	{
 		timer--;
-	}
 
 	UDPSocket::tick();
 }

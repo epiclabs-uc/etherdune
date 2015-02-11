@@ -4,10 +4,11 @@ static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
 
 ARPEntry ARPService::arpTable[ARP_TABLE_LENGTH];
 
+
+
 ARPService::ARPService()
 {
 	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
-	dprintln("ARP on");
 }
 
 bool ARPService::processHeader()
@@ -139,3 +140,4 @@ void ARPService::processARPReply()
 	selectedEntry->mac = chunk.arp.senderMAC;
 
 }
+

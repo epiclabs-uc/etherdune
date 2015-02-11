@@ -22,10 +22,11 @@ private:
 	
 protected:
 
-	static ARPService& ARP();
-	
+
 
 	static EthBuffer chunk;
+	static ARPService ARP;
+
 
 	virtual bool processHeader();
 	virtual bool processData(uint16_t len, uint8_t* data);
@@ -47,13 +48,16 @@ public:
 	static IPAddress gatewayIP;
 	static IPAddress netmask;
 
+	static DNSClient DNS;
+
 	static bool begin(uint8_t cspin);
 	static bool isLinkUp();
 	static void loop();
-	static DNSClient& DNS();
+
 };
 
 typedef NetworkService net;
+ 
 
 
 

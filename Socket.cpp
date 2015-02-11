@@ -19,7 +19,7 @@ void Socket::prepareIPPacket()
 	chunk.ip.fragmentOffset = 0;
 	chunk.ip.checksum.setValue(0);
 	chunk.ip.sourceIP = localIP;
-	chunk.ip.destinationIP = remoteAddress;
+	chunk.ip.destinationIP = remoteIP;
 	chunk.ip.TTL = 255;
 	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
 }

@@ -29,7 +29,7 @@ class Socket : protected NetworkService
  public:
 	 nint16_t remotePort;
 	 nint16_t localPort;
-	 IPAddress remoteAddress;
+	 IPAddress remoteIP;
 
 
 };

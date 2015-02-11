@@ -16,10 +16,6 @@ public:
 
 	UDPSocket();
 
-	nint16_t remotePort;
-	nint16_t localPort;
-	SharedBuffer buffer;
-
 	void write(uint16_t length, uint8_t* data);
 	bool send();
 	void tick();
