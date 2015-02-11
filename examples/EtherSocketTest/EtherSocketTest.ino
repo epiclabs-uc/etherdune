@@ -9,12 +9,13 @@
 #include <FlowScanner/FlowScanner.h>
 
 
-MACAddress mymac PROGMEM = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
+MACAddress_P mymac = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
 IPAddress testIP = { 192, 168, 1, 88 };
-IPAddress gatewayIP PROGMEM = { 192, 168, 1, 1 };
-IPAddress myIP PROGMEM = { 192, 168, 1, 222 };
-IPAddress netmask PROGMEM = { 255, 255, 255, 0 };
-IPAddress dns PROGMEM = { 8, 8, 8, 8 };
+IPAddress_P gatewayIP = { 192, 168, 1, 1 };
+IPAddress_P myIP  = { 192, 168, 1, 222 };
+IPAddress_P netmask  = { 255, 255, 255, 0 };
+//IPAddress_P dns = { 8, 8, 8, 8 };
+
 
 
 class MyProtocol : public TCPSocket
@@ -80,10 +81,10 @@ void setup()
 
 
 
-	net::localIP.set_P(&myIP);
-	net::localMAC.set_P( &mymac);
-	net::gatewayIP.set_P(&gatewayIP);
-	net::netmask.set_P(&netmask);
+	net::localIP = myIP;
+	net::localMAC = mymac;
+	net::gatewayIP = gatewayIP;
+	net::netmask = netmask;
 
 
 	if (!net::begin(10))
@@ -104,9 +105,8 @@ void setup()
 
 	//Serial.println("resolved.");
 
-	net::DNS.serverIP().set_P(&dns);
+	net::DNS.serverIP() = IP(8, 8, 8, 8);  //dns;
 	net::DNS.resolve("www.peletier.com");
-
 
 	sck.connect();
 	

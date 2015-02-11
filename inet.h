@@ -105,39 +105,62 @@ union nint32_t
 
 };
 
+struct IPAddress_P_
+{
+	uint8_t b[4];
+};
+
+#define IPAddress_P IPAddress_P_ PROGMEM
+
 union IPAddress
 {
 	uint8_t b[4];
 	nint32_t t;
 	uint32_t u;
 
-	void set(IPAddress& ip)
+	void operator = (IPAddress_P_* ip)
 	{
-		//memcpy(b, &ip, sizeof(IPAddress));
-		u = ip.u;
-	}
-	void set_P( PGM_VOID_P ip)
-	{
-		memcpy_P (b, ip, sizeof(IPAddress));
+		memcpy_P(b, ip, sizeof(IPAddress));
 	}
 
+	void operator = (IPAddress_P_& ip)
+	{
+		operator=(&ip);
+	}
+
+
+
 };
+
+//# define PSTR(s) (__extension__({static char __c[] PROGMEM = (s); &__c[0];}))
+
+#define IP(b0,b1,b2,b3) (__extension__({static IPAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3)}; &__c;}))
+
+struct MACAddress_P_
+{
+	uint8_t b[6];
+};
+
+#define MACAddress_P MACAddress_P_ PROGMEM
 
 
 struct MACAddress
 {
 	uint8_t b[6];
 
-	void set(MACAddress& mac)
+	void operator = (MACAddress_P_* mac)
 	{
-		memcpy(b, &mac, sizeof(MACAddress));
+		memcpy_P(b, mac, sizeof(MACAddress));
 	}
 
-	void set_P( PGM_VOID_P mac)
+	void operator = (MACAddress_P_& mac)
 	{
-		memcpy_P (b, mac, sizeof(MACAddress));
+		operator=(&mac);
 	}
+
 };
+
+#define MAC(b0,b1,b2,b3,b4,b5) (__extension__({static MACAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3),(b4),(b5)}; &__c;}))
 
 
 union ARPPacket
