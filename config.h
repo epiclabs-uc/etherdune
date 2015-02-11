@@ -1,7 +1,7 @@
 #ifndef __EtherFlow_CONFIG__
 #define __EtherFlow_CONFIG__
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 
 // EtherFlow configuration
 
@@ -61,7 +61,7 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
 #define NTICKS(ms) ((ms)/NETWORK_TIMER_RESOLUTION)
 
 // TCP timeouts
-static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(3000); // (client) represents waiting for a matching connection request after having sent a connection request.
+static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(5000); // (client) represents waiting for a matching connection request after having sent a connection request.
 static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
 static const uint8_t SCK_TIMEOUT_FIN_WAIT_2 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP.
 static const uint8_t SCK_TIMEOUT_CLOSE_WAIT = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the local user.

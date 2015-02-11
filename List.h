@@ -3,7 +3,7 @@
 #ifndef _LIST_h
 #define _LIST_h
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 
 #include "config.h"
 

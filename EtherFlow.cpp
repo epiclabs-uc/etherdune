@@ -1,10 +1,10 @@
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 #include "EtherFlow.h"
 #include <stdarg.h>
 #include "Checksum.h"
 
-#include <ACross/SPI.h>
+#include <SPI.h>
 
 
 

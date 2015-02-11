@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <tchar.h>
 
-#include <ACross\ACross.h>
+#include <ACross.h>
 
-#include <ACross\VirtualHardware\AConfig.h>
-#include <ACross\VirtualHardware\ACRPCCLient.h>
+#include <VirtualHardware\AConfig.h>
+#include <VirtualHardware\ACRPCCLient.h>
 
 
 #include "EtherSocketTest.ino"

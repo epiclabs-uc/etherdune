@@ -1,7 +1,7 @@
 #ifndef __inet_h_
 #define __inet_h_
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 
 
 static const uint16_t ETHTYPE_ARP = 0x0806;
@@ -112,6 +112,12 @@ struct IPAddress_P_
 
 #define IPAddress_P IPAddress_P_ PROGMEM
 
+#ifdef ACROSS_ARDUINO
+#define IPADDR_P(b0,b1,b2,b3) (__extension__({static IPAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3)}; &__c;}))
+#else
+#define IPADDR_P(b0,b1,b2,b3) {{ (b0),(b1),(b2),(b3) }}
+#endif
+
 union IPAddress
 {
 	uint8_t b[4];
@@ -132,9 +138,6 @@ union IPAddress
 
 };
 
-//# define PSTR(s) (__extension__({static char __c[] PROGMEM = (s); &__c[0];}))
-
-#define IP(b0,b1,b2,b3) (__extension__({static IPAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3)}; &__c;}))
 
 struct MACAddress_P_
 {
@@ -142,7 +145,11 @@ struct MACAddress_P_
 };
 
 #define MACAddress_P MACAddress_P_ PROGMEM
-
+#ifdef ACROSS_ARDUINO
+#define MACADDR_P(b0,b1,b2,b3,b4,b5) (__extension__({static MACAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3),(b4),(b5)}; &__c;}))
+#else
+#define MACADDR_P(b0,b1,b2,b3,b4,b5) {{ (b0),(b1),(b2),(b3),(b4),(b5) }}
+#endif
 
 struct MACAddress
 {
@@ -160,7 +167,6 @@ struct MACAddress
 
 };
 
-#define MAC(b0,b1,b2,b3,b4,b5) (__extension__({static MACAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3),(b4),(b5)}; &__c;}))
 
 
 union ARPPacket

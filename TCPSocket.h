@@ -1,7 +1,7 @@
 #ifndef _TCPSOCKET_H_
 #define _TCPSOCKET_H_
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 
 #include "Socket.h"
 

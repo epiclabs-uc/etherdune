@@ -3,7 +3,7 @@
 #ifndef _SOCKET_h
 #define _SOCKET_h
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 
 #include "inet.h"
 #include "config.h"

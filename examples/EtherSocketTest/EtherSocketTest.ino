@@ -1,12 +1,12 @@
-#include <ACross/ACross.h>
-#include <EtherFlow/Checksum.h>
-#include <EtherFlow/TCPSocket.h>
-#include <EtherFlow/UDPSocket.h>
+#include <ACross.h>
+#include <Checksum.h>
+#include <TCPSocket.h>
+#include <UDPSocket.h>
 
-#include <EtherFlow/inet.h>
-#include <EtherFlow/EtherFlow.h>
-#include <EtherFlow/DNS.h>
-#include <FlowScanner/FlowScanner.h>
+#include <inet.h>
+#include <EtherFlow.h>
+#include <DNS.h>
+#include <FlowScanner.h>
 
 
 MACAddress_P mymac = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
@@ -105,7 +105,9 @@ void setup()
 
 	//Serial.println("resolved.");
 
-	net::DNS.serverIP() = IP(8, 8, 8, 8);  //dns;
+	net::DNS.serverIP() = IPADDR_P(8, 8, 8, 8);
+	
+
 	net::DNS.resolve("www.peletier.com");
 
 	sck.connect();

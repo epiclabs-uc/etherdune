@@ -1,9 +1,9 @@
 #ifndef __DNS__
 #define __DNS__
 
-#include <ACross/ACross.h>
+#include <ACross.h>
 #include "UDPSocket.h"
-#include <FlowScanner/FlowScanner.h>
+#include <FlowScanner.h>
 
 class DNSClient : protected UDPSocket
 {
