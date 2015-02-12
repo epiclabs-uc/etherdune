@@ -4,10 +4,10 @@
 
 DEFINE_FLOWPATTERN(catchDNSResponse, "%*[\0]\x01" "%*[\0]\x01" "%*4c" "%*[\0]\x04" "%4c");
 
-void DNSClient::onResolve(uint16_t id, const IPAddress& ip)
-{
-	NetworkService::notifyOnDNSResolve(id, ip);
-}
+//void DNSClient::onResolve(uint16_t id, const IPAddress& ip)
+//{
+//	NetworkService::notifyOnDNSResolve(id, ip);
+//}
 
 bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data)
 {
@@ -22,7 +22,7 @@ bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, cons
 	{
 		if (scanner.scan(*data, &resolvedIP))
 		{
-			onResolve(identification, resolvedIP);
+			NetworkService::notifyOnDNSResolve(identification, resolvedIP);
 			buffer.release();
 			return false;
 		}

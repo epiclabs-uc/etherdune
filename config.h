@@ -5,19 +5,9 @@
 
 // EtherFlow configuration
 
-#define EtherFlow_DEBUG 1
 
-
-
-#if EtherFlow_DEBUG
-	#define DEBUG(x) x
-#else
-	#define DEBUG(x)
-#endif
-
-
-
-#define CLOCK(id,x) unsigned long clock##id=millis();x;Serial.print("" #x ": " );Serial.print(millis() - clock##id);Serial.println(" ms.")
+#define CLOCK(id,x) unsigned long clock##id=millis();x;dsprint("" #x ": " );dprint(millis() - clock##id);dsprintln(" ms.")
+#define PRINTSIZEOF(thing) ACDEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
 
 
 // ENC28J60 memory mapping

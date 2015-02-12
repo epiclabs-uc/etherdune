@@ -8,7 +8,7 @@
 
 
 
-uint8_t selectPin;
+static uint8_t selectPin;
 static byte Enc28j60Bank;
 static int gNextPacketPtr;
 

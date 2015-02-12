@@ -76,12 +76,12 @@ void TCPSocket::setState(uint8_t newState, uint8_t timeout)
 	state = newState;
 	stateTimer = timeout;
 
-	dprint("setState="); DEBUG(printState());
+	dsprint("setState="); ACDEBUG(printState());
 }
 
 void TCPSocket::sendSYN()
 {
-	dprintln("sendSYN()");
+	dsprintln("sendSYN()");
 
 	prepareTCPPacket(true, 0);
 
@@ -99,7 +99,7 @@ void TCPSocket::sendSYN()
 
 void TCPSocket::sendFIN()
 {
-	dprintln("sendFIN()");
+	dsprintln("sendFIN()");
 
 	prepareTCPPacket(false, 0);
 
@@ -150,9 +150,8 @@ void TCPSocket::close()
 void TCPSocket::tick()
 {
 
-
-
-	dprint("state="); DEBUG(printState());
+	
+	dsprint("state="); ACDEBUG(printState());
 
 	if (stateTimer == 1) //handle timeouts
 	{
@@ -211,11 +210,11 @@ bool TCPSocket::processHeader()
 		return false;
 	}
 
-	dprintln("Header");
-	dprint("SYN="); dprint(chunk.tcp.SYN);
-	dprint(";ACK="); dprint(chunk.tcp.ACK);
-	dprint(";FIN="); dprint(chunk.tcp.FIN);
-	dprint(";RST="); dprintln(chunk.tcp.RST);
+	dsprintln("Header");
+	dsprint("SYN="); dprint(chunk.tcp.SYN);
+	dsprint(";ACK="); dprint(chunk.tcp.ACK);
+	dsprint(";FIN="); dprint(chunk.tcp.FIN);
+	dsprint(";RST="); dprintln(chunk.tcp.RST);
 
 	uint32_t incomingAckNum = chunk.tcp.acknowledgementNumber.getValue();
 	uint32_t incomingSeqNum = chunk.tcp.sequenceNumber.getValue();
@@ -223,12 +222,12 @@ bool TCPSocket::processHeader()
 	int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 	int32_t bytesReceived; // = (int32_t)(incomingSeqNum - ackNumber);
 
-	dprint("incomingAck="); dprintln(incomingAckNum);
-	dprint("localSeqNum="); dprintln(sequenceNumber);
-	dprint("bytesAck="); dprintln(bytesAck);
+	dsprint("incomingAck="); dprintln(incomingAckNum);
+	dsprint("localSeqNum="); dprintln(sequenceNumber);
+	dsprint("bytesAck="); dprintln(bytesAck);
 
-	dprint("incomingSeqNum="); dprintln(incomingSeqNum);
-	dprint("localAckNum="); dprintln(ackNumber);
+	dsprint("incomingSeqNum="); dprintln(incomingSeqNum);
+	dsprint("localAckNum="); dprintln(ackNumber);
 
 	if (chunk.tcp.RST)
 	{
@@ -251,7 +250,7 @@ bool TCPSocket::processHeader()
 
 	if (ackNumber != incomingSeqNum)
 	{
-		dprintln("dropped packet out of sequence.");
+		dsprintln("dropped packet out of sequence.");
 		sendAck = true;
 		return false;
 	}
@@ -259,7 +258,7 @@ bool TCPSocket::processHeader()
 	int16_t headerLength = sizeof(IPHeader) + chunk.tcp.headerLength * 4;
 	bytesReceived = chunk.ip.totalLength.getValue() - headerLength;
 	ackNumber += bytesReceived;
-	dprint("bytesReceived="); dprintln(bytesReceived);
+	dsprint("bytesReceived="); dprintln(bytesReceived);
 
 	releaseWindow(bytesAck);
 	sendAck = true;
@@ -325,7 +324,7 @@ bool TCPSocket::processHeader()
 
 bool TCPSocket::processData(uint16_t len, uint8_t* data)
 {
-	dprintln("more data");
+	dsprintln("more data");
 
 	onReceive(len, data);
 
@@ -346,7 +345,7 @@ void TCPSocket::processOutgoingBuffer()
 	uint32_t nSeq = sequenceNumber;
 	uint16_t dataLength;
 	uint16_t dataChecksum;
-	//dprint("processOutgoingBuffer, numSlots="); dprintln(numSlots);
+	//dsprint("processOutgoingBuffer, numSlots="); dprintln(numSlots);
 
 	if (buffer.nextRead != 0xFFFF || sendAck)
 	{
@@ -356,8 +355,8 @@ void TCPSocket::processOutgoingBuffer()
 		chunk.tcp.sequenceNumber.setValue(nSeq);
 		chunk.tcp.ACK = 1;
 
-		dprint("dataLength="); dprint(dataLength);
-		dprint(";dataChecksum="); dprintln(dataChecksum);
+		dsprint("dataLength="); dprint(dataLength);
+		dsprint(";dataChecksum="); dprintln(dataChecksum);
 
 		calcTCPChecksum(false, dataLength, dataChecksum);
 
@@ -377,7 +376,7 @@ void TCPSocket::releaseWindow(int32_t& bytesAck)
 		bytesAck -= buffer.release();
 	};
 
-	DEBUG(if (bytesAck < 0) dprintln("released too much ?!"));
+	ACDEBUG(if (bytesAck < 0) dsprintln("released too much ?!"));
 
 }
 
@@ -387,23 +386,23 @@ void TCPSocket::printState()
 
 	switch (state)
 	{
-		case SCK_STATE_CLOSED: s = "CLOSED"; break;
-		case SCK_STATE_LISTEN: s = "LISTEN"; break;
-		case SCK_STATE_SYN_SENT: s = "SYN_SENT"; break;
-		case SCK_STATE_SYN_RECEIVED: s = "SYN_RECEIVED"; break;
-		case SCK_STATE_ESTABLISHED: s = "ESTABLISHED"; break;
-		case SCK_STATE_FIN_WAIT_1: s = "FIN_WAIT_1"; break;
-		case SCK_STATE_FIN_WAIT_2: s = "FIN_WAIT_2"; break;
-		case SCK_STATE_CLOSE_WAIT: s = "CLOSE_WAIT"; break;
-		case SCK_STATE_CLOSING: s = "CLOSING"; break;
-		case SCK_STATE_LAST_ACK: s = "LAST_ACK"; break;
-		case SCK_STATE_TIME_WAIT: s = "TIME_WAIT"; break;
-		case SCK_STATE_RESOLVING: s = "RESOLVING NAME"; break;
+		case SCK_STATE_CLOSED: s = PSTR("CLOSED"); break;
+		case SCK_STATE_LISTEN: s = PSTR("LISTEN"); break;
+		case SCK_STATE_SYN_SENT: s = PSTR("SYN_SENT"); break;
+		case SCK_STATE_SYN_RECEIVED: s = PSTR("SYN_RECEIVED"); break;
+		case SCK_STATE_ESTABLISHED: s = PSTR("ESTABLISHED"); break;
+		case SCK_STATE_FIN_WAIT_1: s = PSTR("FIN_WAIT_1"); break;
+		case SCK_STATE_FIN_WAIT_2: s = PSTR("FIN_WAIT_2"); break;
+		case SCK_STATE_CLOSE_WAIT: s = PSTR("CLOSE_WAIT"); break;
+		case SCK_STATE_CLOSING: s = PSTR("CLOSING"); break;
+		case SCK_STATE_LAST_ACK: s = PSTR("LAST_ACK"); break;
+		case SCK_STATE_TIME_WAIT: s = PSTR("TIME_WAIT"); break;
+		case SCK_STATE_RESOLVING: s = PSTR("RESOLVING NAME"); break;
 
 		default:
-			s = "UNKNOWN";
+			s = PSTR("UNKNOWN");
 	}
 
-	dprintln(s);
+	dprintln((__FlashStringHelper*)s);
 
 }

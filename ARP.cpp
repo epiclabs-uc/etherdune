@@ -17,14 +17,14 @@ bool ARPService::processHeader()
 	if (chunk.eth.etherType.getValue() != ETHTYPE_ARP)
 		return false;
 
-	dprintln("ARPService::processHeader");
+	dsprintln("ARPService::processHeader");
 
 	switch (chunk.arp.OPER.l)
 	{
 		case ARP_OPCODE_REPLY_L:
 		{
 
-			dprint("ARP Reply received=");
+			dsprint("ARP Reply received=");
 			dprintln(chunk.arp.senderMAC.b[1]);
 			processARPReply();
 
@@ -133,7 +133,7 @@ void ARPService::processARPReply()
 		}
 	}
 
-	DEBUG(if (!selectedEntry)	{ dprintln("busted");		while (1); });
+	ACDEBUG(if (!selectedEntry)	{ dsprintln("busted");		while (1); });
 
 	selectedEntry->status_TTL = MAX_ARP_TTL;
 	selectedEntry->ip = chunk.arp.senderIP;

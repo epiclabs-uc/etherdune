@@ -27,6 +27,7 @@ void NetworkService::onDNSResolve(uint16_t id, const IPAddress& ip) {}
 
 bool NetworkService::begin(uint8_t cspin)
 {
+
 	tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
 	return 0!= EtherFlow::begin(cspin);
 }
@@ -53,13 +54,13 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 				return true;
 			}
 		}
-		dprintln("nobody wants this packet");
+		dsprintln("nobody wants this packet");
 		return false;
 	}
 
 	if (currentService == NULL)
 	{
-		dprintln("currentService should not be null");
+		dsprintln("currentService should not be null");
 		return false;
 	}
 

@@ -3,11 +3,7 @@
 #ifndef _CHECKSUM_h
 #define _CHECKSUM_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
-#else
-#include <inttypes.h>
-#endif
+#include <ACross.h>
 
 
 class Checksum

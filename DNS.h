@@ -32,7 +32,6 @@ public:
 		return remoteIP;
 	}
 
-	virtual void onResolve(uint16_t id, const IPAddress& ip);
 
 
 

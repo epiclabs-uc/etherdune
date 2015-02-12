@@ -49,7 +49,6 @@ public:
 	static IPAddress localIP;
 	static IPAddress gatewayIP;
 	static IPAddress netmask;
-
 	static DNSClient DNS;
 
 	static bool begin(uint8_t cspin);
