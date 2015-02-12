@@ -37,7 +37,7 @@ public:
 	uint16_t release();
 	void flush();
 
-	uint16_t fillTxBuffer(uint16_t dstOffset, uint16_t& checksum);
+	uint16_t fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint16_t count=0xFFFF);
 
 
 public:

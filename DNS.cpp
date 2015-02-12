@@ -1,58 +1,20 @@
 #include "DNS.h"
 #include "Checksum.h"
 
-DNSQuery::DNSQuery() 
-{
-	resolvedIP.u = 0;
-	name = NULL;
-}
-
-
-void DNSQuery::resolve(char* hostName)
-{
-	resolvedIP.u = 0; //also sets to 0 "flag", "identification" and "timer"
-	timer = DNS_TIMEOUT_QUERY;
-	name = hostName;
-
-}
-
-uint8_t DNSQuery::getResponse(IPAddress& ip)
-{
-	uint8_t status;
-	if (flag == 0)
-	{
-		if (timer == 0)
-			status = 2;
-		else
-			status = 1;
-	}
-	else
-	{
-		ip = resolvedIP;
-		status = 0;
-	}
-	return status;
-}
-
-
-
 
 DEFINE_FLOWPATTERN(catchDNSResponse, "%*[\0]\x01" "%*[\0]\x01" "%*4c" "%*[\0]\x04" "%4c");
+
+void DNSClient::onResolve(uint16_t id, const IPAddress& ip)
+{
+	NetworkService::notifyOnDNSResolve(id, ip);
+}
 
 bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data)
 {
 	if (datagramLength != 0) // it is the first chunk of this datagram
 	{
-		for (DNSQuery* query = (DNSQuery*)queryList.first; query != NULL; query = (DNSQuery*)query->nextItem)
-		{
-			if (query->identification == chunk.dns.identification)
-			{
-				scanner.reset();
-				selectedQuery = query;
-				return true; //bring in the rest of this datagram
-			}
-		}
-		return false; // not interested in the rest of this datagram.
+		identification = chunk.dns.identification;
+		return true; //bring in the rest of this datagram
 	}
 
 	
@@ -60,7 +22,8 @@ bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, cons
 	{
 		if (scanner.scan(*data, &resolvedIP))
 		{
-			selectedQuery->resolvedIP = resolvedIP;
+			onResolve(identification, resolvedIP);
+			buffer.release();
 			return false;
 		}
 
@@ -77,7 +40,12 @@ DNSClient::DNSClient()
 
 uint16_t DNSClient::resolve(const char* name)
 {
-	uint8_t* b = chunk.raw;
+	timer = DNS_TIMEOUT_QUERY;
+
+	DNSHeader& header = *(DNSHeader*)chunk.raw;
+
+	uint8_t* queryPtr = chunk.raw + sizeof(DNSHeader);
+	uint8_t* b = queryPtr;
 	uint8_t* label = b;
 	b++;
 
@@ -98,10 +66,8 @@ uint16_t DNSClient::resolve(const char* name)
 
 	*b = 0;
 
-	uint16_t id = Checksum::calc(b - chunk.raw, chunk.raw);
+	uint16_t id = Checksum::calc(b - queryPtr, queryPtr);
 
-
-	DNSHeader header;
 	header.zero();
 	header.identification = id;
 	/*
@@ -118,42 +84,46 @@ uint16_t DNSClient::resolve(const char* name)
 
 	b += 4;
 
-	write(sizeof(header), (uint8_t*)&header);
-	write(b - chunk.raw, chunk.raw);
+	write(sizeof(header) + b - queryPtr, chunk.raw);
 
-	if (send())
-		return id;
-	else
-		return 0;
+	send();
+	return id;
 }
 
 
 void DNSClient::tick()
 {
-	for (DNSQuery* query = (DNSQuery*)queryList.first; query != NULL; query = (DNSQuery*)query->nextItem)
+	if (timer > 0)
 	{
-		if (query->flag == 0 && query->name != NULL)
-		{
-			if (query->timer > 0)
-			{
-				query->timer--;
-				uint16_t id = resolve(query->name);
-				if (query->identification == 0)
-					query->identification = id;
-			}
-		}
+		timer--;
 
+		if (timer == 0)
+		{
+			buffer.release();
+			timer = DNS_TIMEOUT_QUERY;
+		}
 	}
+
 
 	UDPSocket::tick();
 }
 
-void DNSClient::addQuery(DNSQuery& query)
+bool DNSClient::sendPacket()
 {
-	queryList.add(&query);
-}
+	uint16_t dataChecksum = 0;
+	uint16_t dataLength;
 
-void DNSClient::removeQuery(DNSQuery& query)
-{
-	queryList.remove(&query);
+	dataLength = buffer.fillTxBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader),/*out*/ dataChecksum, 1);
+
+	bool ret;
+	if (dataLength > 0)
+	{
+		prepareUDPPacket(dataLength, dataChecksum);
+		ret = !sendIPPacket(sizeof(IPHeader) + sizeof(UDPHeader));
+	}
+	else
+		ret = false;
+	
+	return ret;
+
 }

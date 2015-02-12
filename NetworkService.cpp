@@ -22,6 +22,7 @@ EthBuffer NetworkService::chunk;
 bool NetworkService::processHeader(){ return false; }
 bool NetworkService::processData(uint16_t len, uint8_t* data){ return false; }
 void NetworkService::tick(){}
+void NetworkService::onDNSResolve(uint16_t id, const IPAddress& ip) {}
 
 
 bool NetworkService::begin(uint8_t cspin)
@@ -127,4 +128,12 @@ bool NetworkService::sameLAN(IPAddress& dst)
 			return false;
 
 	return true;
+}
+
+void NetworkService::notifyOnDNSResolve(uint16_t id, const IPAddress& ip)
+{
+	for (NetworkService* service = (NetworkService*)activeServices.first; service != NULL; service = (NetworkService*)service->nextItem)
+	{
+		service->onDNSResolve(id, ip);
+	}
 }

@@ -72,7 +72,7 @@ static const uint8_t SCK_TIMEOUT_RESOLVING = NTICKS(3000); // waiting for a DNS 
 //DNS timeout
 
 static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(2000);
-static const uint8_t DNS_MAX_RETRIES = 3;
+
 
 
 

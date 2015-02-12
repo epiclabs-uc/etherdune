@@ -26,35 +26,47 @@ bool UDPSocket::send()
 	return true;
 }
 
+
+void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
+{
+	chunk.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
+	chunk.ip.protocol = IP_PROTO_UDP_V;
+	prepareIPPacket();
+	chunk.udp.sourcePort = localPort;
+	chunk.udp.destinationPort = remotePort;
+
+	chunk.udp.dataLength.setValue(dataLength + sizeof(UDPHeader));
+	chunk.udp.checksum.zero();
+
+	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, dataLength + sizeof(UDPHeader));
+	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&chunk.udp);
+
+	chunk.udp.checksum.rawu = ~Checksum::add(headerChecksum, dataChecksum);
+
+}
+
+bool UDPSocket::sendPacket()
+{
+	uint16_t dataChecksum = 0;
+	uint16_t dataLength;
+
+	dataLength = buffer.fillTxBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader),/*out*/ dataChecksum);
+
+	prepareUDPPacket(dataLength, dataChecksum);
+
+	if (sendIPPacket(sizeof(IPHeader) + sizeof(UDPHeader)))
+	{
+		buffer.flush();
+		return false;
+	}
+	else
+		return true;
+}
+
 void UDPSocket::tick()
 {
 	if (sending)
-	{
-		uint16_t dataChecksum = 0;
-		uint16_t dataLength;
-
-		dataLength = buffer.fillTxBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader),/*out*/ dataChecksum);
-
-		chunk.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
-		chunk.ip.protocol = IP_PROTO_UDP_V;
-		prepareIPPacket();
-		chunk.udp.sourcePort = localPort;
-		chunk.udp.destinationPort = remotePort;
-
-		chunk.udp.dataLength.setValue(dataLength + sizeof(UDPHeader));
-		chunk.udp.checksum.zero();
-
-		uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, dataLength + sizeof(UDPHeader));
-		headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&chunk.udp);
-
-		chunk.udp.checksum.rawu = ~Checksum::add(headerChecksum, dataChecksum);
-
-		if (sendIPPacket(sizeof(IPHeader) + sizeof(UDPHeader)))
-		{
-			buffer.flush();
-			sending = false;
-		}
-	}
+		sending = sendPacket();
 
 }
 

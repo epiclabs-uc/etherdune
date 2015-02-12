@@ -6,11 +6,16 @@
 
 class UDPSocket : public Socket
 {
+
 private:
 	bool processHeader();
 	bool processData(uint16_t len, uint8_t* data);
 	
 	bool sending;
+
+protected:
+	void prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum);
+	virtual bool sendPacket();
 
 public:
 

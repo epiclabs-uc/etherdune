@@ -49,6 +49,12 @@ public:
 	}
 
 
+	void onDNSResolve(uint16_t identification, const IPAddress& ip)
+	{
+		Serial.print("resolved. IP="); Serial.println(ip.b[0]);
+	}
+
+
 } sck;
 
 
@@ -66,7 +72,6 @@ public:
 }udp;
 
 
-DNSQuery query;
 
 unsigned long waitTimer = 0;
 void setup()
@@ -111,10 +116,9 @@ void setup()
 	
 	dprintln("aa");
 
-	query.resolve("www.friendev.com");
-	net::DNS.addQuery(query);
+	net::DNS.resolve("www.friendev.com");
 
-	sck.connect();
+	//sck.connect();
 	
 	
 	//udp.localPort.setValue(1111);
@@ -138,14 +142,7 @@ void loop()
 	if ((long)(millis() - waitTimer) >= 0)
 	{
 		//Serial.println((int) eth::whoHas(testIP));
-		Serial.print("alive"); Serial.println(millis());
-
-		IPAddress ip;
-		
-		if (query.getResponse(ip)==0)
-		{
-			Serial.print("resolved. IP="); Serial.println(ip.b[0]);
-		}
+		//Serial.print("alive"); Serial.println(millis());
 
 		waitTimer = millis() + 1000;
 	}

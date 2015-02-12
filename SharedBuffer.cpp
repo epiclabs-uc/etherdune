@@ -157,7 +157,7 @@ void SharedBuffer::flush()
 }
 
 
-uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum )
+uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint16_t count )
 {
 
 	BufferHeader header;
@@ -167,8 +167,9 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum )
 	bool startOdd = txPtr & 1;
 
 	uint16_t n = nextRead;
-	while (n!=0xFFFF)
+	while (n!=0xFFFF && count>0)
 	{
+		count--;
 		readAt(n, sizeof(header), (byte*)&header);
 		if ((txPtr + header.length > TXSTOP_INIT + 1))
 			break;
