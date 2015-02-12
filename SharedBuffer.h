@@ -19,16 +19,13 @@ class SharedBuffer : ListItem
 	
 	static uint16_t head;
 	static uint16_t usedSpace;
+	static List bufferList;
 
 	static uint16_t append(uint16_t len, const byte* data);
 	static uint16_t writeAt(uint16_t index, uint16_t len, const byte* data);
 	static uint16_t readAt(uint16_t index, uint16_t len, byte* data );
 
-	static List bufferList;
-
 public:
-	SharedBuffer* next;
-
 
 	uint16_t nextRead;
 	uint16_t lastWritten;
