@@ -56,15 +56,17 @@ class MyUDP : public UDPSocket
 {
 
 public:
-	void onReceive(uint16_t len, uint16_t datagramLength, const byte* data)
+	bool onReceive(uint16_t len, uint16_t datagramLength, const byte* data)
 	{
 		Serial.print("on UDP receive");
+		return true;
 	}
 
 
 }udp;
 
 
+DNSQuery query;
 
 unsigned long waitTimer = 0;
 void setup()
@@ -107,8 +109,10 @@ void setup()
 
 	net::DNS.serverIP() = IPADDR_P(8, 8, 8, 8);
 	
+	dprintln("aa");
 
-	net::DNS.resolve("www.peletier.com");
+	query.resolve("www.friendev.com");
+	net::DNS.addQuery(query);
 
 	sck.connect();
 	
@@ -136,9 +140,11 @@ void loop()
 		//Serial.println((int) eth::whoHas(testIP));
 		Serial.print("alive"); Serial.println(millis());
 
-		if (net::DNS.resolve("www.friendev.com"))
+		IPAddress ip;
+		
+		if (query.getResponse(ip)==0)
 		{
-			Serial.print("resolved. IP="); Serial.println(net::DNS.resolvedIP.b[0]);
+			Serial.print("resolved. IP="); Serial.println(ip.b[0]);
 		}
 
 		waitTimer = millis() + 1000;

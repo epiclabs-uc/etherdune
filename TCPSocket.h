@@ -44,6 +44,7 @@ public:
 
 	TCPSocket();
 	void connect();
+
 	uint16_t write(uint16_t len, const byte* data);
 	void close();
 	void terminate();

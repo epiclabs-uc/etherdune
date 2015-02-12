@@ -20,7 +20,7 @@ public:
 	bool send();
 	void tick();
 
-	virtual void onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
+	virtual bool onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
 
 
 

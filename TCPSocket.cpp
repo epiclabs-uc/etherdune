@@ -31,9 +31,6 @@ void TCPSocket::connect()
 
 	setState(SCK_STATE_SYN_SENT, SCK_TIMEOUT_SYN_SENT);
 	sendSYN();
-
-
-
 }
 
 void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
@@ -401,6 +398,7 @@ void TCPSocket::printState()
 		case SCK_STATE_CLOSING: s = "CLOSING"; break;
 		case SCK_STATE_LAST_ACK: s = "LAST_ACK"; break;
 		case SCK_STATE_TIME_WAIT: s = "TIME_WAIT"; break;
+		case SCK_STATE_RESOLVING: s = "RESOLVING NAME"; break;
 
 		default:
 			s = "UNKNOWN";

@@ -110,7 +110,7 @@ struct IPAddress_P_
 	uint8_t b[4];
 };
 
-#define IPAddress_P IPAddress_P_ PROGMEM
+#define IPAddress_P PROGMEM IPAddress_P_ 
 
 #ifdef ACROSS_ARDUINO
 #define IPADDR_P(b0,b1,b2,b3) (__extension__({static IPAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3)}; &__c;}))
@@ -144,7 +144,7 @@ struct MACAddress_P_
 	uint8_t b[6];
 };
 
-#define MACAddress_P MACAddress_P_ PROGMEM
+#define MACAddress_P PROGMEM MACAddress_P_ 
 #ifdef ACROSS_ARDUINO
 #define MACADDR_P(b0,b1,b2,b3,b4,b5) (__extension__({static MACAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3),(b4),(b5)}; &__c;}))
 #else
