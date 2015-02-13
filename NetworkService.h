@@ -23,7 +23,7 @@ private:
 	
 protected:
 
-
+	static uint8_t srcPort_L_count;
 
 	static EthBuffer chunk;
 	static ARPService ARP;
@@ -36,9 +36,10 @@ protected:
 	virtual void onDNSResolve(uint16_t id, const IPAddress& ip);
 
 	static bool sendIPPacket(uint8_t headerLength);
+	static void prepareIPPacket(const IPAddress& remoteIP);
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
-
+	static uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
 	static bool sameLAN(IPAddress& dst);
 
 	NetworkService();

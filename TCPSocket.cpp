@@ -42,7 +42,7 @@ void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 
 	chunk.ip.protocol = IP_PROTO_TCP_V;
 
-	prepareIPPacket();
+	prepareIPPacket(remoteIP);
 
 	chunk.tcp.sourcePort = localPort;
 	chunk.tcp.destinationPort = remotePort;

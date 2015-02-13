@@ -1,6 +1,7 @@
 #include "NetworkService.h"
 #include "ARP.h"
 #include "DNS.h"
+#include "Checksum.h"
 
 List NetworkService::activeServices;
 List SharedBuffer::bufferList;
@@ -14,6 +15,11 @@ MACAddress NetworkService::localMAC;
 IPAddress NetworkService::localIP;
 IPAddress NetworkService::gatewayIP;
 IPAddress NetworkService::netmask;
+
+uint8_t NetworkService::srcPort_L_count = 0;
+
+
+
 
 static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
 EthBuffer NetworkService::chunk;
@@ -137,4 +143,32 @@ void NetworkService::notifyOnDNSResolve(uint16_t id, const IPAddress& ip)
 	{
 		service->onDNSResolve(id, ip);
 	}
+}
+
+
+
+void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
+{
+	chunk.ip.version = 4;
+	chunk.ip.IHL = 0x05; //20 bytes
+	chunk.ip.raw[1] = 0x00; //DSCP/ECN=0;
+	chunk.ip.identification.setValue(0);
+	chunk.ip.flags = 0;
+	chunk.ip.fragmentOffset = 0;
+	chunk.ip.checksum.setValue(0);
+	chunk.ip.sourceIP = localIP;
+	chunk.ip.destinationIP = remoteIP;
+	chunk.ip.TTL = 255;
+	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
+}
+
+uint16_t NetworkService::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
+{
+	nint32_t pseudo;
+	pseudo.h.h = 0;
+	pseudo.h.l = protocol;
+	pseudo.l.setValue(length);
+
+	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&chunk.ip.sourceIP);
+	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
 }

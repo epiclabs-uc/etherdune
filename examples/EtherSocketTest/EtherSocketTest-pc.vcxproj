@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\jpeletie\Dropbox\Arduino\libraries\ACross;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow;C:\Users\jpeletie\Dropbox\Arduino\libraries\FlowScanner;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\jpeletie\Dropbox\Arduino\libraries\ACross;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow;C:\Users\jpeletie\Dropbox\Arduino\libraries\FastDelegate;C:\Users\jpeletie\Dropbox\Arduino\libraries\FlowScanner;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)-pc\</OutDir>
     <IntDir>$(Configuration)-pc\</IntDir>
   </PropertyGroup>

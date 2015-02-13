@@ -6,7 +6,7 @@
 #include <FlowScanner.h>
 
 
-class DNSClient : protected UDPSocket
+class DNSClient : private UDPSocket
 {
 	friend class NetworkService;
 

@@ -3,15 +3,16 @@
 
 #include <ACross.h>
 
-#include "Socket.h"
-
+#include "NetworkService.h"
+#include "SharedBuffer.h"
 class TCPSocket;
 
 
-class TCPSocket : public Socket
+class TCPSocket : public NetworkService
 {
 	
 protected:
+	SharedBuffer buffer;
 
 	uint32_t sequenceNumber;
 	uint32_t ackNumber;
@@ -42,6 +43,10 @@ private:
 
 public:
 
+	nint16_t remotePort;
+	nint16_t localPort;
+	IPAddress remoteIP;
+
 	TCPSocket();
 	void connect();
 
@@ -52,6 +57,7 @@ public:
 	virtual void onConnect();
 	virtual void onClose();
 	virtual void onReceive(uint16_t len, const byte* data);
+
 
 };
 

@@ -31,7 +31,7 @@ void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 {
 	chunk.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
 	chunk.ip.protocol = IP_PROTO_UDP_V;
-	prepareIPPacket();
+	prepareIPPacket(remoteIP);
 	chunk.udp.sourcePort = localPort;
 	chunk.udp.destinationPort = remotePort;
 

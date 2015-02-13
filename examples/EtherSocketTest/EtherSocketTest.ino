@@ -118,7 +118,7 @@ void setup()
 
 	net::DNS.resolve("www.friendev.com");
 
-	//sck.connect();
+	sck.connect();
 	
 	
 	//udp.localPort.setValue(1111);
