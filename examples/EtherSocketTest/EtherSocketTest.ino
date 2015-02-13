@@ -7,7 +7,7 @@
 #include <EtherFlow.h>
 #include <DNS.h>
 #include <FlowScanner.h>
-
+#include <HTTPClient.h>
 
 MACAddress_P mymac = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
 IPAddress testIP = { 192, 168, 1, 88 };
@@ -72,6 +72,25 @@ public:
 }udp;
 
 
+class MyHTTPClient : public HTTPClient
+{
+
+public:
+
+	void start()
+	{
+		
+		remoteIP = testIP;
+		remotePort.setValue(80);
+		
+
+		request(F("localhost"), F("/"));
+	}
+
+
+}http;
+
+
 
 unsigned long waitTimer = 0;
 void setup()
@@ -118,6 +137,8 @@ void setup()
 
 	net::DNS.resolve("www.friendev.com");
 
+
+
 	//sck.connect();
 	
 	
@@ -130,6 +151,8 @@ void setup()
 	//udp.send();
 
 		
+	http.start();
+
 	waitTimer = millis()+1000;
 }
 

@@ -52,10 +52,9 @@ union nint16_t
 	}
 	void setValue(uint16_t v)
 	{
-		u16_t u;
-		u.v = v;
-		l = u.l;
-		h = u.h;
+
+		l = (uint8_t)v;
+		h = v >> 8;
 	}
 
 	inline void zero()
@@ -73,7 +72,7 @@ union nint32_t
 		nint16_t l;
 	};
 	uint8_t raw[4];
-	
+
 
 	uint32_t getValue()
 	{
@@ -94,6 +93,7 @@ union nint32_t
 		h.l = u.h.l;
 		l.h = u.l.h;
 		l.l = u.l.l;
+
 
 
 	}
@@ -223,7 +223,7 @@ struct TCPHeader
 	nint16_t destinationPort;
 	nint32_t sequenceNumber;
 	nint32_t acknowledgementNumber;
-	
+
 	union
 	{
 		struct
@@ -338,7 +338,7 @@ union EthBuffer
 					};
 
 				};
-				
+
 			};
 
 		};
@@ -352,7 +352,7 @@ struct ARPEntry
 {
 	IPAddress ip;
 	MACAddress mac;
-	int8_t status_TTL; 
+	int8_t status_TTL;
 };
 
 
