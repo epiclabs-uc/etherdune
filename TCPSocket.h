@@ -45,11 +45,6 @@ public:
 	TCPSocket();
 	void connect();
 
-	uint16_t write(uint16_t len, const byte* data);
-	uint16_t write(const String& s);
-//	uint16_t write(const __FlashStringHelper* f);
-	uint16_t write(const __FlashStringHelper* pattern, ...);
-
 	void close();
 	void terminate();
 

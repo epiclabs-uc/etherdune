@@ -31,6 +31,10 @@ class Socket : protected NetworkService
 	 nint16_t localPort;
 	 IPAddress remoteIP;
 
+	 uint16_t write(uint16_t len, const byte* data);
+	 uint16_t write(const String& s);
+	 uint16_t write(const __FlashStringHelper* pattern, ...);
+
 
 };
 
