@@ -16,8 +16,8 @@ private:
 
 	String host;
 	String res;
-	char* headerName;
-	char* headerValue;
+	char headerName[30];
+	char headerValue[30];
 
 
 public:
@@ -28,7 +28,7 @@ public:
 
 	void request(const String& hostName, const String& resource);
 
-	virtual void onHeaderReceived(char* header, char* value);
+	virtual void onHeaderReceived(const char* header, const char* value);
 	virtual void onBodyReceived(uint16_t len, const byte* data);
 
 

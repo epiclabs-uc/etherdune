@@ -9,10 +9,10 @@
 #include <FlowScanner.h>
 #include <HTTPClient.h>
 
-MACAddress_P mymac = { 0x02, 0x21 ,0xcc ,0x4a ,0x79, 0x79 };
-IPAddress testIP = { 192, 168, 1, 88 };
+MACAddress_P mymac = { 0x02, 0x21 ,0xee ,0x4a ,0x79, 0x79 };
+IPAddress testIP = /*{ 192,168,4,1 };*/ { 85,214,129,67 };
 IPAddress_P gatewayIP = { 192, 168, 1, 1 };
-IPAddress_P myIP  = { 192, 168, 1, 222 };
+IPAddress_P myIP  = { 192, 168, 1, 33 };
 IPAddress_P netmask  = { 255, 255, 255, 0 };
 //IPAddress_P dns = { 8, 8, 8, 8 };
 
@@ -85,6 +85,12 @@ public:
 		
 
 		request(F("localhost"), F("/"));
+	}
+
+	void onHeaderReceived(const char* header, const char* value)
+	{
+		dsprint("'"); dprint(header); dsprint("'='"); dprint(value); dsprintln("'");
+
 	}
 
 

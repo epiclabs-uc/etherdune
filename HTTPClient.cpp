@@ -2,16 +2,17 @@
 
 
 DEFINE_FLOWPATTERN(statusCodePattern, "HTTP/%*1d.%*1d %d%*99[^\r\n]\r\n");
-DEFINE_FLOWPATTERN(headerPattern, "%30[^:]:%30[^\r\n]\r\n");
+DEFINE_FLOWPATTERN(headerNamePattern, "%30[^:]:");
+DEFINE_FLOWPATTERN(headerValuePattern, "%*9[ ]%30[^\r\n]\r\n");
 DEFINE_FLOWPATTERN(bodyBeginPattern, "\r\n\r\n");
 
-void HTTPClient::onHeaderReceived(char* header, char* value) {}
+void HTTPClient::onHeaderReceived(const char* header, const char* value) {}
 void HTTPClient::onBodyReceived(uint16_t len, const byte* data) {}
 
 
 HTTPClient::HTTPClient()
 {
-	headerName = NULL;
+	
 }
 
 void HTTPClient::request(const String& hostName, const String& resource)
@@ -31,11 +32,8 @@ void HTTPClient::onConnect()
 	statusCode = 0;
 	write(F("GET % HTTP/1.1" "\r\n" "Accept:*" "/" "*" "\r\n" "Host:%\r\n\r\n"), &res, &host);
 
-	if (!headerName)
-	{
-		headerName = new char[30];
-		headerValue = new char[30];
-	}
+
+
 
 }
 
@@ -55,17 +53,28 @@ void HTTPClient::onReceive(uint16_t len, const byte* data)
 
 		if (statusCodePattern.signaled)
 		{
-			if (headerScanner.scan(c, headerName, headerValue))
+			if (headerNamePattern.signaled)
 			{
-				onHeaderReceived(headerName, headerValue);
-				headerScanner.reset();
+				if (headerScanner.scan(c, headerValue))
+				{
+					onHeaderReceived(headerName, headerValue);
+					headerScanner.setPattern(headerNamePattern);
+				}
+			}
+			else
+			{
+
+				if (headerScanner.scan(c, headerName))
+				{
+					headerScanner.setPattern(headerValuePattern);
+				}
 			}
 		}
 		else
 		{
 			if (headerScanner.scan(c, &statusCode))
 			{
-				headerScanner.setPattern(headerPattern);
+				headerScanner.setPattern(headerNamePattern);
 			}
 
 		}
@@ -83,13 +92,6 @@ void HTTPClient::onReceive(uint16_t len, const byte* data)
 void HTTPClient::onClose()
 {
 	close();
-
-	if (headerName)
-	{
-		delete headerName;
-		delete headerValue;
-		headerName = NULL;
-	}
 }
 
 HTTPClient::~HTTPClient()

@@ -336,6 +336,7 @@ bool TCPSocket::processData(uint16_t len, uint8_t* data)
 
 void TCPSocket::processOutgoingBuffer()
 {
+	dsprint("processOutgoingBuffer.millis()="); dprintln(millis());
 	uint32_t nSeq = sequenceNumber;
 	uint16_t dataLength;
 	uint16_t dataChecksum;
