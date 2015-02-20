@@ -87,6 +87,7 @@
     <ClCompile Include="..\..\DNS.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
     <ClCompile Include="..\..\HTTPClient.cpp" />
+    <ClCompile Include="..\..\EasyHTTPClient.cpp" />
     <ClCompile Include="..\..\List.cpp" />
     <ClCompile Include="..\..\NetworkService.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="..\..\enc28j60constants.h" />
     <ClInclude Include="..\..\EtherFlow.h" />
     <ClInclude Include="..\..\HTTPClient.h" />
+    <ClInclude Include="..\..\EasyHTTPClient.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />
     <ClInclude Include="..\..\net.h" />

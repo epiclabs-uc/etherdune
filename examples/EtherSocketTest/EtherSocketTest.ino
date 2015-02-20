@@ -87,10 +87,26 @@ public:
 		request(F("localhost"), F("/"));
 	}
 
-	void onHeaderReceived(const char* header, const char* value)
+	void onHeaderReceived(uint16_t len, const byte* data)
 	{
-		dsprint("'"); dprint(header); dsprint("'='"); dprint(value); dsprintln("'");
+		//dsprint("'"); dprint(header); dsprint("'='"); dprint(value); dsprintln("'");
 
+		dsprint("http_header=");
+		Serial.write(data, len);
+
+	}
+
+	void onResponseReceived() 
+	{
+		dsprint("HTTP status="); dprintln(statusCode);
+	}
+	void onResponseEnd()
+	{
+		dsprint("HTTP session end");
+	}
+	void onBodyReceived(uint16_t len, const byte* data)
+	{
+		dsprint("HTTP bytes received="); dprintln(len);
 	}
 
 

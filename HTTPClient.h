@@ -2,6 +2,8 @@
 #include "TCPSocket.h"
 #include <FlowScanner.h>
 
+const char statusCodePatternString[] PROGMEM = "HTTP/%*1d.%*1d %d%*99[^\r\n]\r\n";
+const char bodyBeginPatternString[] PROGMEM = "\r\n\r\n";
 
 class HTTPClient : public TCPSocket
 {
@@ -11,13 +13,13 @@ private:
 	void onReceive(uint16_t len, const byte* data);
 	void onClose();
 	
-	FlowScanner headerScanner;
-	FlowScanner bodyBeginScanner;
+	FlowPattern statusCodePattern;
+	FlowPattern bodyBeginPattern;
+	FlowScanner scanner;
 
 	String host;
 	String res;
-	char headerName[30];
-	char headerValue[30];
+
 
 
 public:
@@ -28,7 +30,9 @@ public:
 
 	void request(const String& hostName, const String& resource);
 
-	virtual void onHeaderReceived(const char* header, const char* value);
+	virtual void onResponseReceived();
+	virtual void onResponseEnd();
+	virtual void onHeaderReceived(uint16_t len, const byte* data);
 	virtual void onBodyReceived(uint16_t len, const byte* data);
 
 

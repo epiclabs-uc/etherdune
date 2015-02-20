@@ -1,16 +1,14 @@
 #include "HTTPClient.h"
 
 
-DEFINE_FLOWPATTERN(statusCodePattern, "HTTP/%*1d.%*1d %d%*99[^\r\n]\r\n");
-DEFINE_FLOWPATTERN(headerNamePattern, "%30[^:]:");
-DEFINE_FLOWPATTERN(headerValuePattern, "%*9[ ]%30[^\r\n]\r\n");
-DEFINE_FLOWPATTERN(bodyBeginPattern, "\r\n\r\n");
 
-void HTTPClient::onHeaderReceived(const char* header, const char* value) {}
+void HTTPClient::onResponseReceived() {}
+void HTTPClient::onResponseEnd() {}
+void HTTPClient::onHeaderReceived(uint16_t len, const byte* data) {}
 void HTTPClient::onBodyReceived(uint16_t len, const byte* data) {}
 
 
-HTTPClient::HTTPClient()
+HTTPClient::HTTPClient() :statusCodePattern(statusCodePatternString), bodyBeginPattern(bodyBeginPatternString)
 {
 	
 }
@@ -26,13 +24,12 @@ void HTTPClient::request(const String& hostName, const String& resource)
 
 void HTTPClient::onConnect()
 {
-	headerScanner.setPattern(statusCodePattern);
-	bodyBeginScanner.setPattern(bodyBeginPattern);
-
+	scanner.setPattern(statusCodePattern);
 	statusCode = 0;
+	contentLength = 0;
+	bodyBeginPattern.signaled = false;
+
 	write(F("GET % HTTP/1.1" "\r\n" "Accept:*" "/" "*" "\r\n" "Host:%\r\n\r\n"), &res, &host);
-
-
 
 
 }
@@ -46,52 +43,44 @@ void HTTPClient::onReceive(uint16_t len, const byte* data)
 		return;
 	}
 
+	const byte* headerStart = data;
 
 	while (len--)
 	{
 		uint8_t c = *data++;
 
+
 		if (statusCodePattern.signaled)
 		{
-			if (headerNamePattern.signaled)
+			if (scanner.scan(c))
 			{
-				if (headerScanner.scan(c, headerValue))
-				{
-					onHeaderReceived(headerName, headerValue);
-					headerScanner.setPattern(headerNamePattern);
-				}
-			}
-			else
-			{
-
-				if (headerScanner.scan(c, headerName))
-				{
-					headerScanner.setPattern(headerValuePattern);
-				}
+				onHeaderReceived(data - headerStart, headerStart);
+				onBodyReceived(len, data);
+				return;
 			}
 		}
 		else
 		{
-			if (headerScanner.scan(c, &statusCode))
+			if (scanner.scan(c, &statusCode))
 			{
-				headerScanner.setPattern(headerNamePattern);
+				onResponseReceived();
+				scanner.setPattern(bodyBeginPattern);
+				headerStart = data;
 			}
 
 		}
-
-		if (bodyBeginScanner.scan(c))
-		{
-			onBodyReceived(len, data);
-			return;
-		}
-
 	}
+
+	if (statusCodePattern.signaled)
+		onHeaderReceived(data - headerStart, headerStart);
+
 }
 
 
 void HTTPClient::onClose()
 {
 	close();
+	onResponseEnd();
 }
 
 HTTPClient::~HTTPClient()
