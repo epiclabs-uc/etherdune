@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\ACross\SPI.h" />
+    <ClInclude Include="..\..\..\FlowScanner\FlowScanner.h" />
     <ClInclude Include="..\..\ARP.h" />
     <ClInclude Include="..\..\Checksum.h" />
     <ClInclude Include="..\..\config.h" />
@@ -92,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\ACross\SPI.cpp" />
+    <ClCompile Include="..\..\..\FlowScanner\FlowScanner.cpp" />
     <ClCompile Include="..\..\ARP.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />

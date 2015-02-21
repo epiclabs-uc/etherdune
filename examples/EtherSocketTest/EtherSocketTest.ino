@@ -79,12 +79,7 @@ public:
 
 	void start()
 	{
-		
-		remoteIP = testIP;
-		remotePort.setValue(80);
-		
-
-		request(F("localhost"), F("/"));
+		request(F("www.playersketch.com"), F("/"));
 	}
 
 	void onHeaderReceived(uint16_t len, const byte* data)
@@ -93,6 +88,7 @@ public:
 
 		dsprint("http_header=");
 		Serial.write(data, len);
+		
 
 	}
 
@@ -155,8 +151,6 @@ void setup()
 
 	net::DNS.serverIP() = IPADDR_P(8, 8, 8, 8);
 	
-	dprintln("aa");
-
 	net::DNS.resolve("www.friendev.com");
 
 
