@@ -1,6 +1,10 @@
 #include "HTTPClient.h"
 #include "DNS.h"
 
+#define AC_LOG_LEVEL 6
+#include <ACLog.h>
+ACROSS_MODULE("HTTPClient");
+
 
 void HTTPClient::onResponseReceived() {}
 void HTTPClient::onResponseEnd() {}
@@ -44,7 +48,7 @@ void HTTPClient::onConnect()
 
 	write(F("GET % HTTP/1.1" "\r\n" "Accept:*" "/" "*" "\r\n" "Host:%\r\n\r\n"), &res, &host);
 
-
+	ACTRACE("hola %d %d %d", 1, 2, 3);
 }
 
 void HTTPClient::onReceive(uint16_t len, const byte* data)

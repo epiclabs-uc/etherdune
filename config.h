@@ -7,7 +7,7 @@
 
 
 #define CLOCK(id,x) unsigned long clock##id=millis();x;dsprint("" #x ": " );dprint(millis() - clock##id);dsprintln(" ms.")
-#define PRINTSIZEOF(thing) ACDEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
+#define PRINTSIZEOF(thing) AC_DEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
 
 
 // ENC28J60 memory mapping

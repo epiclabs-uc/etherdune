@@ -5,7 +5,9 @@
 #include "TCPSocket.h"
 #include "Checksum.h"
 
-
+#define AC_LOG_LEVEL 6
+#include <ACLog.h>
+ACROSS_MODULE("TCPSocket");
 
 void TCPSocket::onClose() {}
 void TCPSocket::onConnect() {}
@@ -76,12 +78,12 @@ void TCPSocket::setState(uint8_t newState, uint8_t timeout)
 	state = newState;
 	stateTimer = timeout;
 
-	dsprint("setState="); ACDEBUG(printState());
+	 AC_DEBUG(printState());
 }
 
 void TCPSocket::sendSYN()
 {
-	dsprintln("sendSYN()");
+	ACTRACE("sendSYN");
 
 	prepareTCPPacket(true, 0);
 
@@ -99,7 +101,7 @@ void TCPSocket::sendSYN()
 
 void TCPSocket::sendFIN()
 {
-	dsprintln("sendFIN()");
+	ACTRACE("sendFIN()");
 
 	prepareTCPPacket(false, 0);
 
@@ -151,7 +153,7 @@ void TCPSocket::tick()
 {
 
 	
-	dsprint("state="); ACDEBUG(printState());
+	AC_DEBUG(printState());
 
 	if (stateTimer == 1) //handle timeouts
 	{
@@ -210,11 +212,7 @@ bool TCPSocket::processHeader()
 		return false;
 	}
 
-	dsprintln("Header");
-	dsprint("SYN="); dprint(chunk.tcp.SYN);
-	dsprint(";ACK="); dprint(chunk.tcp.ACK);
-	dsprint(";FIN="); dprint(chunk.tcp.FIN);
-	dsprint(";RST="); dprintln(chunk.tcp.RST);
+	ACTRACE("Header SYN=%d ACK=%d FIN=%d RST=%d", chunk.tcp.SYN, chunk.tcp.ACK, chunk.tcp.FIN, chunk.tcp.RST)
 
 	uint32_t incomingAckNum = chunk.tcp.acknowledgementNumber.getValue();
 	uint32_t incomingSeqNum = chunk.tcp.sequenceNumber.getValue();
@@ -222,12 +220,9 @@ bool TCPSocket::processHeader()
 	int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 	int32_t bytesReceived; // = (int32_t)(incomingSeqNum - ackNumber);
 
-	dsprint("incomingAck="); dprintln(incomingAckNum);
-	dsprint("localSeqNum="); dprintln(sequenceNumber);
-	dsprint("bytesAck="); dprintln(bytesAck);
+	ACTRACE("incomingAck=%d localSeqNum=%d bytesAck=%d incomingSeqNum=%d localAckNum=%d", 
+		incomingAckNum, sequenceNumber, bytesAck, incomingSeqNum, ackNumber);
 
-	dsprint("incomingSeqNum="); dprintln(incomingSeqNum);
-	dsprint("localAckNum="); dprintln(ackNumber);
 
 	if (chunk.tcp.RST)
 	{
@@ -250,7 +245,7 @@ bool TCPSocket::processHeader()
 
 	if (ackNumber != incomingSeqNum)
 	{
-		dsprintln("dropped packet out of sequence.");
+		ACDEBUG("dropped packet out of sequence.");
 		sendAck = true;
 		return false;
 	}
@@ -258,7 +253,7 @@ bool TCPSocket::processHeader()
 	int16_t headerLength = sizeof(IPHeader) + chunk.tcp.headerLength * 4;
 	bytesReceived = chunk.ip.totalLength.getValue() - headerLength;
 	ackNumber += bytesReceived;
-	dsprint("bytesReceived="); dprintln(bytesReceived);
+	ACTRACE("bytesReceived=%d",bytesReceived);
 
 	releaseWindow(bytesAck);
 	sendAck = true;
@@ -324,7 +319,7 @@ bool TCPSocket::processHeader()
 
 bool TCPSocket::processData(uint16_t len, uint8_t* data)
 {
-	dsprintln("more data");
+	ACTRACE("more data");
 
 	onReceive(len, data);
 
@@ -336,7 +331,7 @@ bool TCPSocket::processData(uint16_t len, uint8_t* data)
 
 void TCPSocket::processOutgoingBuffer()
 {
-	dsprint("processOutgoingBuffer.millis()="); dprintln(millis());
+	ACTRACE("processOutgoingBuffer");
 	uint32_t nSeq = sequenceNumber;
 	uint16_t dataLength;
 	uint16_t dataChecksum;
@@ -350,8 +345,7 @@ void TCPSocket::processOutgoingBuffer()
 		chunk.tcp.sequenceNumber.setValue(nSeq);
 		chunk.tcp.ACK = 1;
 
-		dsprint("dataLength="); dprint(dataLength);
-		dsprint(";dataChecksum="); dprintln(dataChecksum);
+		ACTRACE("dataLength=%d dataChecksum=%d", dataLength, dataChecksum);
 
 		calcTCPChecksum(false, dataLength, dataChecksum);
 
@@ -371,7 +365,7 @@ void TCPSocket::releaseWindow(int32_t& bytesAck)
 		bytesAck -= buffer.release();
 	};
 
-	ACDEBUG(if (bytesAck < 0) dsprintln("released too much ?!"));
+	ACASSERT(bytesAck < 0, "released too much bytesAck=%d",bytesAck);
 
 }
 
@@ -398,6 +392,10 @@ void TCPSocket::printState()
 			s = PSTR("UNKNOWN");
 	}
 
-	dprintln((__FlashStringHelper*)s);
+	char state[15];
+	strcpy_P(state, s);
+	ACDEBUG("state=%s", state);
+
+	//try %S see what happens
 
 }

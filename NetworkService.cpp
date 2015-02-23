@@ -2,6 +2,11 @@
 #include "ARP.h"
 #include "DNS.h"
 
+#define AC_LOGLEVEL 2
+#include <ACLog.h>
+ACROSS_MODULE("NetworkService");
+
+
 List NetworkService::activeServices;
 List SharedBuffer::bufferList;
 
@@ -54,13 +59,13 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 				return true;
 			}
 		}
-		dsprintln("nobody wants this packet");
+		ACTRACE("nobody wants this packet");
 		return false;
 	}
 
 	if (currentService == NULL)
 	{
-		dsprintln("currentService should not be null");
+		ACTRACE("currentService should not be null");
 		return false;
 	}
 

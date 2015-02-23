@@ -9,6 +9,11 @@
 #include <FlowScanner.h>
 #include <HTTPClient.h>
 
+#define AC_LOGLEVEL 6
+#include <ACLog.h>
+ACROSS_MODULE("EtherSocketTest");
+
+
 MACAddress_P mymac = { 0x02, 0x21 ,0xee ,0x4a ,0x79, 0x79 };
 IPAddress testIP = /*{ 192,168,4,1 };*/ { 85,214,129,67 };
 IPAddress_P gatewayIP = { 192, 168, 1, 1 };
@@ -25,7 +30,7 @@ public:
 	
 	void onConnect()
 	{
-		Serial.println("on connect");
+		ACTRACE("on connect");
 
 		char * req = "GET / HTTP/1.1\r\nAccept:*" "/" "*\r\n\r\n";
 
@@ -37,21 +42,19 @@ public:
 
 	void onClose()
 	{
-		Serial.println("on close");
+		ACTRACE("on close");
 		close();
 	}
 
 	void onReceive(uint16_t len, const byte* data)
 	{
-		
-		Serial.print("onReceive: "); Serial.print(len); Serial.println(" bytes");
-
+		ACTRACE("onReceive: %d bytes",len);
 	}
 
 
 	void onDNSResolve(uint16_t identification, const IPAddress& ip)
 	{
-		Serial.print("resolved. IP="); Serial.println(ip.b[0]);
+		ACTRACE("resolved. IP=%d.%d.%d.%d", ip.b[0], ip.b[1], ip.b[2], ip.b[3]);
 	}
 
 
@@ -64,7 +67,7 @@ class MyUDP : public UDPSocket
 public:
 	bool onReceive(uint16_t len, uint16_t datagramLength, const byte* data)
 	{
-		Serial.print("on UDP receive");
+		ACTRACE("on UDP receive");
 		return true;
 	}
 
@@ -86,43 +89,41 @@ public:
 	{
 		//dsprint("'"); dprint(header); dsprint("'='"); dprint(value); dsprintln("'");
 
-		dsprint("http_header=");
+	
 		Serial.write(data, len);
-		
 
 	}
 
 	void onResponseReceived() 
 	{
-		dsprint("HTTP status="); dprintln(statusCode);
+		ACTRACE("HTTP status=%d",statusCode);
+
 	}
 	void onResponseEnd()
 	{
-		dsprint("HTTP session end");
+		ACTRACE("HTTP session end");
 	}
 	void onBodyReceived(uint16_t len, const byte* data)
 	{
-		dsprint("HTTP bytes received="); dprintln(len);
+		ACTRACE("HTTP bytes received=%d",len);
 	}
 
 
 }http;
 
 
-
 unsigned long waitTimer = 0;
+
 void setup()
 {	
-
-
-
 	Serial.begin(115200);
+	ACross::init();
 
-	Serial.println("Press any key to start...");
+	ACTRACE("setup");
+	
+	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());
-
-
 
 
 	net::localIP = myIP;
@@ -132,13 +133,13 @@ void setup()
 
 
 	if (!net::begin(10))
-		Serial.println("failed to start EtherFlow");
+		ACERROR("failed to start EtherFlow");
 
-	Serial.println("waiting for link...");
+	ACINFO("waiting for link...");
 
 	while (!net::isLinkUp());
 
-	Serial.println("link is up");
+	ACINFO("link is up");
 
 	sck.remoteIP = testIP;
 	sck.remotePort.setValue(80);

@@ -1,5 +1,9 @@
 #include "ARP.h"
 
+#define AC_LOGLEVEL 2
+#include <ACLog.h>
+ACROSS_MODULE("ARP");
+
 static uint16_t minuteTimer = 60 * 1000 / NETWORK_TIMER_RESOLUTION;
 
 ARPEntry ARPService::arpTable[ARP_TABLE_LENGTH];
@@ -17,15 +21,14 @@ bool ARPService::processHeader()
 	if (chunk.eth.etherType.getValue() != ETHTYPE_ARP)
 		return false;
 
-	dsprintln("ARPService::processHeader");
+	ACTRACE("processHeader");
 
 	switch (chunk.arp.OPER.l)
 	{
 		case ARP_OPCODE_REPLY_L:
 		{
 
-			dsprint("ARP Reply received=");
-			dprintln(chunk.arp.senderMAC.b[1]);
+			ACTRACE("ARP Reply=%02x:%02x:%02x:%02x:%02x:%02x", chunk.arp.senderMAC.b[0], chunk.arp.senderMAC.b[1], chunk.arp.senderMAC.b[2], chunk.arp.senderMAC.b[3], chunk.arp.senderMAC.b[4], chunk.arp.senderMAC.b[5]);
 			processARPReply();
 
 			return true;
@@ -133,7 +136,7 @@ void ARPService::processARPReply()
 		}
 	}
 
-	ACDEBUG(if (!selectedEntry)	{ dsprintln("busted");		while (1); });
+	//AC_DEBUG(if (!selectedEntry)	{ dsprintln("busted");		while (1); });
 
 	selectedEntry->status_TTL = MAX_ARP_TTL;
 	selectedEntry->ip = chunk.arp.senderIP;
