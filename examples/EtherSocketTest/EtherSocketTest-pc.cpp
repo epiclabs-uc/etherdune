@@ -11,7 +11,9 @@
 #include <VirtualHardware\ACRPCCLient.h>
 
 
-#include "EtherSocketTest.ino"
+//#include "EtherSocketTest.ino"
+#include "../ServerSocket/ServerSocket.ino"
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {

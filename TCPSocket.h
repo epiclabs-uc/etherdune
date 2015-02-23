@@ -32,7 +32,7 @@ private:
 	void calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
 
 	void tick();
-	void sendSYN();
+	void sendSYN(bool ack);
 	void sendFIN();
 
 	void setState(uint8_t newState, uint8_t timeout);
@@ -47,6 +47,8 @@ public:
 
 	void close();
 	void terminate();
+	void listen();
+	void accept();
 
 	virtual void onConnect();
 	virtual void onClose();

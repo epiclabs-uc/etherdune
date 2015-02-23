@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30626.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EtherSocketTest", "examples\EtherSocketTest\EtherSocketTest.vcxproj", "{A98951C4-827C-446E-BB8B-9E4B4E6F62DB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EtherSocketTest-pc", "examples\EtherSocketTest\EtherSocketTest-pc.vcxproj", "{39FD1975-26E3-4AC1-B496-FC66833B476E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerSocket", "examples\ServerSocket\ServerSocket.vcxproj", "{E8CC6DFA-8553-43F2-A4D8-F5A8C36AAC54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{39FD1975-26E3-4AC1-B496-FC66833B476E}.Debug|Win32.Build.0 = Debug|Win32
 		{39FD1975-26E3-4AC1-B496-FC66833B476E}.Release|Win32.ActiveCfg = Release|Win32
 		{39FD1975-26E3-4AC1-B496-FC66833B476E}.Release|Win32.Build.0 = Release|Win32
+		{E8CC6DFA-8553-43F2-A4D8-F5A8C36AAC54}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E8CC6DFA-8553-43F2-A4D8-F5A8C36AAC54}.Debug|Win32.Build.0 = Debug|Win32
+		{E8CC6DFA-8553-43F2-A4D8-F5A8C36AAC54}.Release|Win32.ActiveCfg = Release|Win32
+		{E8CC6DFA-8553-43F2-A4D8-F5A8C36AAC54}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

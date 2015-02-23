@@ -32,7 +32,26 @@ void TCPSocket::connect()
 	ackNumber = 0;
 
 	setState(SCK_STATE_SYN_SENT, SCK_TIMEOUT_SYN_SENT);
-	sendSYN();
+	sendSYN(false);
+}
+
+void TCPSocket::listen()
+{
+	remoteIP.u = 0;
+	setState(SCK_STATE_LISTEN, 0);
+}
+
+void TCPSocket::accept()
+{
+	remoteIP.u = chunk.ip.sourceIP.u;
+	remotePort = chunk.tcp.sourcePort;
+
+	uint32_t incomingSeqNum = chunk.tcp.sequenceNumber.getValue();
+	ackNumber = incomingSeqNum + 1;
+
+	sendSYN(true);
+	setState(SCK_STATE_SYN_RECEIVED, 0);
+
 }
 
 void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
@@ -81,13 +100,15 @@ void TCPSocket::setState(uint8_t newState, uint8_t timeout)
 	AC_DEBUG(printState());
 }
 
-void TCPSocket::sendSYN()
+
+void TCPSocket::sendSYN(bool ack)
 {
-	ACTRACE("sendSYN");
+	ACTRACE("sendSYN ACK=%d",ack);
 
 	prepareTCPPacket(true, 0);
 
 	chunk.tcp.SYN = 1;
+	chunk.tcp.ACK = ack;
 
 	chunk.tcpOptions.option1 = 0x02;
 	chunk.tcpOptions.option1_length = 0x04;
@@ -159,6 +180,7 @@ void TCPSocket::tick()
 	{
 		switch (state)
 		{
+			case SCK_STATE_SYN_RECEIVED:
 			case SCK_STATE_SYN_SENT:
 			{
 				onClose();
@@ -183,7 +205,12 @@ void TCPSocket::tick()
 	{
 		case SCK_STATE_SYN_SENT:
 		{
-			sendSYN();
+			sendSYN(false);
+		}break;
+
+		case SCK_STATE_SYN_RECEIVED:
+		{
+			sendSYN(true);
 		}break;
 
 		case SCK_STATE_ESTABLISHED:
@@ -207,7 +234,9 @@ bool TCPSocket::processHeader()
 		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
 		chunk.ip.protocol == IP_PROTO_TCP_V &&
 		state != SCK_STATE_CLOSED &&
-		localPort.rawu == chunk.tcp.destinationPort.rawu))
+		localPort.rawu == chunk.tcp.destinationPort.rawu && 
+		((remoteIP.u == chunk.ip.sourceIP.u && remotePort.rawu == chunk.tcp.sourcePort.rawu) || state == SCK_STATE_LISTEN)
+		))
 	{
 		return false;
 	}
@@ -241,6 +270,20 @@ bool TCPSocket::processHeader()
 		onConnect();
 		sendAck = true;
 		return false;
+	}
+
+	if (state == SCK_STATE_LISTEN && chunk.tcp.SYN)
+	{
+		onConnect();
+		return false;
+	}
+
+	if (state == SCK_STATE_SYN_RECEIVED)
+	{
+		if (!chunk.tcp.ACK)
+			return false;
+
+		setState(SCK_STATE_ESTABLISHED, 0);
 	}
 
 	if (ackNumber != incomingSeqNum)
