@@ -44,7 +44,7 @@ void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 
 	chunk.ip.protocol = IP_PROTO_TCP_V;
 
-	prepareIPPacket(remoteIP);
+	prepareIPPacket();
 
 	chunk.tcp.sourcePort = localPort;
 	chunk.tcp.destinationPort = remotePort;
@@ -78,7 +78,7 @@ void TCPSocket::setState(uint8_t newState, uint8_t timeout)
 	state = newState;
 	stateTimer = timeout;
 
-	 AC_DEBUG(printState());
+	AC_DEBUG(printState());
 }
 
 void TCPSocket::sendSYN()
@@ -138,7 +138,7 @@ void TCPSocket::close()
 		{
 			terminate(); return;
 		}
-			break;
+		break;
 	}
 
 
@@ -152,7 +152,7 @@ void TCPSocket::close()
 void TCPSocket::tick()
 {
 
-	
+
 	AC_DEBUG(printState());
 
 	if (stateTimer == 1) //handle timeouts
@@ -220,7 +220,7 @@ bool TCPSocket::processHeader()
 	int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 	int32_t bytesReceived; // = (int32_t)(incomingSeqNum - ackNumber);
 
-	ACTRACE("incomingAck=%u localSeqNum=%u bytesAck=%u incomingSeqNum=%u localAckNum=%u", 
+	ACTRACE("incomingAck=%u localSeqNum=%u bytesAck=%u incomingSeqNum=%u localAckNum=%u",
 		incomingAckNum, sequenceNumber, bytesAck, incomingSeqNum, ackNumber);
 
 
@@ -253,7 +253,7 @@ bool TCPSocket::processHeader()
 	int16_t headerLength = sizeof(IPHeader) + chunk.tcp.headerLength * 4;
 	bytesReceived = chunk.ip.totalLength.getValue() - headerLength;
 	ackNumber += bytesReceived;
-	ACTRACE("bytesReceived=%d",bytesReceived);
+	ACTRACE("bytesReceived=%d", bytesReceived);
 
 	releaseWindow(bytesAck);
 	sendAck = true;
@@ -365,7 +365,7 @@ void TCPSocket::releaseWindow(int32_t& bytesAck)
 		bytesAck -= buffer.release();
 	};
 
-	ACASSERT(bytesAck < 0, "released too much bytesAck=%d",bytesAck);
+	ACASSERT(bytesAck < 0, "released too much bytesAck=%d", bytesAck);
 
 }
 

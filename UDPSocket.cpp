@@ -27,7 +27,7 @@ void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 {
 	chunk.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
 	chunk.ip.protocol = IP_PROTO_UDP_V;
-	prepareIPPacket(remoteIP);
+	prepareIPPacket();
 	chunk.udp.sourcePort = localPort;
 	chunk.udp.destinationPort = remotePort;
 
@@ -76,7 +76,7 @@ bool UDPSocket::processHeader()
 		return false;
 	}
 
-	
+
 	uint16_t datagramLength = chunk.udp.dataLength.getValue();
 	uint16_t fragmentLength = min(datagramLength, sizeof(EthBuffer) - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader));
 
