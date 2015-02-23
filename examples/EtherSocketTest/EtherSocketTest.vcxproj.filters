@@ -57,6 +57,18 @@
     <ClInclude Include="..\..\ARP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\HTTPClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TCPSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\UDPSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\FlowScanner\FlowScanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Socket.cpp">
@@ -84,6 +96,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ARP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\HTTPClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TCPSocket.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\UDPSocket.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\FlowScanner\FlowScanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

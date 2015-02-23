@@ -2,12 +2,7 @@
 #include "Checksum.h"
 
 
-DEFINE_FLOWPATTERN(catchDNSResponse, "%*[\0]\x01" "%*[\0]\x01" "%*4c" "%*[\0]\x04" "%4c");
-
-//void DNSClient::onResolve(uint16_t id, const IPAddress& ip)
-//{
-//	NetworkService::notifyOnDNSResolve(id, ip);
-//}
+DEFINE_FLOWPATTERN(catchDNSResponse, "%0\x01" "%0\x01" "%*4c" "%0\x04" "%4c");
 
 bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data)
 {
@@ -24,6 +19,9 @@ bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, cons
 		{
 			NetworkService::notifyOnDNSResolve(identification, resolvedIP);
 			buffer.release();
+			if (buffer.nextRead != 0xFFFF)
+				send();
+
 			return false;
 		}
 

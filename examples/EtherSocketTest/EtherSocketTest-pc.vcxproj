@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\jpeletie\Dropbox\Arduino\libraries\ACross;C:\Users\jpeletie\Dropbox\Arduino\libraries\EtherFlow;C:\Users\jpeletie\Dropbox\Arduino\libraries\FastDelegate;C:\Users\jpeletie\Dropbox\Arduino\libraries\FlowScanner;$(IncludePath)</IncludePath>
+    <IncludePath>$(ARDUINO_LIB)\ACross;$(ARDUINO_LIB)\EtherFlow;$(ARDUINO_LIB)\FlowScanner;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)-pc\</OutDir>
     <IntDir>$(Configuration)-pc\</IntDir>
   </PropertyGroup>
@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\jpeletie\Dropbox\Arduino\libraries\ACross\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ARDUINO_LIB)\ACross\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ACross.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -86,6 +86,8 @@
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\DNS.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
+    <ClCompile Include="..\..\HTTPClient.cpp" />
+    <ClCompile Include="..\..\EasyHTTPClient.cpp" />
     <ClCompile Include="..\..\List.cpp" />
     <ClCompile Include="..\..\NetworkService.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
@@ -105,6 +107,8 @@
     <ClInclude Include="..\..\DNS.h" />
     <ClInclude Include="..\..\enc28j60constants.h" />
     <ClInclude Include="..\..\EtherFlow.h" />
+    <ClInclude Include="..\..\HTTPClient.h" />
+    <ClInclude Include="..\..\EasyHTTPClient.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />
     <ClInclude Include="..\..\net.h" />

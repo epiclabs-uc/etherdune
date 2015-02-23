@@ -27,7 +27,7 @@ public:
 
 	UDPSocket();
 
-	void write(uint16_t length, uint8_t* data);
+
 	bool send();
 	
 

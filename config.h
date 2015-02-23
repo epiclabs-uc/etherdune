@@ -7,7 +7,7 @@
 
 
 #define CLOCK(id,x) unsigned long clock##id=millis();x;dsprint("" #x ": " );dprint(millis() - clock##id);dsprintln(" ms.")
-#define PRINTSIZEOF(thing) ACDEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
+#define PRINTSIZEOF(thing) AC_DEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
 
 
 // ENC28J60 memory mapping
@@ -61,7 +61,7 @@ static const uint8_t SCK_TIMEOUT_TIME_WAIT = NTICKS(2000); //(either server or c
 static const uint8_t SCK_TIMEOUT_RESOLVING = NTICKS(3000); // waiting for a DNS query to resolve
 //DNS timeout
 
-static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(4000);
+static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(5000);
 
 
 

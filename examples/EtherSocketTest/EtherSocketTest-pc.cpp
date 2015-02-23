@@ -16,7 +16,7 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	AConfig::VirtualSerialPort = _T("\\\\.\\COM31");
-	AConfig::HostlinkSerialPort = _T("\\\\.\\COM33");
+	AConfig::HostlinkSerialPort = _T("\\\\.\\COM3");
 
 	ACRPCCLient::begin();
 

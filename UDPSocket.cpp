@@ -11,10 +11,6 @@ UDPSocket::UDPSocket() :sending(false)
 	localPort.h = UDP_SRC_PORT_H;
 }
 
-void UDPSocket::write(uint16_t length, uint8_t* data)
-{
-	buffer.write(length, data);
-}
 bool UDPSocket::send()
 {
 	if (sending)
