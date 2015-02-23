@@ -392,10 +392,6 @@ void TCPSocket::printState()
 			s = PSTR("UNKNOWN");
 	}
 
-	char state[15];
-	strcpy_P(state, s);
-	ACDEBUG("state=%s", state);
-
-	//try %S see what happens
+	ACDEBUG("state=%S", s);
 
 }

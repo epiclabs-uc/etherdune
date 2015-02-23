@@ -119,7 +119,7 @@ void setup()
 	Serial.begin(115200);
 	ACross::init();
 
-	ACTRACE("setup");
+	ACTRACE("setup %S", F("PERRY"));
 	
 	Serial.println(F("Press any key to start..."));
 
