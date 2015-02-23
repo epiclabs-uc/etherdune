@@ -104,7 +104,7 @@ void TCPSocket::setState(uint8_t newState, uint8_t timeout)
 	state = newState;
 	stateTimer = timeout;
 
-	AC_DEBUG(printState());
+	ACDEBUG("set state=%S", getStateString());
 }
 
 
@@ -181,7 +181,7 @@ void TCPSocket::tick()
 {
 
 
-	AC_DEBUG(printState());
+	ACDEBUG("tick/state=%S",getStateString());
 
 	if (stateTimer == 1) //handle timeouts
 	{
@@ -291,6 +291,7 @@ bool TCPSocket::processHeader()
 			return false;
 
 		setState(SCK_STATE_ESTABLISHED, 0);
+		bytesAck--; // count one less byte (SYN counts as 1 "fake" byte)
 	}
 
 	if (ackNumber != incomingSeqNum)
@@ -306,6 +307,7 @@ bool TCPSocket::processHeader()
 	ACTRACE("bytesReceived=%d", bytesReceived);
 
 	releaseWindow(bytesAck);
+
 	sendAck = true;
 
 
@@ -419,7 +421,7 @@ void TCPSocket::releaseWindow(int32_t& bytesAck)
 
 }
 
-void TCPSocket::printState()
+__FlashStringHelper* TCPSocket::getStateString()
 {
 	char* s;
 
@@ -442,6 +444,6 @@ void TCPSocket::printState()
 			s = PSTR("UNKNOWN");
 	}
 
-	ACDEBUG("state=%S", s);
+	return (__FlashStringHelper*)s;
 
 }

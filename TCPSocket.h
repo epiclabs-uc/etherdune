@@ -37,7 +37,7 @@ private:
 
 	void setState(uint8_t newState, uint8_t timeout);
 
-	void printState();
+	__FlashStringHelper* getStateString();
 
 
 public:

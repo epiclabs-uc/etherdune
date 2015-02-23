@@ -43,7 +43,7 @@ uint16_t Socket::write(uint16_t len, const byte* data)
 
 uint16_t Socket::write(const String& s)
 {
-	return buffer.write(s.length(), (uint8_t*)s.c_str());
+	return write(s.length(), (uint8_t*)s.c_str());
 }
 
 uint16_t Socket::write(const __FlashStringHelper* pattern, ...)

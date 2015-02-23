@@ -27,16 +27,20 @@ public:
 
 		accept();
 
+		write("How about a nice game of chess?\n");
+
 	}
 
 	void onClose()
 	{
 		close();
+		listen();
 	}
 
 	void onReceive(uint16_t len, const byte* data)
 	{
 		ACTRACE("onReceive: %d bytes",len);
+		Serial.write(data, len);
 	}
 
 
