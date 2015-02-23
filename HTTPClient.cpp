@@ -1,7 +1,7 @@
 #include "HTTPClient.h"
 #include "DNS.h"
 
-#define AC_LOG_LEVEL 6
+#define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("HTTPClient");
 

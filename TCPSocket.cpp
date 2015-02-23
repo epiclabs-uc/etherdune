@@ -5,7 +5,7 @@
 #include "TCPSocket.h"
 #include "Checksum.h"
 
-#define AC_LOG_LEVEL 6
+#define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("TCPSocket");
 
@@ -220,7 +220,7 @@ bool TCPSocket::processHeader()
 	int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 	int32_t bytesReceived; // = (int32_t)(incomingSeqNum - ackNumber);
 
-	ACTRACE("incomingAck=%d localSeqNum=%d bytesAck=%d incomingSeqNum=%d localAckNum=%d", 
+	ACTRACE("incomingAck=%u localSeqNum=%u bytesAck=%u incomingSeqNum=%u localAckNum=%u", 
 		incomingAckNum, sequenceNumber, bytesAck, incomingSeqNum, ackNumber);
 
 
