@@ -49,6 +49,7 @@ public:
 	void terminate();
 	void listen();
 	void accept();
+	void accept(TCPSocket& listener);
 
 	virtual void onConnect();
 	virtual void onClose();

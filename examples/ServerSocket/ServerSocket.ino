@@ -1,5 +1,6 @@
 #include <ACross.h>
 #include <TCPSocket.h>
+#include <FlowScanner.h>
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
@@ -54,9 +55,9 @@ unsigned long waitTimer = 0;
 
 void setup()
 {	
-	Serial.begin(115200);
-	ACross::init();
 	
+	ACross::init();
+	Serial.begin(115200);
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());

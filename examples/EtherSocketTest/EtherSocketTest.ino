@@ -116,9 +116,11 @@ unsigned long waitTimer = 0;
 
 void setup()
 {	
+
 	Serial.begin(115200);
-	ACross::init();
+	ACross::init();	
 	
+
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());

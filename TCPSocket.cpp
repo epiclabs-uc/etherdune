@@ -54,6 +54,13 @@ void TCPSocket::accept()
 
 }
 
+void TCPSocket::accept(TCPSocket& listener)
+{
+	*this = listener;
+	accept();
+
+}
+
 void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 {
 
