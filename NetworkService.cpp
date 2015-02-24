@@ -71,7 +71,7 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 
 	if (currentService == NULL)
 	{
-		ACTRACE("currentService should not be null");
+		ACERROR("currentService should not be null");
 		return false;
 	}
 

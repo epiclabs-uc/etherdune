@@ -3,6 +3,10 @@
 #include "EtherFlow.h"
 #include "Checksum.h"
 
+#define AC_LOGLEVEL 6
+#include <ACLog.h>
+ACROSS_MODULE("SharedBuffer");
+
 uint16_t SharedBuffer::head = 0;
 uint16_t SharedBuffer::usedSpace = 0;
 
@@ -27,7 +31,8 @@ uint16_t SharedBuffer::writeAt(uint16_t index, uint16_t len, const byte* data)
 	{
 		EtherFlow::writeBuf(SHARED_BUFFER_INIT + index, len, data);
 		index += len;
-		if (index == SHARED_BUFFER_CAPACITY) index = 0;
+		if (index == SHARED_BUFFER_CAPACITY) 
+			index = 0;
 
 
 	}
@@ -89,6 +94,8 @@ uint16_t SharedBuffer::readAt(uint16_t index, uint16_t len, byte* data)
 
 uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 {
+	ACTRACE("write_before() head=%d, usedSpace=%d", head, usedSpace);
+
 	int16_t availableSpace = SHARED_BUFFER_CAPACITY - usedSpace - sizeof(BufferHeader);
 	if (availableSpace < 0)
 		availableSpace = 0;
@@ -116,6 +123,7 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 
 	lastWritten = h;
 
+	ACTRACE("write_after() head=%d, usedSpace=%d", head,usedSpace);
 	return len;
 }
 
@@ -133,7 +141,7 @@ uint16_t SharedBuffer::release()
 	if (nextRead == 0xFFFF)
 		lastWritten = 0xFFFF;
 
-	uint16_t usedSpace=0;
+	usedSpace=0;
 
 	for (SharedBuffer* s = (SharedBuffer*)bufferList.first; s->nextItem != NULL; s = (SharedBuffer*)s->nextItem)
 	{
@@ -147,6 +155,7 @@ uint16_t SharedBuffer::release()
 
 	}
 
+	ACTRACE("release(). head=%d, usedSpace=%d", head,usedSpace);
 	return header.length;
 
 }
@@ -173,12 +182,29 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint
 		readAt(n, sizeof(header), (byte*)&header);
 		if ((txPtr + header.length > TXSTOP_INIT + 1))
 			break;
+		
+		uint16_t src = SHARED_BUFFER_INIT + n + sizeof(header);
 
-		EtherFlow::moveMem(txPtr, SHARED_BUFFER_INIT + n + sizeof(header), header.length);
+		if (src >= SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY)
+			src -= SHARED_BUFFER_CAPACITY;
 
-		checksum = Checksum::add(checksum, header.checksum, startOdd ^ (txPtr & 1));
+		uint16_t len = header.length;
+		bool odd = startOdd ^ (txPtr & 1);
 
-		txPtr += header.length;
+		if (src + len > SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY)
+		{
+			len = SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY - src; 
+			EtherFlow::moveMem(txPtr, src, len);
+			txPtr += len;
+			len = header.length - len; 
+			src = SHARED_BUFFER_INIT;
+		}
+
+		EtherFlow::moveMem(txPtr, src,len);
+
+		checksum = Checksum::add(checksum, header.checksum, odd);
+
+		txPtr += len;
 		n = header.nextIndex;
 
 	}

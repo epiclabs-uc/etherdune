@@ -6,7 +6,9 @@
 
 #include <SPI.h>
 
-
+#define AC_LOGLEVEL 6
+#include <ACLog.h>
+ACROSS_MODULE("EtherFlow");
 
 static uint8_t selectPin;
 static byte Enc28j60Bank;
@@ -307,7 +309,7 @@ uint16_t EtherFlow::packetReceiveChunk()
 		} header;
 
 		readBuf(sizeof header, (byte*)&header);
-		uint16_t ptr = gNextPacketPtr + sizeof(header);
+		uint16_t packetReadPtr = gNextPacketPtr + sizeof(header);
 
 
 		gNextPacketPtr = header.nextPacket;
@@ -317,23 +319,85 @@ uint16_t EtherFlow::packetReceiveChunk()
 			len = 0;
 
 		uint16_t chunkLength;
+		uint16_t remainingChunkLength;
+		uint16_t readStep;
+		byte* chunkPtr;
 		bool isHeader = true;
-		
 		
 		while (len > 0)
 		{
-			chunkLength = min(sizeof(EthBuffer), len);
-			
-			readBuf(ptr,chunkLength,(byte*) &NetworkService::chunk);
+			chunkLength = remainingChunkLength = min(sizeof(EthBuffer), len);
+			chunkPtr = (byte*)&NetworkService::chunk;
+			do
+			{
+				readStep = min(remainingChunkLength, (RXSTOP_INIT - RXSTART_INIT + 1) - packetReadPtr);
+				readBuf(packetReadPtr, readStep, chunkPtr);
 
-			if (!NetworkService::processChunk(isHeader,chunkLength))
+				chunkPtr += readStep;
+				remainingChunkLength -= readStep;
+				packetReadPtr += readStep;
+
+				if (packetReadPtr > RXSTOP_INIT)
+					packetReadPtr -= (RXSTOP_INIT - RXSTART_INIT + 1);
+
+			} while (remainingChunkLength>0);
+
+			if (!NetworkService::processChunk(isHeader, chunkLength))
 				break;
 
-			isHeader = false;
-
 			len -= chunkLength;
-			ptr += chunkLength;
+			isHeader = false;
 		}
+
+
+		//2nd alternative
+		//chunkPtr = (byte*)&NetworkService::chunk;
+		//while (len > 0)
+		//{
+		//	chunkLength = min(sizeof(EthBuffer), len);
+		//	
+
+		//	if (packetReadPtr + chunkLength > RXSTOP_INIT + 1)
+		//	{
+		//		readStep = (RXSTOP_INIT - RXSTART_INIT + 1) - packetReadPtr;
+		//		readBuf(packetReadPtr, readStep , chunkPtr);
+		//		packetReadPtr = chunkLength - readStep;
+		//		readBuf(0, packetReadPtr, chunkPtr + readStep);
+		//		
+		//	}
+		//	else
+		//	{
+		//		readBuf(packetReadPtr, chunkLength, chunkPtr);
+		//		packetReadPtr += chunkLength;
+		//	}
+
+
+		//	if (!NetworkService::processChunk(isHeader, chunkLength))
+		//		break;
+
+		//	len -= chunkLength;
+		//	isHeader = false;
+		//}
+
+
+
+
+
+
+		//while (len > 0)
+		//{
+		//	chunkLength = min(sizeof(EthBuffer), len);
+		//	ACASSERT((ptr + chunkLength) < RXSTOP_INIT, "ptr overflow, ptr=%d, chunkLenght=%d", ptr, chunkLength);
+		//	readBuf(ptr, chunkLength, (byte*)&NetworkService::chunk);
+
+		//	if (!NetworkService::processChunk(isHeader, chunkLength))
+		//		break;
+
+		//	isHeader = false;
+
+		//	len -= chunkLength;
+		//	ptr += chunkLength;
+		//}
 
 		if (gNextPacketPtr - 1 > RXSTOP_INIT)
 			writeReg(ERXRDPT, RXSTOP_INIT);

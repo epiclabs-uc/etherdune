@@ -27,7 +27,7 @@ public:
 
 		accept();
 
-		write("How about a nice game of chess?\n");
+		write(F("How about a nice game of chess?\n"));
 
 	}
 
@@ -40,7 +40,9 @@ public:
 	void onReceive(uint16_t len, const byte* data)
 	{
 		ACTRACE("onReceive: %d bytes",len);
-		Serial.write(data, len);
+		//Serial.write(data, len);
+		write(F("PONG! "));
+		write(len, data);
 	}
 
 

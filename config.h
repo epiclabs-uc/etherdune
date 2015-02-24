@@ -18,7 +18,7 @@
 // the entire available packet buffer space is allocated
 
 static const uint16_t RXSTART_INIT =         0x0000;  // start of RX buffer, room for 2 packets
-static const uint16_t RXSTOP_INIT=          0x0BFF;  // end of RX buffer
+static const uint16_t RXSTOP_INIT=          0x0BFF;  // end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
 
 static const uint16_t TXBUFFER_SIZE = 1024;
 static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
@@ -36,7 +36,7 @@ static const uint8_t UDP_SRC_PORT_H = 240;
 
 static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
 
-static const uint16_t NETWORK_TIMER_RESOLUTION = 1000; //ms
+static const uint16_t NETWORK_TIMER_RESOLUTION = 200; //ms
 static const uint8_t ARP_TABLE_LENGTH = 2;
 static const int16_t MAX_ARP_TTL = 20; // 20 mins
 

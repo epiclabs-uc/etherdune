@@ -5,7 +5,7 @@
 #include "TCPSocket.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("TCPSocket");
 
@@ -417,7 +417,7 @@ void TCPSocket::releaseWindow(int32_t& bytesAck)
 		bytesAck -= buffer.release();
 	};
 
-	ACASSERT(bytesAck < 0, "released too much bytesAck=%d", bytesAck);
+	ACASSERT(bytesAck >= 0, "released too much bytesAck=%d", bytesAck);
 
 }
 

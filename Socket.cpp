@@ -5,6 +5,10 @@
 #include "Socket.h"
 #include "Checksum.h"
 
+#define AC_LOGLEVEL 6
+#include <ACLog.h>
+ACROSS_MODULE("Socket");
+
 uint8_t Socket::srcPort_L_count = 0;
 
 
@@ -38,6 +42,9 @@ uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
 
 uint16_t Socket::write(uint16_t len, const byte* data)
 {
+	AC_TRACE(Serial.write(data, len));
+	AC_TRACE(Serial.println());
+
 	return buffer.write(len, data);
 }
 
@@ -48,7 +55,6 @@ uint16_t Socket::write(const String& s)
 
 uint16_t Socket::write(const __FlashStringHelper* pattern, ...)
 {
-
 	char c;
 	char buf[16];
 	uint8_t i = 0;
