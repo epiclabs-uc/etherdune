@@ -28,7 +28,7 @@ class SharedBuffer;
 class NetworkService;
 class TCPSocket;
 class UDPSocket;
-class DMATest;
+
 class EtherFlow 
 {
 	friend class Socket;
@@ -36,7 +36,7 @@ class EtherFlow
 	friend class NetworkService;
 	friend class TCPSocket;
 	friend class UDPSocket;
-	friend class DMATest;
+
 
 public:
 
@@ -65,7 +65,6 @@ private:
 	static void writeByte(uint16_t dst, byte b);
 	static void writeBuf(uint16_t dst, uint16_t len, const byte* data);
 	static void writeBuf(uint16_t len, const byte* data);
-	static uint16_t hardwareChecksum(uint16_t src, uint16_t len);
 	static void moveMem(uint16_t dest, uint16_t src, uint16_t len);
 	static void readBuf(uint16_t src, uint16_t len, byte* data);
 	static void readBuf(uint16_t len, byte* data);
