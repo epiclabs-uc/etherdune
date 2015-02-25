@@ -12,8 +12,8 @@
 
 
 //#include "EtherSocketTest.ino"
-//#include "../EchoServer/EchoServer.ino"
-#include "../MultiEchoServer/MultiEchoServer.ino"
+#include "../EchoServer/EchoServer.ino"
+//#include "../ChatServer/Chaterver.ino"
 
 
 int _tmain(int argc, _TCHAR* argv[])
