@@ -5,7 +5,7 @@
 #include "TCPSocket.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 2
+#define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("TCPSocket");
 
@@ -46,8 +46,7 @@ void TCPSocket::accept()
 	remoteIP.u = chunk.ip.sourceIP.u;
 	remotePort = chunk.tcp.sourcePort;
 
-	uint32_t incomingSeqNum = chunk.tcp.sequenceNumber.getValue();
-	ackNumber = incomingSeqNum + 1;
+	ackNumber = chunk.tcp.sequenceNumber.getValue() + 1;
 
 	sendSYN(true);
 	setState(SCK_STATE_SYN_RECEIVED, 0);
@@ -56,7 +55,7 @@ void TCPSocket::accept()
 
 void TCPSocket::accept(TCPSocket& listener)
 {
-	*this = listener;
+	sequenceNumber = listener.sequenceNumber;
 	accept();
 
 }

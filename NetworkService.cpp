@@ -90,8 +90,6 @@ void NetworkService::loop()
 		for (NetworkService* service = (NetworkService*)activeServices.first; service != NULL; service = (NetworkService*)service->nextItem)
 			service->tick();
 
-
-
 		tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
 	}
 }

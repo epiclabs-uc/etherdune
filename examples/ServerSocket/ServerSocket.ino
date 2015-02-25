@@ -1,3 +1,7 @@
+// Echo Server sample
+// Listens for TCP connections on port 80, sends a welcome message, then echoes back anything received
+
+
 #include <ACross.h>
 #include <TCPSocket.h>
 #include <FlowScanner.h>
@@ -8,15 +12,13 @@ ACROSS_MODULE("ServerSocketTest");
 
 
 MACAddress_P mymac = { 0x02, 0x21 ,0xee ,0x4a ,0x79, 0x79 };
-IPAddress testIP = /*{ 192,168,4,1 };*/ { 85,214,129,67 };
 IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP  = { 192, 168, 1, 33 };
 IPAddress_P netmask  = { 255, 255, 255, 0 };
-//IPAddress_P dns = { 8, 8, 8, 8 };
 
+static const uint8_t CS_PIN = 10;
 
-
-class MyProtocol : public TCPSocket
+class EchoServer : public TCPSocket
 {
 
 public:
@@ -25,7 +27,7 @@ public:
 	{
 		ACTRACE("onConnect");
 
-		accept();
+		accept(); //accept connection and send a welcome message
 
 		write(F("How about a nice game of chess?\n"));
 
@@ -33,37 +35,26 @@ public:
 
 	void onClose()
 	{
-		close();
+		close(); //property close the connection and then listen again.
 		listen();
 	}
 
 	void onReceive(uint16_t len, const byte* data)
 	{
 		ACTRACE("onReceive: %d bytes",len);
-		//Serial.write(data, len);
-		write(F("PONG! "));
-		write(len, data);
-	}
-
-
-	void onDNSResolve(uint16_t identification, const IPAddress& ip)
-	{
-		ACTRACE("resolved. IP=%d.%d.%d.%d", ip.b[0], ip.b[1], ip.b[2], ip.b[3]);
+		write(len, data); //echo everything back
 	}
 
 
 } sck;
-
-
-
-
-unsigned long waitTimer = 0;
 
 void setup()
 {	
 	
 	ACross::init();
 	Serial.begin(115200);
+	Serial.println(F("Etherflow Echo TCP server sample"));
+	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());
@@ -75,7 +66,7 @@ void setup()
 	net::netmask = netmask;
 
 
-	if (!net::begin(10))
+	if (!net::begin(CS_PIN))
 		ACERROR("failed to start EtherFlow");
 
 	ACINFO("waiting for link...");
@@ -87,7 +78,6 @@ void setup()
 	sck.localPort.setValue(80);
 	sck.listen();
 
-	waitTimer = millis()+1000;
 }
 
 
@@ -95,12 +85,4 @@ void setup()
 void loop()
 {
 	NetworkService::loop();
-
-	if ((long)(millis() - waitTimer) >= 0)
-	{
-
-		waitTimer = millis() + 1000;
-	}
-
-
 }
