@@ -8,7 +8,7 @@
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
-ACROSS_MODULE("ServerSocketTest");
+ACROSS_MODULE("EchoServer");
 
 
 MACAddress_P mymac = { 0x02, 0x21 ,0xee ,0x4a ,0x79, 0x79 };

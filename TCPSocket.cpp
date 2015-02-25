@@ -49,13 +49,14 @@ void TCPSocket::accept()
 	ackNumber = chunk.tcp.sequenceNumber.getValue() + 1;
 
 	sendSYN(true);
-	setState(SCK_STATE_SYN_RECEIVED, 0);
+	setState(SCK_STATE_SYN_RECEIVED, SCK_TIMEOUT_SYN_RECEIVED);
 
 }
 
 void TCPSocket::accept(TCPSocket& listener)
 {
 	sequenceNumber = listener.sequenceNumber;
+	localPort.rawu = listener.localPort.rawu;
 	accept();
 
 }
