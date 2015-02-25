@@ -127,6 +127,31 @@ byte EtherFlow::readByte(uint16_t src)
 }
 
 
+uint16_t EtherFlow::hardwareChecksum(uint16_t src, uint16_t len)
+{
+	// calculate address of last byte
+	uint16_t last = len + src - 1;
+
+	writeReg(EDMASTL, src);
+
+	if ((src <= RXSTOP_INIT) && (last > RXSTOP_INIT))
+		last -= (RXSTOP_INIT - RXSTART_INIT);
+
+	writeReg(EDMANDL, last);
+
+
+	//writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_CSUMEN);
+
+	/* 4. Start the DMA copy by setting ECON1.DMAST. */
+	writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_DMAST | ECON1_CSUMEN);
+	SetBank(EDMACS);
+
+	// wait until runnig DMA is completed
+	while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_DMAST);
+
+	return readReg(EDMACS);
+}
+
 void EtherFlow::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 {
 
@@ -281,6 +306,9 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 	SetBank(ECON1);
 	writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
 	writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
+	
+	//SetBank(ECON2);
+	//writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_AUTOINC); //enable read auto wrapping/increment
 
 	byte rev = readRegByte(EREVID);
 	// microchip forgot to step the number on the silcon when they
@@ -319,85 +347,23 @@ uint16_t EtherFlow::packetReceiveChunk()
 			len = 0;
 
 		uint16_t chunkLength;
-		uint16_t remainingChunkLength;
-		uint16_t readStep;
-		byte* chunkPtr;
 		bool isHeader = true;
-		
+	
 		while (len > 0)
 		{
-			chunkLength = remainingChunkLength = min(sizeof(EthBuffer), len);
-			chunkPtr = (byte*)&NetworkService::chunk;
-			do
-			{
-				readStep = min(remainingChunkLength, (RXSTOP_INIT - RXSTART_INIT + 1) - packetReadPtr);
-				readBuf(packetReadPtr, readStep, chunkPtr);
-
-				chunkPtr += readStep;
-				remainingChunkLength -= readStep;
-				packetReadPtr += readStep;
-
-				if (packetReadPtr > RXSTOP_INIT)
-					packetReadPtr -= (RXSTOP_INIT - RXSTART_INIT + 1);
-
-			} while (remainingChunkLength>0);
+			chunkLength = min(sizeof(EthBuffer), len);
+			readBuf(packetReadPtr, chunkLength, (byte*)&NetworkService::chunk);
 
 			if (!NetworkService::processChunk(isHeader, chunkLength))
 				break;
 
-			len -= chunkLength;
 			isHeader = false;
+
+			len -= chunkLength;
+			packetReadPtr += chunkLength;
+			if (packetReadPtr > RXSTOP_INIT + 1)
+				packetReadPtr -= (RXSTOP_INIT + 1);
 		}
-
-
-		//2nd alternative
-		//chunkPtr = (byte*)&NetworkService::chunk;
-		//while (len > 0)
-		//{
-		//	chunkLength = min(sizeof(EthBuffer), len);
-		//	
-
-		//	if (packetReadPtr + chunkLength > RXSTOP_INIT + 1)
-		//	{
-		//		readStep = (RXSTOP_INIT - RXSTART_INIT + 1) - packetReadPtr;
-		//		readBuf(packetReadPtr, readStep , chunkPtr);
-		//		packetReadPtr = chunkLength - readStep;
-		//		readBuf(0, packetReadPtr, chunkPtr + readStep);
-		//		
-		//	}
-		//	else
-		//	{
-		//		readBuf(packetReadPtr, chunkLength, chunkPtr);
-		//		packetReadPtr += chunkLength;
-		//	}
-
-
-		//	if (!NetworkService::processChunk(isHeader, chunkLength))
-		//		break;
-
-		//	len -= chunkLength;
-		//	isHeader = false;
-		//}
-
-
-
-
-
-
-		//while (len > 0)
-		//{
-		//	chunkLength = min(sizeof(EthBuffer), len);
-		//	ACASSERT((ptr + chunkLength) < RXSTOP_INIT, "ptr overflow, ptr=%d, chunkLenght=%d", ptr, chunkLength);
-		//	readBuf(ptr, chunkLength, (byte*)&NetworkService::chunk);
-
-		//	if (!NetworkService::processChunk(isHeader, chunkLength))
-		//		break;
-
-		//	isHeader = false;
-
-		//	len -= chunkLength;
-		//	ptr += chunkLength;
-		//}
 
 		if (gNextPacketPtr - 1 > RXSTOP_INIT)
 			writeReg(ERXRDPT, RXSTOP_INIT);
