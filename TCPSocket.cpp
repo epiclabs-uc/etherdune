@@ -298,7 +298,8 @@ bool TCPSocket::processHeader()
 
 	releaseWindow(bytesAck);
 
-	sendAck = true;
+	if (bytesReceived>0) // do not send an ACK if this was a packet with no data
+		sendAck = true;
 
 
 	if (chunk.tcp.FIN)
