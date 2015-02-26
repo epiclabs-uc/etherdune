@@ -15,20 +15,20 @@
 //Checksum options
 
 #define ENABLE_IP_RX_CHECKSUM true // enabling this will drop packets that have checksum errors in the IP header
-#define ENABLE_TCP_RX_CHECKSUM true // enabling this will drop TCP packets that have checksum errors
+#define ENABLE_UDPTCP_RX_CHECKSUM true // enabling this will drop TCP/UDP packets that have checksum errors
 
 //Hardware checksum capability. ENC28J60 can calculate checksums by hardware, however if a checksum is being calculated while
 // a new packet is being received, the packet will be lost. See ENC28J60 Silicon errata, issue 17.
 // So why is this feature in EtherFlow?: You may want to use this if you are OK with losing a few frames every now and then but
 // are constrained in RAM and need to use a really small buffer (EtherFlow allows a ETHERFLOW_BUFFER_SIZE as small as 64 bytes)
 //
-// If this is enabled, EtherFlow will nevertheless only it if the packet does not fit in the buffer (ETHERFLOW_BUFFER_SIZE)
+// If this is enabled, EtherFlow will nevertheless only use it if the packet does not fit in the buffer (ETHERFLOW_BUFFER_SIZE)
 // true: enable hardware checksums for TCP frames (ethernet header + ip header + tcp header + payload) larger than ETHERFLOW_BUFFER_SIZE
 // false: disable hardware checksum. Larger frames will not be checked: In other words, potentially corrupt larger frames will be accepted.
 #define ENABLE_HW_CHECKSUM false  
 
 // ENC28J60 memory mapping
-#define ENC28J60_MEMSIZE  8192 //don't change this.
+#define ENC28J60_MEMSIZE  8192 //don't change this, that's just how much RAM there is in your ENC28J60.
 
 // The RXSTART_INIT must be zero. See Rev. B4 Silicon Errata point 5.
 // Buffer boundaries applied to internal 8K ram
@@ -55,8 +55,6 @@ static const int16_t MAX_ARP_TTL = 20; // 20 mins
 
 static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
 
-
-
 // max frame length which the conroller will accept:
 // (note: maximum ethernet frame length would be 1518)
 #define MAX_FRAMELEN      1500
@@ -64,7 +62,9 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
 
 #define NTICKS(ms) ((ms)/NETWORK_TIMER_RESOLUTION)
 
-// TCP timeouts
+// TCP timeouts, in milliseconds
+// These represent how much patience will EtherFlow have waiting in this state before
+// thinking something is wrong and doing something about it.
 static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(5000); // (client) represents waiting for a matching connection request after having sent a connection request.
 static const uint8_t SCK_TIMEOUT_SYN_RECEIVED = NTICKS(5000); //(server) SYN has been received, SYN ACK was sent and now waiting for ACK.
 static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.

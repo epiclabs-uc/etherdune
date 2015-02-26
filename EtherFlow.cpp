@@ -14,7 +14,7 @@ static uint8_t selectPin;
 static byte Enc28j60Bank;
 static uint16_t nextPacketPtr;
 
-#if ENABLE_TCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
+#if ENABLE_UDPTCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
 static uint16_t currentPacketPtr; //pointer to entire packet still in the RX buffer
 #endif
 
@@ -371,7 +371,7 @@ uint16_t EtherFlow::packetReceiveChunk()
 		readBuf(sizeof header, (byte*)&header);
 		uint16_t packetReadPtr = nextPacketPtr + sizeof(header);
 
-#if ENABLE_TCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
+#if ENABLE_UDPTCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
 		currentPacketPtr = packetReadPtr; //save the current packet pointer in hardware for potential checksum calculations
 #endif
 
