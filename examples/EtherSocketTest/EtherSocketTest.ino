@@ -20,40 +20,6 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP  = { 192, 168, 1, 33 };
 IPAddress_P netmask  = { 255, 255, 255, 0 };
 
-
-class DMATest : public Socket
-{
-public:
-	void start()
-	{
-		char* data = "this is some text";
-
-		uint16_t swchecksum = Checksum::calc(strlen(data), (uint8_t*)data);
-
-		ACINFO("Software Checksum=%d", swchecksum);
-
-		EtherFlow::writeBuf(5000, strlen(data), (uint8_t*)data);
-		nint16_t hwchecksum;
-		hwchecksum.rawu = ~EtherFlow::hardwareChecksum(5000, strlen(data));
-
-		ACINFO("Hardware Checksum=%d", hwchecksum.getValue());
-
-
-		EtherFlow::writeBuf(RXSTART_INIT, strlen(data),(byte*)data);
-
-		char rec[40];
-
-		EtherFlow::readBuf(RXSTOP_INIT - 1, sizeof(rec), (byte*)rec);
-
-		Serial.write((uint8_t*)rec, sizeof(rec));
-
-	}
-
-}dmatest;
-
-
-
-
 void setup()
 {
 
@@ -82,7 +48,6 @@ void setup()
 	ACINFO("link is up");
 
 
-	dmatest.start();
 
 }
 

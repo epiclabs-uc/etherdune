@@ -40,6 +40,9 @@ protected:
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
 	static uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
+	static uint16_t calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
+	static bool verifyTCPChecksum();
+
 	static bool sameLAN(IPAddress& dst);
 
 	NetworkService();

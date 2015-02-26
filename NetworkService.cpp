@@ -3,7 +3,7 @@
 #include "DNS.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 2
+#define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("NetworkService");
 
@@ -57,6 +57,29 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 {
 	if (isHeader)
 	{
+
+#if ENABLE_IP_RX_CHECKSUM || ENABLE_TCP_RX_CHECKSUM
+
+		if (chunk.eth.etherType.getValue() == ETHTYPE_IP)
+		{
+			uint16_t sum = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
+			if (0 != sum)
+			{
+				ACWARN("IP Header checksum error");
+				return false; // drop packet, IP Header checksum error
+			}
+
+#if ENABLE_TCP_RX_CHECKSUM
+			if (chunk.ip.protocol == IP_PROTO_TCP_V &&
+				!verifyTCPChecksum())
+			{
+				ACWARN("TCP checksum error");
+				return false;// drop packet, TCP checksum error
+			}
+#endif
+		}
+#endif
+
 		for (NetworkService* service = (NetworkService*)activeServices.first; service != NULL; service = (NetworkService*)service->nextItem)
 		{
 			if (service->processHeader())
@@ -69,11 +92,7 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 		return false;
 	}
 
-	if (currentService == NULL)
-	{
-		ACERROR("currentService should not be null");
-		return false;
-	}
+	ACBREAK(currentService != NULL, "currentService is NULL");
 
 	return currentService->processData(length, chunk.raw);
 
@@ -174,4 +193,57 @@ uint16_t NetworkService::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t len
 
 	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&chunk.ip.sourceIP);
 	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
+}
+
+uint16_t NetworkService::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
+{
+	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
+	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP_V, dataLength + headerLength);
+	sum = Checksum::calc(sum, headerLength, (uint8_t*)&chunk.tcp);
+	sum = Checksum::add(sum, dataChecksum);
+	return ~sum;
+}
+
+
+
+bool NetworkService::verifyTCPChecksum()
+{
+#if ENABLE_TCP_RX_CHECKSUM
+	const uint16_t TCPIPheaderLength = sizeof(IPHeader) + sizeof(TCPHeader);
+	const uint16_t dataOffset = sizeof(EthernetHeader) + TCPIPheaderLength;
+	uint16_t dataChecksum;
+
+	uint8_t TCPOptionsLength = chunk.tcp.headerLength * 4 - sizeof(TCPHeader);
+	uint16_t totalLength = chunk.ip.totalLength.getValue();
+	uint16_t dataLength = totalLength - TCPIPheaderLength;
+	
+
+
+	if (totalLength  <= sizeof(EthBuffer) - sizeof(EthernetHeader) )
+	{
+		//calculate via software since the entire TCP segment fits in RAM
+		dataChecksum = Checksum::calc(dataLength, chunk.raw + dataOffset);
+	}
+	else
+	{
+#if ENABLE_HW_CHECKSUM
+		//calculate via hardware, no other choice.
+		//warning: this may cause packet loss
+		// see ENC28J60 Silicon errata, issue 17.
+		nint16_t chk;
+		chk.rawu = ~EtherFlow::hardwareChecksumRxOffset(dataOffset, dataLength);
+		dataChecksum = chk.getValue();
+#else
+		return true;
+#endif
+	}
+
+	uint16_t sum = calcTCPChecksum(false, dataLength, dataChecksum);
+	return 0 == sum;
+
+
+#else
+	return true;
+#endif
+
 }

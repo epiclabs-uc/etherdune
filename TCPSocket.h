@@ -29,7 +29,6 @@ private:
 
 	void prepareTCPPacket(bool options, uint16_t dataLength);
 	void releaseWindow(int32_t& bytesAck);
-	void calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
 
 	void tick();
 	void sendSYN(bool ack);

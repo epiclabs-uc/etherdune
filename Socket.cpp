@@ -28,16 +28,7 @@ void Socket::prepareIPPacket()
 	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
 }
 
-uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
-{
-	nint32_t pseudo;
-	pseudo.h.h = 0;
-	pseudo.h.l = protocol;
-	pseudo.l.setValue(length);
 
-	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&chunk.ip.sourceIP);
-	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
-}
 
 
 uint16_t Socket::write(uint16_t len, const byte* data)
