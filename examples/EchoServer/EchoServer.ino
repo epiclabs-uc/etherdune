@@ -23,6 +23,12 @@ class EchoServer : public TCPSocket
 
 public:
 	
+	void start(uint16_t port)
+	{
+		localPort.setValue(port);
+		listen();
+	}
+
 	void onConnect()
 	{
 		ACTRACE("onConnect");
@@ -30,6 +36,7 @@ public:
 		accept(); //accept connection and send a welcome message
 
 		write(F("How about a nice game of chess?\n"));
+		Serial.println(F("Client connected"));
 
 	}
 
@@ -37,6 +44,7 @@ public:
 	{
 		close(); //property close the connection and then listen again.
 		listen();
+		Serial.println(F("Client disconnected"));
 	}
 
 	void onReceive(uint16_t len, const byte* data)
@@ -46,7 +54,7 @@ public:
 	}
 
 
-} sck;
+} echoServer;
 
 void setup()
 {	
@@ -75,9 +83,9 @@ void setup()
 
 	ACINFO("link is up");
 
-	sck.localPort.setValue(80);
-	sck.listen();
+	echoServer.start(80);
 
+	Serial.println(F("Echo server is up"));
 }
 
 

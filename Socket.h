@@ -21,8 +21,6 @@ class Socket : protected NetworkService
 	 SharedBuffer buffer;
 
 	static uint8_t srcPort_L_count;
-	uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
-
 	void prepareIPPacket();
 
 

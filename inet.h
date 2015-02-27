@@ -2,7 +2,7 @@
 #define __inet_h_
 
 #include <ACross.h>
-
+#include "config.h"
 
 static const uint16_t ETHTYPE_ARP = 0x0806;
 static const uint16_t ETHTYPE_IP = 0x0800;
@@ -343,7 +343,7 @@ union EthBuffer
 
 		};
 	};
-	uint8_t raw[64];
+	uint8_t raw[ETHERFLOW_BUFFER_SIZE];
 };
 
 

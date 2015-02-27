@@ -66,6 +66,7 @@ private:
 	static void writeBuf(uint16_t dst, uint16_t len, const byte* data);
 	static void writeBuf(uint16_t len, const byte* data);
 	static uint16_t hardwareChecksum(uint16_t src, uint16_t len);
+	static uint16_t hardwareChecksumRxOffset(uint16_t offset, uint16_t len);
 	static void moveMem(uint16_t dest, uint16_t src, uint16_t len);
 	static void readBuf(uint16_t src, uint16_t len, byte* data);
 	static void readBuf(uint16_t len, byte* data);
@@ -73,7 +74,6 @@ private:
 
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
-
 
 
 public: 

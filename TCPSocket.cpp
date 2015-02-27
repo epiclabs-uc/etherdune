@@ -5,7 +5,7 @@
 #include "TCPSocket.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("TCPSocket");
 
@@ -87,17 +87,7 @@ void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 
 }
 
-void TCPSocket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
-{
 
-	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
-
-	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP_V, dataLength + headerLength);
-	sum = Checksum::calc(sum, headerLength, (uint8_t*)&chunk.tcp);
-	sum = Checksum::add(sum, dataChecksum);
-
-	chunk.tcp.checksum.rawu = ~sum;
-}
 
 void TCPSocket::setState(uint8_t newState, uint8_t timeout)
 {
@@ -122,7 +112,7 @@ void TCPSocket::sendSYN(bool ack)
 	chunk.tcpOptions.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
 
 
-	calcTCPChecksum(true, 0, 0);
+	chunk.tcp.checksum.rawu = calcTCPChecksum(true, 0, 0);
 
 	sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader) + sizeof(TCPOptions));
 }
@@ -136,7 +126,7 @@ void TCPSocket::sendFIN()
 	chunk.tcp.FIN = 1;
 	chunk.tcp.ACK = 1;
 
-	calcTCPChecksum(false, 0, 0);
+	chunk.tcp.checksum.rawu = calcTCPChecksum(false, 0, 0);
 
 
 	sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
@@ -308,7 +298,8 @@ bool TCPSocket::processHeader()
 
 	releaseWindow(bytesAck);
 
-	sendAck = true;
+	if (bytesReceived>0) // do not send an ACK if this was a packet with no data
+		sendAck = true;
 
 
 	if (chunk.tcp.FIN)
@@ -399,7 +390,7 @@ void TCPSocket::processOutgoingBuffer()
 
 		ACTRACE("dataLength=%d dataChecksum=%d", dataLength, dataChecksum);
 
-		calcTCPChecksum(false, dataLength, dataChecksum);
+		chunk.tcp.checksum.rawu = calcTCPChecksum(false, dataLength, dataChecksum);
 
 		sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
 

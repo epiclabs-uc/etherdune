@@ -12,7 +12,12 @@ ACROSS_MODULE("EtherFlow");
 
 static uint8_t selectPin;
 static byte Enc28j60Bank;
-static int gNextPacketPtr;
+static uint16_t nextPacketPtr;
+
+#if ENABLE_UDPTCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
+static uint16_t currentPacketPtr; //pointer to entire packet still in the RX buffer
+#endif
+
 
 bool EtherFlow::broadcast_enabled = false;
 
@@ -126,9 +131,18 @@ byte EtherFlow::readByte(uint16_t src)
 	return b;
 }
 
+#if ENABLE_HW_CHECKSUM
+uint16_t EtherFlow::hardwareChecksumRxOffset(uint16_t offset, uint16_t len)
+{
+	uint16_t src = incRxPtr(currentPacketPtr, offset);
+	return hardwareChecksum(src, len);
+}
 
 uint16_t EtherFlow::hardwareChecksum(uint16_t src, uint16_t len)
 {
+	if (len == 0)
+		return 0;
+
 	// calculate address of last byte
 	uint16_t last = len + src - 1;
 
@@ -139,17 +153,34 @@ uint16_t EtherFlow::hardwareChecksum(uint16_t src, uint16_t len)
 
 	writeReg(EDMANDL, last);
 
+	//According to ENC28J60 Silicon Errata, when calculating hardware checksums
+	//packets may be lost.
 
-	//writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_CSUMEN);
+	//try to mitigate packet loss by waiting for the controller to free up
+	//of course a packet may arrive precisely when we're calculating
+	//a checksum, so this attempt may be futile anyway
+	while (readOp(ENC28J60_READ_CTRL_REG, ESTAT) & ESTAT_RXBUSY)
+		;
 
 	/* 4. Start the DMA copy by setting ECON1.DMAST. */
-	writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_DMAST | ECON1_CSUMEN);
 	SetBank(EDMACS);
+	writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_DMAST | ECON1_CSUMEN);
 
 	// wait until runnig DMA is completed
 	while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_DMAST);
 
 	return readReg(EDMACS);
+}
+
+#endif
+
+inline uint16_t incRxPtr(uint16_t ptr, uint16_t len)
+{
+	ptr += len;
+	if (ptr > RXSTOP_INIT + 1)
+		ptr -= (RXSTOP_INIT + 1);
+
+	return ptr;
 }
 
 void EtherFlow::moveMem(uint16_t dest, uint16_t src, uint16_t len)
@@ -280,7 +311,7 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 	while (!readOp(ENC28J60_READ_CTRL_REG, ESTAT) & ESTAT_CLKRDY)
 		;
 
-	gNextPacketPtr = RXSTART_INIT;
+	nextPacketPtr = RXSTART_INIT;
 	writeReg(ERXST, RXSTART_INIT);
 	writeReg(ERXRDPT, RXSTART_INIT);
 	writeReg(ERXND, RXSTOP_INIT);
@@ -322,12 +353,13 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 
 }
 
+
 uint16_t EtherFlow::packetReceiveChunk()
 {
 	uint16_t len = 0;
 	if (readRegByte(EPKTCNT) > 0)
 	{
-		writeReg(ERDPT, gNextPacketPtr);
+		writeReg(ERDPT, nextPacketPtr);
 
 		struct
 		{
@@ -337,10 +369,13 @@ uint16_t EtherFlow::packetReceiveChunk()
 		} header;
 
 		readBuf(sizeof header, (byte*)&header);
-		uint16_t packetReadPtr = gNextPacketPtr + sizeof(header);
+		uint16_t packetReadPtr = nextPacketPtr + sizeof(header);
 
+#if ENABLE_UDPTCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
+		currentPacketPtr = packetReadPtr; //save the current packet pointer in hardware for potential checksum calculations
+#endif
 
-		gNextPacketPtr = header.nextPacket;
+		nextPacketPtr = header.nextPacket;
 		len = header.byteCount - 4; //remove the CRC count
 
 		if ((header.status & 0x80) == 0)
@@ -360,15 +395,14 @@ uint16_t EtherFlow::packetReceiveChunk()
 			isHeader = false;
 
 			len -= chunkLength;
-			packetReadPtr += chunkLength;
-			if (packetReadPtr > RXSTOP_INIT + 1)
-				packetReadPtr -= (RXSTOP_INIT + 1);
+			
+			packetReadPtr = incRxPtr(packetReadPtr,chunkLength);
 		}
 
-		if (gNextPacketPtr - 1 > RXSTOP_INIT)
+		if (nextPacketPtr - 1 > RXSTOP_INIT)
 			writeReg(ERXRDPT, RXSTOP_INIT);
 		else
-			writeReg(ERXRDPT, gNextPacketPtr - 1);
+			writeReg(ERXRDPT, nextPacketPtr - 1);
 		writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
 	}
 	return len;
@@ -380,6 +414,8 @@ void EtherFlow::loop()
 {
 	packetReceiveChunk();
 }
+
+
 
 
 
