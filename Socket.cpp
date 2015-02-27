@@ -5,7 +5,7 @@
 #include "Socket.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("Socket");
 
@@ -33,6 +33,7 @@ void Socket::prepareIPPacket()
 
 uint16_t Socket::write(uint16_t len, const byte* data)
 {
+	ACTRACE("write %d bytes. Dump:",len )
 	AC_TRACE(Serial.write(data, len));
 	AC_TRACE(Serial.println());
 

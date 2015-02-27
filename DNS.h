@@ -3,7 +3,7 @@
 
 #include <ACross.h>
 #include "UDPSocket.h"
-#include <FlowScanner.h>
+
 
 
 class DNSClient : private UDPSocket
@@ -15,11 +15,13 @@ private:
 	IPAddress resolvedIP;
 	uint8_t timer;
 	uint16_t identification;
-
-	FlowScanner scanner;
+	uint16_t dataLength;
+	uint16_t dataPos;
+	
 
 	bool onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
 	bool sendPacket();
+	void nextQuery();
 	
 	void tick();
 

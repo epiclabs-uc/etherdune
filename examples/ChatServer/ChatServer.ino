@@ -62,7 +62,7 @@ public:
 
 	void onClose()
 	{
-		close(); //property close the connection.
+		close(); //properly close the connection.
 		Serial.println(F("Client disconnected."));
 		say(F(">> Someone left the room\n"));
 	}

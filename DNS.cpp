@@ -1,39 +1,62 @@
 #include "DNS.h"
 #include "Checksum.h"
 
-
-DEFINE_FLOWPATTERN(catchDNSResponse, "%0\x01" "%0\x01" "%*4c" "%0\x04" "%4c");
+#define AC_LOGLEVEL 3
+#include <ACLog.h>
+ACROSS_MODULE("DNS");
 
 bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data)
 {
-	if (datagramLength != 0) // it is the first chunk of this datagram
-	{
-		identification = chunk.dns.identification;
-		return true; //bring in the rest of this datagram
-	}
+	//Cheap hack: usually the last 4 bytes of the DNS response are the IP address we're looking for.
 
-	
-	while (fragmentLength--)
+	if (datagramLength != 0) // datagramLength != 0 means it is the first chunk of this datagram, so reset pointers.
 	{
-		if (scanner.scan(*data, &resolvedIP))
+		if (chunk.dns.rcode != 0)
 		{
-			NetworkService::notifyOnDNSResolve(identification, resolvedIP);
-			buffer.release();
-			if (buffer.nextRead != 0xFFFF)
-				send();
-
+			ACWARN("DNS Query error. code=%d", chunk.dns.rcode);
+			NetworkService::notifyOnDNSResolve(chunk.dns.rcode, identification, resolvedIP);
 			return false;
 		}
+		identification = chunk.dns.identification;
+		dataLength = datagramLength;
+		dataPos = 0;
 
-		data++;
 	}
+
+	if (dataLength - fragmentLength <= 4)
+	{
+		for (uint16_t i = dataLength - 4 + dataPos; i < fragmentLength; i++)
+		{
+			resolvedIP.b[dataPos] = data[i];
+			dataPos++;
+			if (dataPos == 4)
+			{
+				NetworkService::notifyOnDNSResolve(0,identification, resolvedIP);
+				nextQuery();
+
+				return false;
+
+			}
+			
+		}
+	}
+
+	//not there yet... skip fragment.
+	dataLength -= fragmentLength;
+
 	return true; // continue processing the next chunk
+}
+
+void DNSClient::nextQuery()
+{
+	buffer.release();
+	if (buffer.nextRead != 0xFFFF)
+		send();
 }
 
 DNSClient::DNSClient() 
 {
 	remotePort.setValue(53);
-	scanner.setPattern(catchDNSResponse);
 }
 
 uint16_t DNSClient::resolve(const char* name)

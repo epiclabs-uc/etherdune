@@ -9,7 +9,7 @@
 //This library is designed to work with a buffer as small as 64 bytes.
 //default is 566 which is enough to hold one TCP segment with 512 bytes of payload
 //Minimum buffer size is 64
-#define ETHERFLOW_BUFFER_SIZE 566   
+#define ETHERFLOW_BUFFER_SIZE 64   
 
 
 //Checksum options
@@ -49,7 +49,7 @@ static const uint8_t UDP_SRC_PORT_H = 240;
 
 static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
 
-static const uint16_t NETWORK_TIMER_RESOLUTION = 200; //ms
+static const uint16_t NETWORK_TIMER_RESOLUTION = 1000; //ms
 static const uint8_t ARP_TABLE_LENGTH = 2;
 static const int16_t MAX_ARP_TTL = 20; // 20 mins
 

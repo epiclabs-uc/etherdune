@@ -77,7 +77,7 @@ bool UDPSocket::processHeader()
 	}
 
 
-	uint16_t datagramLength = chunk.udp.dataLength.getValue();
+	uint16_t datagramLength = chunk.udp.dataLength.getValue() - sizeof(UDPHeader);
 	uint16_t fragmentLength = min(datagramLength, sizeof(EthBuffer) - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader));
 
 	return onReceive(fragmentLength, datagramLength, chunk.raw + sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader));

@@ -12,7 +12,6 @@
 #define _VSARDUINO_H_
 #define __AVR_ATmega328p__
 #define __AVR_ATmega328P__
-#define _DEBUG 1
 #define ARDUINO 106
 #define ARDUINO_MAIN
 #define __AVR__
@@ -45,5 +44,5 @@ extern "C" void __cxa_pure_virtual() {;}
 
 #include "C:\Users\Javier\Dropbox\Arduino\hardware\arduino\cores\arduino\arduino.h"
 #include "C:\Users\Javier\Dropbox\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
-#include "C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\examples\EtherSocketTest\EtherSocketTest.ino"
+#include "C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\examples\TCPClientDemo_DaytimeClient\TCPClientDemo_DaytimeClient.ino"
 #endif

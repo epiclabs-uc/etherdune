@@ -19,7 +19,7 @@ private:
 
 	static bool processChunk(bool isHeader, uint16_t length);	
 	
-	static void notifyOnDNSResolve(uint16_t id, const IPAddress& ip);
+	static void notifyOnDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
 	
 protected:
 
@@ -33,7 +33,7 @@ protected:
 	virtual bool processData(uint16_t len, uint8_t* data);
 
 	virtual void tick();
-	virtual void onDNSResolve(uint16_t id, const IPAddress& ip);
+	virtual void onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
 
 	static bool sendIPPacket(uint8_t headerLength);
 	static void prepareIPPacket(const IPAddress& remoteIP);
