@@ -5,3 +5,10 @@ Debug-pc
 *.opensdf
 /examples/EtherSocketTest/Debug/*.log
 *.user
+/examples/ChatServer/Release
+/examples/EchoServer/Release
+/examples/EtherSocketTest/Release/EtherSoc.39FD1975.tlog/*.lastbuildstate
+/examples/EtherSocketTest/Release/EtherSoc.39FD1975.tlog/*.tlog
+/examples/EtherSocketTest/Release/*.log
+/examples/EtherSocketTest/Release/EtherSoc.39FD1975.tlog/unsuccessfulbuild
+/examples/EtherSocketTest/Release/*.pdb
