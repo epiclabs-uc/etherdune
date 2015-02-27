@@ -23,6 +23,7 @@ static const uint8_t CS_PIN = 10;
 
 
 static const uint8_t MAX_CLIENTS = 4;
+static const uint16_t CHAT_SERVER_TCP_PORT = 2500;
 
 class ChatServer : public TCPSocket
 {
@@ -32,10 +33,17 @@ private:
 
 public:
 	
+	void start(uint16_t port)
+	{
+		localPort.setValue(port);
+		listen();
+	}
+
 	void onConnect()
 	{
 		ACTRACE("onConnect");
-
+		Serial.println(F("New client connected"));
+		say(F(">> Somebody joined the room\n"));
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -55,23 +63,36 @@ public:
 	void onClose()
 	{
 		close(); //property close the connection.
+		Serial.println(F("Client disconnected."));
+		say(F(">> Someone left the room\n"));
 	}
 
-	void onReceive(uint16_t len, const byte* data)
+	void say(uint16_t len, const byte* data, ChatServer* exclude)
 	{
-		ACTRACE("onReceive: %d bytes",len);
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			ChatServer& sck = clients[i];
-			if (&sck != this && sck.state == SCK_STATE_ESTABLISHED)
+			if (&sck != exclude && sck.state == SCK_STATE_ESTABLISHED)
 			{
 				sck.write(len, data);
 			}
 		}
 	}
 
+	void say(const String& st, ChatServer* exclude = NULL)
+	{
+		say(st.length(), (byte*)st.c_str(),exclude);
+	}
 
-} listener;
+	void onReceive(uint16_t len, const byte* data)
+	{
+		ACTRACE("onReceive: %d bytes",len);
+
+		say(len, data, this);
+	}
+
+
+} chatServer;
 
 ChatServer ChatServer::clients[MAX_CLIENTS];
 
@@ -104,9 +125,9 @@ void setup()
 
 	ACINFO("link is up");
 
-	listener.localPort.setValue(2500);
-	listener.listen();
 
+	chatServer.start(CHAT_SERVER_TCP_PORT);
+	Serial.println(F("Chat server is up"));
 }
 
 

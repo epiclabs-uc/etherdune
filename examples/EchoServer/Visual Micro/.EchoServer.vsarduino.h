@@ -17,6 +17,7 @@
 #define __AVR__
 #define __avr__
 #define F_CPU 16000000L
+#define PERRY
 #define __cplusplus
 #define __inline__
 #define __asm__(x)

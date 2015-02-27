@@ -1,5 +1,5 @@
 // Echo Server sample
-// Listens for TCP connections on port 80, sends a welcome message, then echoes back anything received
+// Listens for TCP connections on port 2500, sends a welcome message, then echoes back anything received
 
 
 #include <ACross.h>
@@ -17,6 +17,7 @@ IPAddress_P myIP  = { 192, 168, 1, 33 };
 IPAddress_P netmask  = { 255, 255, 255, 0 };
 
 static const uint8_t CS_PIN = 10;
+static const uint16_t ECHO_SERVER_TCP_PORT = 2500;
 
 class EchoServer : public TCPSocket
 {
@@ -83,7 +84,7 @@ void setup()
 
 	ACINFO("link is up");
 
-	echoServer.start(80);
+	echoServer.start(ECHO_SERVER_TCP_PORT);
 
 	Serial.println(F("Echo server is up"));
 }
