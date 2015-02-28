@@ -35,6 +35,7 @@ public:
 	void start()
 	{
 		request(F("api.openweathermap.org"), F("/data/2.5/weather?q=Madrid,es&units=metric"));
+		//see http://openweathermap.org/current
 	}
 
 	void onHeaderReceived(uint16_t len, const byte* data)

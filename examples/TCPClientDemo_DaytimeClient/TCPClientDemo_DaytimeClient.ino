@@ -52,6 +52,9 @@ public:
 	{
 		ACTRACE("onReceive: %d bytes", len);
 		Serial.write(data, len);
+		//time info comes in this format
+		//http://www.nist.gov/pml/div688/grp40/its.cfm
+		//this code cam be improved by parsing the received string to sync Arduino's own timer, for example
 	}
 
 

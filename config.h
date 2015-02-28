@@ -6,8 +6,10 @@
 // EtherFlow configuration
 
 //RAM memory buffer size to hold a packet.
-//This library is designed to work with a buffer as small as 64 bytes.
-//default is 566 which is enough to hold one TCP segment with 512 bytes of payload
+//This library is designed to work with a buffer as small as 64 bytes, 
+//pulling "chunks" of this size from the entire received packet out of the ENC28J60 buffer one by one.
+//default is 566 which is enough to hold a TCP packet of 512 bytes
+//The higher the buffer, the fewer the chunks and the better the performance.
 //Minimum buffer size is 64
 #define ETHERFLOW_BUFFER_SIZE 64   
 
