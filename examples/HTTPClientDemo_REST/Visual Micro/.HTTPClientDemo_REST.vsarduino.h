@@ -44,5 +44,5 @@ extern "C" void __cxa_pure_virtual() {;}
 
 #include "C:\Users\Javier\Dropbox\Arduino\hardware\arduino\cores\arduino\arduino.h"
 #include "C:\Users\Javier\Dropbox\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
-#include "C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\examples\HTTPClient\HTTPClient.ino"
+#include "C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\examples\HTTPClientDemo_REST\HTTPClientDemo_REST.ino"
 #endif

@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7B5E0A20-5E5A-4F16-9E2B-EE4317B50214}</ProjectGuid>
-    <RootNamespace>HTTPClient</RootNamespace>
+    <ProjectGuid>{613EBBC5-1ECB-434C-9124-311CB5DFD812}</ProjectGuid>
+    <RootNamespace>HTTPClientDemo_REST</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,7 +45,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\Javier\Dropbox\Arduino\hardware\arduino\cores\arduino;C:\Users\Javier\Dropbox\Arduino\hardware\arduino\variants\standard;C:\Users\Javier\Dropbox\Arduino\libraries\ACross;C:\Users\Javier\Dropbox\Arduino\libraries\ACross\utility;C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow;C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\utility;C:\Users\Javier\Dropbox\Arduino\libraries\FlowScanner;C:\Users\Javier\Dropbox\Arduino\libraries\FlowScanner\utility;C:\Users\Javier\Dropbox\Arduino\libraries;C:\Users\Javier\Dropbox\Arduino\hardware\arduino\libraries;C:\Program Files (x86)\Visual Micro\Visual Micro for Arduino\Micro Platforms\default\debuggers;C:\Users\Javier\Documents\Arduino\libraries;c:\users\javier\dropbox\arduino\hardware\tools\avr\avr\include\;c:\users\javier\dropbox\arduino\hardware\tools\avr\avr\include\avr\;c:\users\javier\dropbox\arduino\hardware\tools\avr\avr\;c:\users\javier\dropbox\arduino\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\examples\HTTPClient\Visual Micro\.HTTPClient.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>C:\Users\Javier\Dropbox\Arduino\libraries\EtherFlow\examples\HTTPClientDemo_REST\Visual Micro\.HTTPClientDemo_REST.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;ARDUINO=106;ARDUINO_MAIN;__AVR__;__avr__;F_CPU=16000000L;__cplusplus;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -68,12 +68,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="HTTPClient.ino">
+    <None Include="HTTPClientDemo_REST.ino">
       <FileType>CppCode</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Visual Micro\.HTTPClient.vsarduino.h" />
+    <ClInclude Include="Visual Micro\.HTTPClientDemo_REST.vsarduino.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

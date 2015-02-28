@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HTTPClient.ino" />
+    <None Include="HTTPClientDemo_REST.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Visual Micro\.HTTPClient.vsarduino.h">
+    <ClInclude Include="Visual Micro\.HTTPClientDemo_REST.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

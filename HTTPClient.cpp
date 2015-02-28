@@ -10,6 +10,7 @@ void HTTPClient::onResponseReceived() {}
 void HTTPClient::onResponseEnd() {}
 void HTTPClient::onHeaderReceived(uint16_t len, const byte* data) {}
 void HTTPClient::onBodyReceived(uint16_t len, const byte* data) {}
+void HTTPClient::onBodyBegin(){};
 
 
 HTTPClient::HTTPClient() :
@@ -17,25 +18,38 @@ HTTPClient::HTTPClient() :
 	bodyBeginPattern(bodyBeginPatternString),
 	DNSid(0)
 {
-	
+	remoteIP.u = 0;
+	remotePort.setValue(80);
 }
 
 void HTTPClient::request(const String& hostName, const String& resource, uint16_t port )
 {
 	remotePort.setValue(port);
-	DNSid = DNS.resolve(hostName.c_str());
+
 	host = hostName;
 	res = resource;
+
+	if (remoteIP.u == 0)
+		DNSid = DNS.resolve(hostName.c_str());
+	else
+		connect();
 }
 
 
-void HTTPClient::onDNSResolve(uint16_t identification, const IPAddress& ip)
+void HTTPClient::onDNSResolve(uint8_t status, uint16_t identification, const IPAddress& ip)
 {
 	if (identification == DNSid)
 	{
-		DNSid = 0;
-		remoteIP = ip;
-		connect();
+		if (status == 0)
+		{
+			DNSid = 0;
+			remoteIP = ip;
+			connect();
+		}
+		else
+		{
+			ACERROR("Could not resolve hostname");
+		}
 	}
 }
 
@@ -47,8 +61,6 @@ void HTTPClient::onConnect()
 	bodyBeginPattern.signaled = false;
 
 	write(F("GET % HTTP/1.1" "\r\n" "Accept:*" "/" "*" "\r\n" "Host:%\r\n\r\n"), &res, &host);
-
-	ACTRACE("hola %d %d %d", 1, 2, 3);
 }
 
 void HTTPClient::onReceive(uint16_t len, const byte* data)
@@ -72,6 +84,7 @@ void HTTPClient::onReceive(uint16_t len, const byte* data)
 			if (scanner.scan(c))
 			{
 				onHeaderReceived(data - headerStart, headerStart);
+				onBodyBegin();
 				onBodyReceived(len, data);
 				return;
 			}

@@ -14,7 +14,9 @@
 //#include "EtherSocketTest.ino"
 //#include "../EchoServer/EchoServer.ino"
 //#include "../ChatServer/ChatServer.ino"
-#include "../TCPClientDemo_DaytimeClient/TCPClientDemo_DaytimeClient.ino"
+//#include "../TCPClientDemo_DaytimeClient/TCPClientDemo_DaytimeClient.ino"
+#include "../HTTPClient/HTTPClient.ino"
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {

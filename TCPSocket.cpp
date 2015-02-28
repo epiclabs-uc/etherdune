@@ -222,6 +222,13 @@ void TCPSocket::tick()
 			sendFIN();
 
 		}break;
+
+		case SCK_STATE_FIN_WAIT_2:
+		case SCK_STATE_TIME_WAIT:
+		{
+			sendAck = true;
+			processOutgoingBuffer(); //just to send last ACK
+		}break;
 	}
 }
 
@@ -298,12 +305,14 @@ bool TCPSocket::processHeader()
 
 	releaseWindow(bytesAck);
 
-	if (bytesReceived>0) // do not send an ACK if this was a packet with no data
+	if (bytesReceived>0 ) // do not send an ACK if this was a packet with no data
 		sendAck = true;
 
 
 	if (chunk.tcp.FIN)
+	{
 		ackNumber++;
+	}
 
 
 	switch (state)

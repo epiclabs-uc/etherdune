@@ -15,6 +15,7 @@ bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, cons
 		{
 			ACWARN("DNS Query error. code=%d", chunk.dns.rcode);
 			NetworkService::notifyOnDNSResolve(chunk.dns.rcode, identification, resolvedIP);
+			nextQuery();
 			return false;
 		}
 		identification = chunk.dns.identification;
