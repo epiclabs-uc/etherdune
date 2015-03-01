@@ -296,6 +296,31 @@ struct DNSHeader
 
 };
 
+struct DHCPHeader_0
+{
+	uint8_t op;
+	uint8_t htype;
+	uint8_t hlen;
+	uint8_t hops;
+	nint32_t xid;
+	nint16_t secs;
+	uint16_t flags;
+	IPAddress ciaddr;
+	IPAddress yiaddr;
+	IPAddress siaddr;
+	IPAddress giaddr;
+	union
+	{
+		MACAddress mac;
+		byte chaddr[16];
+	};
+};
+
+struct DHCPHeader_1
+{
+	byte sname[64];
+};
+
 
 struct ICMPHeader
 {
