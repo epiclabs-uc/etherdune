@@ -364,7 +364,11 @@ union EthBuffer
 					ICMPHeader icmp;
 					struct
 					{
-						UDPHeader udp;
+						union
+						{
+							UDPHeader udp;
+							byte udpData[ETHERFLOW_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader)];
+						};
 						DNSHeader dns;
 					};
 					struct

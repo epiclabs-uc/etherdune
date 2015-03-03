@@ -48,7 +48,7 @@ public:
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			ChatServer& sck = clients[i];
-			if (sck.state == SCK_STATE_CLOSED)
+			if (sck.getState() == SCK_STATE_CLOSED)
 			{
 				sck.accept(*this);
 				sck.write(F("Welcome to the chat room\n")); //accept connection and send a welcome message

@@ -15,7 +15,7 @@ ARPService::ARPService()
 	memset(arpTable, -2, ARP_TABLE_LENGTH * sizeof(ARPEntry));
 }
 
-bool ARPService::processHeader()
+bool ARPService::onPacketReceived()
 {
 	
 	if (chunk.eth.etherType.getValue() != ETHTYPE_ARP)
@@ -36,6 +36,8 @@ bool ARPService::processHeader()
 
 		case ARP_OPCODE_REQ_L:
 		{
+			ACTRACE("ARP Request from=%02x:%02x:%02x:%02x:%02x:%02x", chunk.arp.senderMAC.b[0], chunk.arp.senderMAC.b[1], chunk.arp.senderMAC.b[2], chunk.arp.senderMAC.b[3], chunk.arp.senderMAC.b[4], chunk.arp.senderMAC.b[5]);
+
 			if (chunk.arp.targetIP.u == localIP.u)
 				makeARPReply();
 			return true;
@@ -136,7 +138,7 @@ void ARPService::processARPReply()
 		}
 	}
 
-	//AC_DEBUG(if (!selectedEntry)	{ dsprintln("busted");		while (1); });
+	ACBREAK(selectedEntry!=NULL,"selectedEntry is NULL");
 
 	selectedEntry->status_TTL = MAX_ARP_TTL;
 	selectedEntry->ip = chunk.arp.senderIP;

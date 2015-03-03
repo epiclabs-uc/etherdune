@@ -7,7 +7,7 @@ class ARPService : NetworkService
 {
 	static ARPEntry arpTable[ARP_TABLE_LENGTH];
 
-	bool processHeader();
+	bool onPacketReceived();
 	bool processChunk(bool isHeader);
 	void tick();
 

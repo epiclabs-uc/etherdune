@@ -14,8 +14,6 @@ List SharedBuffer::bufferList;
 ARPService NetworkService::ARP;
 DNSClient NetworkService::DNS;
 
-
-NetworkService* NetworkService::currentService = NULL;
 MACAddress NetworkService::localMAC;
 IPAddress NetworkService::localIP;
 IPAddress NetworkService::gatewayIP;
@@ -30,15 +28,13 @@ static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
 EthBuffer NetworkService::chunk;
 
 
-bool NetworkService::processHeader(){ return false; }
-bool NetworkService::processData(uint16_t len, uint8_t* data){ return false; }
+bool NetworkService::onPacketReceived(){ return false; }
 void NetworkService::tick(){}
 void NetworkService::onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip) {}
 
 
 bool NetworkService::begin(uint8_t cspin)
 {
-
 	tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
 	return 0!= EtherFlow::begin(cspin);
 }
@@ -46,17 +42,15 @@ bool NetworkService::begin(uint8_t cspin)
 
 NetworkService::NetworkService()
 {
-	
 	activeServices.add(this);
 }
 NetworkService::~NetworkService()
 {
 	activeServices.remove(this);
 }
-bool NetworkService::processChunk(bool isHeader, uint16_t length)
+void NetworkService::processIncomingPacket()
 {
-	if (isHeader)
-	{
+	ACDEBUG("Incoming packet etherType=%x", chunk.eth.etherType.getValue());
 
 #if ENABLE_IP_RX_CHECKSUM || ENABLE_UDPTCP_RX_CHECKSUM
 
@@ -66,46 +60,25 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 			if (0 != sum)
 			{
 				ACWARN("IP Header checksum error");
-				return false; // drop packet, IP Header checksum error
+				return ; // drop packet, IP Header checksum error
 			}
-
-#if ENABLE_UDPTCP_RX_CHECKSUM
-
-			if (!verifyUDPTCPChecksum())
-			{
-				ACWARN("TCP/UDP checksum error");
-				return false;// drop packet, TCP checksum error
-			}
-
-#endif
-
-
-
 		}
 #endif
 
 		for (NetworkService* service = (NetworkService*)activeServices.first; service != NULL; service = (NetworkService*)service->nextItem)
 		{
-			if (service->processHeader())
-			{
-				currentService = service;
-				return true;
-			}
+			if (service->onPacketReceived())
+				return;
+
 		}
 		ACTRACE("nobody wants this packet");
-		return false;
-	}
-
-	ACBREAK(currentService != NULL, "currentService is NULL");
-
-	return currentService->processData(length, chunk.raw);
-
-
+		return;
+	
 }
 
 void NetworkService::loop()
 {
-	EtherFlow::loop();
+	EtherFlow::loadSample();
 
 	if ((int32_t)(millis() - tickTimer) >= 0)
 	{
@@ -197,93 +170,9 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
 }
 
-uint16_t NetworkService::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
+void NetworkService::loadAll()
 {
-	nint32_t pseudo;
-	pseudo.h.h = 0;
-	pseudo.h.l = protocol;
-	pseudo.l.setValue(length);
-
-	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&chunk.ip.sourceIP);
-	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
-}
-
-uint16_t NetworkService::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
-{
-	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
-	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP_V, dataLength + headerLength);
-	sum = Checksum::calc(sum, headerLength, (uint8_t*)&chunk.tcp);
-	sum = Checksum::add(sum, dataChecksum);
-	return ~sum;
-}
-
-uint16_t NetworkService::calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum)
-{
-	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, dataLength + sizeof(UDPHeader));
-	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&chunk.udp);
-
-	return ~Checksum::add(headerChecksum, dataChecksum);
-}
-
-
-bool NetworkService::verifyUDPTCPChecksum()
-{
-#if ENABLE_UDPTCP_RX_CHECKSUM
-	uint8_t headerLength;
-	uint16_t dataOffset;
-	switch (chunk.ip.protocol)
-	{
-		case IP_PROTO_TCP_V:
-		{
-			headerLength = sizeof(IPHeader) + sizeof(TCPHeader);
-			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader);
-		}break;
-		case IP_PROTO_UDP_V:
-		{
-			headerLength = sizeof(IPHeader) + sizeof(UDPHeader);
-			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader);
-		}break;
-		default:
-			return true;
-	}
-
-	uint16_t dataChecksum;
-
-	uint16_t totalLength = chunk.ip.totalLength.getValue();
-	uint16_t dataLength = totalLength - headerLength;
-
-	if (totalLength <= sizeof(EthBuffer) - sizeof(EthernetHeader))
-	{
-		//calculate via software since the entire packet fits in RAM
-		dataChecksum = Checksum::calc(dataLength, chunk.raw + dataOffset);
-	}
-	else
-	{
-#if ENABLE_HW_CHECKSUM
-		//calculate via hardware, no other choice.
-		//warning: this may cause packet loss
-		// see ENC28J60 Silicon errata, issue 17.
-		nint16_t chk;
-		chk.rawu = ~EtherFlow::hardwareChecksumRxOffset(dataOffset, dataLength);
-		dataChecksum = chk.getValue();
-#else
-		return true;
+#if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
+	EtherFlow::loadAll();
 #endif
-	}
-
-	uint16_t sum;
-	if (chunk.ip.protocol == IP_PROTO_TCP_V)
-		sum = calcTCPChecksum(false,dataLength, dataChecksum);
-	else
-		sum = calcUDPChecksum( dataLength, dataChecksum);
-	
-	return 0 == sum;
-
-
-#else
-	return true;
-#endif
-
-
-
 }

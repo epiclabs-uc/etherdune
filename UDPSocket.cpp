@@ -2,7 +2,11 @@
 #include "UDPSocket.h"
 #include "Checksum.h"
 
-bool UDPSocket::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data) { return false; }
+#define AC_LOGLEVEL 2
+#include <ACLog.h>
+ACROSS_MODULE("UDPSocket");
+
+void UDPSocket::onReceive(uint16_t len) {  }
 
 
 UDPSocket::UDPSocket() :sending(false)
@@ -66,7 +70,7 @@ void UDPSocket::tick()
 
 }
 
-bool UDPSocket::processHeader()
+bool UDPSocket::onPacketReceived()
 {
 	if (!(
 		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
@@ -76,17 +80,18 @@ bool UDPSocket::processHeader()
 		return false;
 	}
 
+	loadAll();
 
-	uint16_t datagramLength = chunk.udp.dataLength.getValue() - sizeof(UDPHeader);
-	uint16_t fragmentLength = min(datagramLength, sizeof(EthBuffer) - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader));
+#if ENABLE_UDPTCP_RX_CHECKSUM
 
-	return onReceive(fragmentLength, datagramLength, chunk.raw + sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader));
+	if (!verifyUDPTCPChecksum())
+	{
+		ACWARN("UDP checksum error");
+		return true;// drop packet, UDP checksum error
+	}
 
-}
+#endif
 
-
-
-bool UDPSocket::processData(uint16_t len, uint8_t* data)
-{
-	return onReceive(len, 0, data);
+	onReceive(chunk.udp.dataLength.getValue() - sizeof(UDPHeader));
+	return true;
 }
