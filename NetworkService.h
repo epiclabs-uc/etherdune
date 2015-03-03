@@ -37,14 +37,10 @@ protected:
 	static void prepareIPPacket(const IPAddress& remoteIP);
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
-	static uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
-	static uint16_t calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
-	static uint16_t calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum);
-	static bool verifyTCPChecksum();
-	static bool verifyUDPChecksum();
-	static bool verifyUDPTCPChecksum();
 
 	static bool sameLAN(IPAddress& dst);
+
+	static void loadAll();
 
 	NetworkService();
 	~NetworkService();
@@ -60,13 +56,9 @@ public:
 	static bool isLinkUp();
 	static void loop();
 
-
-
 };
 
 typedef NetworkService net;
  
-
-
 
 #endif

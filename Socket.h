@@ -22,6 +22,11 @@ class Socket : protected NetworkService
 
 	static uint8_t srcPort_L_count;
 	void prepareIPPacket();
+	
+	static uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
+	static uint16_t calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
+	static uint16_t calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum);
+	static bool verifyUDPTCPChecksum();
 
 
  public:

@@ -1,6 +1,6 @@
 #include "ARP.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("ARP");
 
@@ -138,7 +138,7 @@ void ARPService::processARPReply()
 		}
 	}
 
-	//AC_DEBUG(if (!selectedEntry)	{ dsprintln("busted");		while (1); });
+	ACBREAK(selectedEntry!=NULL,"selectedEntry is NULL");
 
 	selectedEntry->status_TTL = MAX_ARP_TTL;
 	selectedEntry->ip = chunk.arp.senderIP;

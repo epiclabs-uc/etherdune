@@ -14,9 +14,8 @@ static uint8_t selectPin;
 static byte Enc28j60Bank;
 static uint16_t nextPacketPtr;
 
-#if ENABLE_UDPTCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
-static uint16_t currentPacketPtr; //pointer to entire packet still in the RX buffer
-#endif
+static uint16_t remainingPacketSize;
+static byte* chunkPtr;
 
 
 bool EtherFlow::broadcast_enabled = false;
@@ -354,7 +353,7 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 }
 
 
-void EtherFlow::loadNext()
+void EtherFlow::loadSample()
 {
 	if (readRegByte(EPKTCNT) > 0)
 	{
@@ -373,8 +372,12 @@ void EtherFlow::loadNext()
 		
 		if ((header.status & 0x80) != 0)
 		{
-			uint16_t len = header.byteCount - 4; //remove the CRC count
-			readBuf(min(len, sizeof(NetworkService::chunk)), (byte*)&NetworkService::chunk);
+			remainingPacketSize = header.byteCount - 4; //remove the CRC count
+			uint16_t len = min(remainingPacketSize, ETHERFLOW_SAMPLE_SIZE);
+			chunkPtr = (byte*)&NetworkService::chunk;
+			readBuf(len, chunkPtr);
+			remainingPacketSize -= len;
+			chunkPtr += len;
 			NetworkService::processIncomingPacket();
 		}
 		release();
@@ -382,6 +385,13 @@ void EtherFlow::loadNext()
 	}
 
 }
+
+void EtherFlow::loadAll()
+{
+	readBuf(min(remainingPacketSize, sizeof(NetworkService::chunk) - (chunkPtr - (byte*)&NetworkService::chunk)), chunkPtr);
+}
+
+
 
 void EtherFlow::release()
 {

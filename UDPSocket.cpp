@@ -2,6 +2,10 @@
 #include "UDPSocket.h"
 #include "Checksum.h"
 
+#define AC_LOGLEVEL 2
+#include <ACLog.h>
+ACROSS_MODULE("UDPSocket");
+
 void UDPSocket::onReceive(uint16_t len) {  }
 
 
@@ -75,6 +79,18 @@ bool UDPSocket::onPacketReceived()
 	{
 		return false;
 	}
+
+	loadAll();
+
+#if ENABLE_UDPTCP_RX_CHECKSUM
+
+	if (!verifyUDPTCPChecksum())
+	{
+		ACWARN("UDP checksum error");
+		return true;// drop packet, UDP checksum error
+	}
+
+#endif
 
 	onReceive(chunk.udp.dataLength.getValue() - sizeof(UDPHeader));
 	return true;

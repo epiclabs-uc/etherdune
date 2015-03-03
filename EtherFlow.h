@@ -75,7 +75,8 @@ private:
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
 
-	static void loadNext();
+	static void loadSample();
+	static void loadAll();
 	static void release();
 
 public: 

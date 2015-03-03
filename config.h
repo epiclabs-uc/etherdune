@@ -9,6 +9,26 @@
 //default is 566 which is enough to hold a TCP packet of 512 bytes
 #define ETHERFLOW_BUFFER_SIZE 566   
 
+
+//ETHERFLOW_SAMPLE_SIZE: minimum amount of bytes to read to decide whether we want the rest of the packet or not
+//There is a lot of cosmic noise in an Ethernet network, broadcasts, etc that we can filter out using this feature.
+//with 42 bytes we can read an entire ARP packet in the sample
+// + we get IP and UDP full headers as well as TCP sourcePort, localPort and sequenceNumber
+//sizeof(EthernetHeader) = 14
+//sizeof(ARPPacket) = 28
+//total = 42.
+
+//sizeof(EtheretHeader) = 14
+//sizeof(IPHeader) = 20
+//sizeof(sourcePort) = 2
+//sizeof(destinationPort)= 2
+//sizeof(sequenceNumber) = 4
+//total = 42
+
+//to disable sampling, set ETHERFLOW_SAMPLE_SIZE to ETHERFLOW_BUFFER_SIZE
+
+#define ETHERFLOW_SAMPLE_SIZE 42  
+
 //Checksum options
 
 #define ENABLE_IP_RX_CHECKSUM true // enabling this will drop packets that have checksum errors in the IP header
@@ -74,6 +94,15 @@ static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to ma
 
 #if ETHERFLOW_BUFFER_SIZE < 566
 #error ETHERFLOW_BUFFER_SIZE must be at least 566 bytes
+#endif
+
+//see ETHERFLOW_SAMPLE_SIZE definition above to see why 42
+#if ETHERFLOW_SAMPLE_SIZE < 42
+#error ETHERFLOW_SAMPLE_SIZE must be at least 42 bytes
+#endif
+
+#if ETHERFLOW_SAMPLE_SIZE > ETHERFLOW_BUFFER_SIZE
+#error ETHERFLOW_SAMPLE_SIZE must be less than ETHERFLOW_BUFFER_SIZE
 #endif
 
 #if ETHERFLOW_BUFFER_SIZE & 1

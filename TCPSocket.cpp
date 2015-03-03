@@ -235,6 +235,18 @@ bool TCPSocket::onPacketReceived()
 		return false;
 	}
 
+	loadAll();
+
+#if ENABLE_UDPTCP_RX_CHECKSUM
+
+	if (!verifyUDPTCPChecksum())
+	{
+		ACWARN("TCP checksum error");
+		return true;// drop packet, TCP checksum error
+	}
+
+#endif
+
 	ACTRACE("Header SYN=%d ACK=%d FIN=%d RST=%d", chunk.tcp.SYN, chunk.tcp.ACK, chunk.tcp.FIN, chunk.tcp.RST)
 
 	uint32_t incomingAckNum = chunk.tcp.acknowledgementNumber.getValue();

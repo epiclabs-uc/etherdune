@@ -3,7 +3,7 @@
 #include "DNS.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("NetworkService");
 
@@ -62,17 +62,6 @@ void NetworkService::processIncomingPacket()
 				ACWARN("IP Header checksum error");
 				return ; // drop packet, IP Header checksum error
 			}
-
-#if ENABLE_UDPTCP_RX_CHECKSUM
-
-			if (!verifyUDPTCPChecksum())
-			{
-				ACWARN("TCP/UDP checksum error");
-				return ;// drop packet, TCP checksum error
-			}
-
-#endif
-
 		}
 #endif
 
@@ -89,7 +78,7 @@ void NetworkService::processIncomingPacket()
 
 void NetworkService::loop()
 {
-	EtherFlow::loadNext();
+	EtherFlow::loadSample();
 
 	if ((int32_t)(millis() - tickTimer) >= 0)
 	{
@@ -181,74 +170,9 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
 }
 
-uint16_t NetworkService::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
+void NetworkService::loadAll()
 {
-	nint32_t pseudo;
-	pseudo.h.h = 0;
-	pseudo.h.l = protocol;
-	pseudo.l.setValue(length);
-
-	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&chunk.ip.sourceIP);
-	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
-}
-
-uint16_t NetworkService::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
-{
-	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
-	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP_V, dataLength + headerLength);
-	sum = Checksum::calc(sum, headerLength, (uint8_t*)&chunk.tcp);
-	sum = Checksum::add(sum, dataChecksum);
-	return ~sum;
-}
-
-uint16_t NetworkService::calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum)
-{
-	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, dataLength + sizeof(UDPHeader));
-	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&chunk.udp);
-
-	return ~Checksum::add(headerChecksum, dataChecksum);
-}
-
-
-bool NetworkService::verifyUDPTCPChecksum()
-{
-#if ENABLE_UDPTCP_RX_CHECKSUM
-	uint8_t headerLength;
-	uint16_t dataOffset;
-	switch (chunk.ip.protocol)
-	{
-		case IP_PROTO_TCP_V:
-		{
-			headerLength = sizeof(IPHeader) + sizeof(TCPHeader);
-			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader);
-		}break;
-		case IP_PROTO_UDP_V:
-		{
-			headerLength = sizeof(IPHeader) + sizeof(UDPHeader);
-			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader);
-		}break;
-		default:
-			return true;
-	}
-
-	uint16_t dataChecksum;
-
-	uint16_t totalLength = chunk.ip.totalLength.getValue();
-	uint16_t dataLength = totalLength - headerLength;
-
-	dataChecksum = Checksum::calc(dataLength, chunk.raw + dataOffset);
-
-	uint16_t sum;
-	if (chunk.ip.protocol == IP_PROTO_TCP_V)
-		sum = calcTCPChecksum(false,dataLength, dataChecksum);
-	else
-		sum = calcUDPChecksum( dataLength, dataChecksum);
-	
-	return 0 == sum;
-
-
-#else
-	return true;
+#if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
+	EtherFlow::loadAll();
 #endif
-
 }
