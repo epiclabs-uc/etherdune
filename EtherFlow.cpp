@@ -354,9 +354,8 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 }
 
 
-uint16_t EtherFlow::packetReceiveChunk()
+void EtherFlow::loadNext()
 {
-	uint16_t len = 0;
 	if (readRegByte(EPKTCNT) > 0)
 	{
 		writeReg(ERDPT, nextPacketPtr);
@@ -369,54 +368,26 @@ uint16_t EtherFlow::packetReceiveChunk()
 		} header;
 
 		readBuf(sizeof header, (byte*)&header);
-		uint16_t packetReadPtr = nextPacketPtr + sizeof(header);
-
-#if ENABLE_UDPTCP_RX_CHECKSUM && ENABLE_HW_CHECKSUM
-		currentPacketPtr = packetReadPtr; //save the current packet pointer in hardware for potential checksum calculations
-#endif
 
 		nextPacketPtr = header.nextPacket;
-		len = header.byteCount - 4; //remove the CRC count
-
-		if ((header.status & 0x80) == 0)
-			len = 0;
-
-		uint16_t chunkLength;
-		bool isHeader = true;
-	
-		while (len > 0)
+		
+		if ((header.status & 0x80) != 0)
 		{
-			chunkLength = min(sizeof(EthBuffer), len);
-			readBuf(packetReadPtr, chunkLength, (byte*)&NetworkService::chunk);
-
-			if (!NetworkService::processChunk(isHeader, chunkLength))
-				break;
-
-			isHeader = false;
-
-			len -= chunkLength;
-			
-			packetReadPtr = incRxPtr(packetReadPtr,chunkLength);
+			uint16_t len = header.byteCount - 4; //remove the CRC count
+			readBuf(min(len, sizeof(NetworkService::chunk)), (byte*)&NetworkService::chunk);
+			NetworkService::processIncomingPacket();
 		}
+		release();
 
-		if (nextPacketPtr - 1 > RXSTOP_INIT)
-			writeReg(ERXRDPT, RXSTOP_INIT);
-		else
-			writeReg(ERXRDPT, nextPacketPtr - 1);
-		writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
 	}
-	return len;
 
 }
 
-
-void EtherFlow::loop()
+void EtherFlow::release()
 {
-	packetReceiveChunk();
+	if (nextPacketPtr - 1 > RXSTOP_INIT)
+		writeReg(ERXRDPT, RXSTOP_INIT);
+	else
+		writeReg(ERXRDPT, nextPacketPtr - 1);
+	writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
 }
-
-
-
-
-
-

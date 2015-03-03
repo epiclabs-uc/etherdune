@@ -3,7 +3,7 @@
 #include "DNS.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 2
+#define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("NetworkService");
 
@@ -14,8 +14,6 @@ List SharedBuffer::bufferList;
 ARPService NetworkService::ARP;
 DNSClient NetworkService::DNS;
 
-
-NetworkService* NetworkService::currentService = NULL;
 MACAddress NetworkService::localMAC;
 IPAddress NetworkService::localIP;
 IPAddress NetworkService::gatewayIP;
@@ -30,15 +28,13 @@ static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
 EthBuffer NetworkService::chunk;
 
 
-bool NetworkService::processHeader(){ return false; }
-bool NetworkService::processData(uint16_t len, uint8_t* data){ return false; }
+bool NetworkService::onPacketReceived(){ return false; }
 void NetworkService::tick(){}
 void NetworkService::onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip) {}
 
 
 bool NetworkService::begin(uint8_t cspin)
 {
-
 	tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
 	return 0!= EtherFlow::begin(cspin);
 }
@@ -46,17 +42,15 @@ bool NetworkService::begin(uint8_t cspin)
 
 NetworkService::NetworkService()
 {
-	
 	activeServices.add(this);
 }
 NetworkService::~NetworkService()
 {
 	activeServices.remove(this);
 }
-bool NetworkService::processChunk(bool isHeader, uint16_t length)
+void NetworkService::processIncomingPacket()
 {
-	if (isHeader)
-	{
+	ACDEBUG("Incoming packet etherType=%x", chunk.eth.etherType.getValue());
 
 #if ENABLE_IP_RX_CHECKSUM || ENABLE_UDPTCP_RX_CHECKSUM
 
@@ -66,7 +60,7 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 			if (0 != sum)
 			{
 				ACWARN("IP Header checksum error");
-				return false; // drop packet, IP Header checksum error
+				return ; // drop packet, IP Header checksum error
 			}
 
 #if ENABLE_UDPTCP_RX_CHECKSUM
@@ -74,38 +68,28 @@ bool NetworkService::processChunk(bool isHeader, uint16_t length)
 			if (!verifyUDPTCPChecksum())
 			{
 				ACWARN("TCP/UDP checksum error");
-				return false;// drop packet, TCP checksum error
+				return ;// drop packet, TCP checksum error
 			}
 
 #endif
-
-
 
 		}
 #endif
 
 		for (NetworkService* service = (NetworkService*)activeServices.first; service != NULL; service = (NetworkService*)service->nextItem)
 		{
-			if (service->processHeader())
-			{
-				currentService = service;
-				return true;
-			}
+			if (service->onPacketReceived())
+				return;
+
 		}
 		ACTRACE("nobody wants this packet");
-		return false;
-	}
-
-	ACBREAK(currentService != NULL, "currentService is NULL");
-
-	return currentService->processData(length, chunk.raw);
-
-
+		return;
+	
 }
 
 void NetworkService::loop()
 {
-	EtherFlow::loop();
+	EtherFlow::loadNext();
 
 	if ((int32_t)(millis() - tickTimer) >= 0)
 	{
@@ -252,24 +236,7 @@ bool NetworkService::verifyUDPTCPChecksum()
 	uint16_t totalLength = chunk.ip.totalLength.getValue();
 	uint16_t dataLength = totalLength - headerLength;
 
-	if (totalLength <= sizeof(EthBuffer) - sizeof(EthernetHeader))
-	{
-		//calculate via software since the entire packet fits in RAM
-		dataChecksum = Checksum::calc(dataLength, chunk.raw + dataOffset);
-	}
-	else
-	{
-#if ENABLE_HW_CHECKSUM
-		//calculate via hardware, no other choice.
-		//warning: this may cause packet loss
-		// see ENC28J60 Silicon errata, issue 17.
-		nint16_t chk;
-		chk.rawu = ~EtherFlow::hardwareChecksumRxOffset(dataOffset, dataLength);
-		dataChecksum = chk.getValue();
-#else
-		return true;
-#endif
-	}
+	dataChecksum = Checksum::calc(dataLength, chunk.raw + dataOffset);
 
 	uint16_t sum;
 	if (chunk.ip.protocol == IP_PROTO_TCP_V)
@@ -283,7 +250,5 @@ bool NetworkService::verifyUDPTCPChecksum()
 #else
 	return true;
 #endif
-
-
 
 }

@@ -75,9 +75,11 @@ private:
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
 
+	static void loadNext();
+	static void release();
 
 public: 
-	static uint16_t packetReceiveChunk();
+
 
 
 	

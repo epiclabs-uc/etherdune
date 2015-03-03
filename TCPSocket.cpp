@@ -222,7 +222,7 @@ void TCPSocket::tick()
 	}
 }
 
-bool TCPSocket::processHeader()
+bool TCPSocket::onPacketReceived()
 {
 	if (!(
 		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
@@ -312,13 +312,12 @@ bool TCPSocket::processHeader()
 			int16_t slen = min(bytesReceived, (int16_t)(sizeof(EthBuffer) - sizeof(EthernetHeader)) - headerLength);
 
 			if (slen > 0)
-				processData((uint16_t)slen, chunk.raw + sizeof(EthernetHeader) + headerLength);
+				onReceive((uint16_t)slen, chunk.raw + sizeof(EthernetHeader) + headerLength);
 
 
 			if (chunk.tcp.FIN)
 			{
 				setState(SCK_STATE_CLOSE_WAIT, 0);
-				//sendFIN();
 				onClose();
 			}
 
@@ -359,15 +358,7 @@ bool TCPSocket::processHeader()
 	return true;
 }
 
-bool TCPSocket::processData(uint16_t len, uint8_t* data)
-{
-	ACTRACE("more data");
 
-	onReceive(len, data);
-
-	return true;
-
-}
 
 
 
@@ -413,7 +404,7 @@ void TCPSocket::releaseWindow(int32_t& bytesAck)
 
 __FlashStringHelper* TCPSocket::getStateString()
 {
-	char* s;
+	const char* s;
 
 	switch (state)
 	{

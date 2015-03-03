@@ -22,8 +22,7 @@ private:
 
 	bool sendAck;
 
-	bool processHeader();
-	bool processData(uint16_t len, uint8_t* data);
+	bool onPacketReceived();
 
 	void processOutgoingBuffer();
 

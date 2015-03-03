@@ -2,7 +2,7 @@
 #include "UDPSocket.h"
 #include "Checksum.h"
 
-bool UDPSocket::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data) { return false; }
+void UDPSocket::onReceive(uint16_t len) {  }
 
 
 UDPSocket::UDPSocket() :sending(false)
@@ -66,7 +66,7 @@ void UDPSocket::tick()
 
 }
 
-bool UDPSocket::processHeader()
+bool UDPSocket::onPacketReceived()
 {
 	if (!(
 		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
@@ -76,17 +76,6 @@ bool UDPSocket::processHeader()
 		return false;
 	}
 
-
-	uint16_t datagramLength = chunk.udp.dataLength.getValue() - sizeof(UDPHeader);
-	uint16_t fragmentLength = min(datagramLength, sizeof(EthBuffer) - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader));
-
-	return onReceive(fragmentLength, datagramLength, chunk.raw + sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader));
-
-}
-
-
-
-bool UDPSocket::processData(uint16_t len, uint8_t* data)
-{
-	return onReceive(len, 0, data);
+	onReceive(chunk.udp.dataLength.getValue() - sizeof(UDPHeader));
+	return true;
 }

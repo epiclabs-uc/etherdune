@@ -5,51 +5,13 @@
 #include <ACLog.h>
 ACROSS_MODULE("DNS");
 
-bool DNSClient::onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data)
+void DNSClient::onReceive(uint16_t len)
 {
 	//Cheap hack: usually the last 4 bytes of the DNS response are the IP address we're looking for.
 
-	if (datagramLength != 0) // datagramLength != 0 means it is the first chunk of this datagram, so reset pointers.
-	{
-		if (chunk.dns.rcode != 0)
-		{
-			ACWARN("DNS Query error. code=%d", chunk.dns.rcode);
-			NetworkService::notifyOnDNSResolve(chunk.dns.rcode, identification, resolvedIP);
-			nextQuery();
-			return false;
-		}
-		identification = chunk.dns.identification;
-		dataLength = datagramLength;
-		dataPos = 0;
+	IPAddress& resolvedIP = *((IPAddress*)(chunk.udpData + len - sizeof(IPAddress)));
 
-	}
-
-	if (dataLength - fragmentLength <= 4)
-	{
-		for (uint16_t i = dataLength - 4 + dataPos; i < fragmentLength; i++)
-		{
-			resolvedIP.b[dataPos] = data[i];
-			dataPos++;
-			if (dataPos == 4)
-			{
-				NetworkService::notifyOnDNSResolve(0,identification, resolvedIP);
-				nextQuery();
-
-				return false;
-
-			}
-			
-		}
-	}
-
-	//not there yet... skip fragment.
-	dataLength -= fragmentLength;
-
-	return true; // continue processing the next chunk
-}
-
-void DNSClient::nextQuery()
-{
+	NetworkService::notifyOnDNSResolve(chunk.dns.rcode, chunk.dns.identification, resolvedIP);
 	buffer.release();
 	if (buffer.nextRead != 0xFFFF)
 		send();
