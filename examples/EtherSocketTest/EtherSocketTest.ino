@@ -8,6 +8,7 @@
 #include <DNS.h>
 #include <FlowScanner.h>
 #include <HTTPClient.h>
+#include <DHCP.h>
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
@@ -47,7 +48,11 @@ void setup()
 
 	ACINFO("link is up");
 
+	DHCP dhcp;
 
+	dhcp.dhcpSetup();
+
+	
 
 }
 

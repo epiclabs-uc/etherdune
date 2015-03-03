@@ -88,16 +88,6 @@ void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 }
 
 
-
-void TCPSocket::setState(uint8_t newState, uint8_t timeout)
-{
-	state = newState;
-	stateTimer = timeout;
-
-	ACDEBUG("set state=%S", getStateString());
-}
-
-
 void TCPSocket::sendSYN(bool ack)
 {
 	ACTRACE("sendSYN ACK=%d",ack);

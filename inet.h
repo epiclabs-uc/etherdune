@@ -304,7 +304,7 @@ struct DHCPHeader_0
 	uint8_t hops;
 	nint32_t xid;
 	nint16_t secs;
-	uint16_t flags;
+	uint16_t broadcastFlag; // 0x0100 //broadcast flag, set when the client doesn't know its own IP Address (server must respond via broadcast)
 	IPAddress ciaddr;
 	IPAddress yiaddr;
 	IPAddress siaddr;
@@ -320,6 +320,17 @@ struct DHCPHeader_1
 {
 	byte sname[64];
 };
+struct DHCPHeader_2
+{
+	byte filename0[64];
+};
+struct DHCPHeader_3
+{
+	byte filename1[64];
+};
+
+
+
 
 
 struct ICMPHeader
@@ -369,6 +380,10 @@ union EthBuffer
 		};
 	};
 	uint8_t raw[ETHERFLOW_BUFFER_SIZE];
+	DHCPHeader_0 dhcp0;
+	DHCPHeader_1 dhcp1;
+	DHCPHeader_2 dhcp2;
+	DHCPHeader_3 dhcp3;
 };
 
 
@@ -393,6 +408,13 @@ static const uint8_t SCK_STATE_CLOSING = 8; // (both server and client) represen
 static const uint8_t SCK_STATE_LAST_ACK = 9; // (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
 static const uint8_t SCK_STATE_TIME_WAIT = 10; //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
 static const uint8_t SCK_STATE_RESOLVING = 11; //IP Address is being resolved
+
+static const uint8_t DHCP_STATE_INIT = 0;
+static const uint8_t DHCP_STATE_SELECTING = 1;
+static const uint8_t DHCP_STATE_REQUESTING = 2;
+static const uint8_t DHCP_STATE_BOUND = 3;
+static const uint8_t DHCP_STATE_RENEWING = 4;
+static const uint8_t DHCP_STATE_REBINDING = 5;
 
 
 
