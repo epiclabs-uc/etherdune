@@ -84,7 +84,6 @@
     <ClCompile Include="..\..\..\FlowScanner\FlowScanner.cpp" />
     <ClCompile Include="..\..\ARP.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />
-    <ClCompile Include="..\..\DHCP.cpp" />
     <ClCompile Include="..\..\DNS.cpp" />
     <ClCompile Include="..\..\EtherFlow.cpp" />
     <ClCompile Include="..\..\HTTPClient.cpp" />
@@ -106,7 +105,6 @@
     <ClInclude Include="..\..\ARP.h" />
     <ClInclude Include="..\..\Checksum.h" />
     <ClInclude Include="..\..\config.h" />
-    <ClInclude Include="..\..\DHCP.h" />
     <ClInclude Include="..\..\DNS.h" />
     <ClInclude Include="..\..\enc28j60constants.h" />
     <ClInclude Include="..\..\EtherFlow.h" />
@@ -118,7 +116,6 @@
     <ClInclude Include="..\..\NetworkService.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />
-    <ClInclude Include="..\..\Stateful.h" />
     <ClInclude Include="..\..\TCPSocket.h" />
     <ClInclude Include="..\..\UDPSocket.h" />
   </ItemGroup>

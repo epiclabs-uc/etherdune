@@ -9,7 +9,7 @@
 class TCPSocket;
 
 
-class TCPSocket : public Socket, Stateful
+class TCPSocket : public Socket, public Stateful
 {
 
 protected:

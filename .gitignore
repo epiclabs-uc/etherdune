@@ -12,3 +12,4 @@ Debug-pc
 /examples/EtherSocketTest/Release/*.log
 /examples/EtherSocketTest/Release/EtherSoc.39FD1975.tlog/unsuccessfulbuild
 /examples/EtherSocketTest/Release/*.pdb
+Debug

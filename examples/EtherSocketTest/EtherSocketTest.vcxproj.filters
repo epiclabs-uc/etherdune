@@ -69,9 +69,6 @@
     <ClInclude Include="..\..\..\FlowScanner\FlowScanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DHCP.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Socket.cpp">
@@ -111,9 +108,6 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\FlowScanner\FlowScanner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\DHCP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
