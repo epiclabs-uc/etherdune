@@ -4,19 +4,19 @@
 #include <ACross.h>
 
 #include "Socket.h"
+#include "Stateful.h"
 
 class TCPSocket;
 
 
-class TCPSocket : public Socket
+class TCPSocket : public Socket, Stateful
 {
 
 protected:
 
 	uint32_t sequenceNumber;
 	uint32_t ackNumber;
-	uint8_t stateTimer;
-	uint8_t state;
+
 
 private:
 
@@ -33,8 +33,6 @@ private:
 	void tick();
 	void sendSYN(bool ack);
 	void sendFIN();
-
-	void setState(uint8_t newState, uint8_t timeout);
 
 	__FlashStringHelper* getStateString();
 

@@ -120,14 +120,23 @@ void NetworkService::loop()
 bool NetworkService::sendIPPacket(uint8_t headerLength)
 {
 
-	IPAddress dstIP = sameLAN(chunk.ip.destinationIP) ? chunk.ip.destinationIP : gatewayIP;
+	if (chunk.ip.destinationIP.b[3] == 255) //(cheap hack to detect if it is an IP-layer broadcast)
+	{
+		//LAN broadcast then.
+		memset(&chunk.eth.dstMAC, 0xFF, sizeof(MACAddress));
+	}
+	else
+	{
+		IPAddress dstIP = sameLAN(chunk.ip.destinationIP) ? chunk.ip.destinationIP : gatewayIP;
 
-	MACAddress* dstMac = ARP.whoHas(dstIP);
+		MACAddress* dstMac = ARP.whoHas(dstIP);
 
-	if (dstMac == NULL)
-		return false;
+		if (dstMac == NULL)
+			return false;
 
-	chunk.eth.dstMAC = *dstMac;
+		chunk.eth.dstMAC = *dstMac;
+	}
+
 	chunk.eth.srcMAC = localMAC;
 	chunk.eth.etherType.setValue(ETHTYPE_IP);
 

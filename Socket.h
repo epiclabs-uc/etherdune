@@ -32,6 +32,11 @@ class Socket : protected NetworkService
 	 uint16_t write(uint16_t len, const byte* data);
 	 uint16_t write(const String& s);
 	 uint16_t write(const __FlashStringHelper* pattern, ...);
+	 template <class T>
+	 inline uint16_t write(const T& message)
+	 {
+		 return write(sizeof(T), (byte*)&message);
+	 }
 
 
 };
