@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HTTPClientDemo_REST", "exam
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PingTest", "examples\PingTest\PingTest.vcxproj", "{C036420F-3C26-4C12-A5AC-6DA37A8AF6AE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DHCPTest", "examples\DHCPTest\DHCPTest.vcxproj", "{5B1C9052-2756-4566-849A-B52CE889C5FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -57,6 +59,10 @@ Global
 		{C036420F-3C26-4C12-A5AC-6DA37A8AF6AE}.Debug|Win32.Build.0 = Debug|Win32
 		{C036420F-3C26-4C12-A5AC-6DA37A8AF6AE}.Release|Win32.ActiveCfg = Release|Win32
 		{C036420F-3C26-4C12-A5AC-6DA37A8AF6AE}.Release|Win32.Build.0 = Release|Win32
+		{5B1C9052-2756-4566-849A-B52CE889C5FC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B1C9052-2756-4566-849A-B52CE889C5FC}.Debug|Win32.Build.0 = Debug|Win32
+		{5B1C9052-2756-4566-849A-B52CE889C5FC}.Release|Win32.ActiveCfg = Release|Win32
+		{5B1C9052-2756-4566-849A-B52CE889C5FC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

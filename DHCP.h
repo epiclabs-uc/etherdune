@@ -23,8 +23,10 @@ static const uint8_t DHCP_OPTIONS_REQUESTED_IP = 50;
 static const uint8_t DHCP_OPTIONS_MESSAGETYPE = 53;
 static const uint8_t DHCP_OPTIONS_SERVER_IDENTIFIER = 54;
 static const uint8_t DHCP_OPTIONS_RENEWAL_TIME = 58;
+static const uint8_t DHCP_OPTIONS_CLIENT_IDENTIFIER = 61;
 static const uint8_t DHCP_OPTIONS_END = 255;
 
+static const uint8_t DHCP_HARDWARE_TYPE_ETHERNET = 1;
 
 struct DHCPOptionHeader
 {
@@ -55,6 +57,12 @@ struct DHCPRequestedIPOption : public DHCPOption < DHCP_OPTIONS_REQUESTED_IP, si
 struct DHCPTimerOption :DHCPOptionHeader
 {
 	nint32_t timer;
+};
+
+struct DHCPClientIdentifierOptionHeader : DHCPOption<DHCP_OPTIONS_CLIENT_IDENTIFIER, sizeof(uint8_t) + sizeof(MACAddress)>
+{
+	uint8_t hardwareType;
+	DHCPClientIdentifierOptionHeader() :hardwareType(DHCP_HARDWARE_TYPE_ETHERNET){}
 };
 
 

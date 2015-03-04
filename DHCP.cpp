@@ -60,6 +60,12 @@ void DHCP::sendDHCPDiscover()
 		ACINFO("trying to request the same IP: %d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
 	}
 
+	const DHCPClientIdentifierOptionHeader clientIdentifierHeader;
+	write(clientIdentifierHeader);
+	write(net::localMAC);
+
+
+
 	write(DHCP_OPTIONS_END);
 
 	setBroadcastRemoteIP();
