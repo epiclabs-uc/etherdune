@@ -16,14 +16,18 @@ static const uint8_t DHCP_RELEASE = 7;
 static const uint8_t DHCP_INFORM = 8;
 
 static const uint8_t DHCP_OPTIONS_PAD = 0;
+static const uint8_t DHCP_OPTIONS_REQUESTED_IP = 50;
+static const uint8_t DHCP_OPTIONS_MESSAGETYPE = 53;
+static const uint8_t DHCP_OPTIONS_SERVER_IDENTIFIER = 54;
 static const uint8_t DHCP_OPTIONS_END = 255;
 
 
 struct DHCPOptionHeader
 {
 	uint8_t code;
-	uint8_t lenght;
-	DHCPOptionHeader(uint8_t optionCode, uint8_t optionLength) : code(optionCode), lenght(optionLength){}
+	uint8_t length;
+	DHCPOptionHeader(uint8_t optionCode, uint8_t optionLength) : code(optionCode), length(optionLength){}
+	DHCPOptionHeader(){}
 
 };
 
@@ -34,8 +38,15 @@ struct DHCPOption : public DHCPOptionHeader
 
 };
 
+struct DHCPServerIPOption : DHCPOptionHeader
+{
+	IPAddress ip;
+};
+
+
+
 template <uint8_t MESSAGETYPE>
-struct DHCPMessageTypeOption : public DHCPOption <53, 1>
+struct DHCPMessageTypeOption : public DHCPOption <DHCP_OPTIONS_MESSAGETYPE, 1>
 {
 	uint8_t messageType;
 	DHCPMessageTypeOption() : messageType(MESSAGETYPE){}
@@ -43,6 +54,7 @@ struct DHCPMessageTypeOption : public DHCPOption <53, 1>
 };
 
 typedef  DHCPMessageTypeOption<DHCP_DISCOVER> DHCPDiscoverMessageTypeOption;
+typedef  DHCPMessageTypeOption<DHCP_REQUEST> DHCPRequestMessageTypeOption;
 
 
 
@@ -51,7 +63,11 @@ typedef  DHCPMessageTypeOption<DHCP_DISCOVER> DHCPDiscoverMessageTypeOption;
 class DHCP : public UDPSocket, Stateful
 {
 private:
-	bool onReceive(uint16_t fragmentLength, uint16_t datagramLength, const byte* data);
+	void onReceive(uint16_t len);
+	void setMagicCookie();
+	DHCPOptionHeader* findOption(uint8_t searchCode);
+	void prepareDHCPRequest();
+	uint8_t getMessageType();
 
 public:
 

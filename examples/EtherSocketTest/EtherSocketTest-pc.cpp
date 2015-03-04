@@ -12,7 +12,7 @@
 
 
 #include "EtherSocketTest.ino"
-#include "../EchoServer/EchoServer.ino"
+//#include "../EchoServer/EchoServer.ino"
 //#include "../ChatServer/ChatServer.ino"
 //#include "../TCPClientDemo_DaytimeClient/TCPClientDemo_DaytimeClient.ino"
 //#include "../HTTPClientDemo_REST/HTTPClientDemo_REST.ino"

@@ -296,7 +296,22 @@ struct DNSHeader
 
 };
 
-struct DHCPHeader_0
+struct ICMPHeader
+{
+	uint8_t type;
+	uint8_t code;
+	uint8_t checksum;
+	uint8_t rest[4];
+};
+
+struct EthernetHeader
+{
+	MACAddress dstMAC;
+	MACAddress srcMAC;
+	nint16_t etherType;
+};
+
+struct DHCPHeader
 {
 	uint8_t op;
 	uint8_t htype;
@@ -314,39 +329,16 @@ struct DHCPHeader_0
 		MACAddress mac;
 		byte chaddr[16];
 	};
-};
-
-struct DHCPHeader_1
-{
 	byte sname[64];
+	byte filename[128];
+	IPAddress magicCookie;
 };
-struct DHCPHeader_2
+
+struct DHCPOptions
 {
-	byte filename0[64];
-};
-struct DHCPHeader_3
-{
-	byte filename1[64];
+	byte data[ETHERFLOW_BUFFER_SIZE - sizeof(DHCPHeader) - sizeof(UDPHeader) - sizeof(IPHeader) - sizeof(EthernetHeader)]; 
 };
 
-
-
-
-
-struct ICMPHeader
-{
-	uint8_t type;
-	uint8_t code;
-	uint8_t checksum;
-	uint8_t rest[4];
-};
-
-struct EthernetHeader
-{
-	MACAddress dstMAC;
-	MACAddress srcMAC;
-	nint16_t etherType;
-};
 
 union EthBuffer
 {
@@ -364,12 +356,18 @@ union EthBuffer
 					ICMPHeader icmp;
 					struct
 					{
+						UDPHeader udp;
 						union
 						{
-							UDPHeader udp;
 							byte udpData[ETHERFLOW_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader)];
+							DNSHeader dns;
+							struct
+							{
+								DHCPHeader dhcp;
+								DHCPOptions dhcpOptions;
+							};
 						};
-						DNSHeader dns;
+						
 					};
 					struct
 					{
@@ -384,10 +382,6 @@ union EthBuffer
 		};
 	};
 	uint8_t raw[ETHERFLOW_BUFFER_SIZE];
-	DHCPHeader_0 dhcp0;
-	DHCPHeader_1 dhcp1;
-	DHCPHeader_2 dhcp2;
-	DHCPHeader_3 dhcp3;
 };
 
 

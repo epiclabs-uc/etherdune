@@ -14,7 +14,7 @@
 ACROSS_MODULE("EtherSocketTest");
 
 
-MACAddress_P mymac = { 0x02, 0x21 ,0xee ,0x4a ,0x79, 0x79 };
+MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
 IPAddress testIP = /*{ 192,168,4,1 };*/ { 85,214,129,67 };
 IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP  = { 192, 168, 1, 33 };

@@ -165,3 +165,8 @@ bool Socket::verifyUDPTCPChecksum()
 #endif
 
 }
+
+void Socket::setBroadcastRemoteIP()
+{
+	remoteIP = IPADDR_P(255, 255, 255, 255);
+}
