@@ -1,5 +1,6 @@
 #include "DHCP.h"
 #include "inet.h"
+#include "DNS.h"
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
@@ -25,7 +26,18 @@ void DHCP::prepareDHCPRequest()
 
 }
 
-void DHCP::dhcpSetup()
+bool DHCP::dhcpSetup()
+{
+	attempts = DHCP_MAX_ATTEMPTS;
+	initDHCP();
+
+	while (attempts > 0 && state != DHCP_STATE_BOUND)
+		net::loop();
+
+	return state == DHCP_STATE_BOUND;
+}
+
+void DHCP::sendDHCPDiscover()
 {
 	prepareDHCPRequest();
 	write(chunk.dhcp);
@@ -39,7 +51,14 @@ void DHCP::dhcpSetup()
 	setBroadcastRemoteIP();
 
 	send();
-	setState(DHCP_STATE_SELECTING,DHCP_TIMEOUT_SELECTING);
+	
+}
+
+void DHCP::initDHCP()
+{
+	attempts--;
+	sendDHCPDiscover();
+	setState(DHCP_STATE_SELECTING, DHCP_TIMEOUT_SELECTING);
 }
 
 uint8_t DHCP::getMessageType()
@@ -66,12 +85,12 @@ void DHCP::onReceive(uint16_t len)
 			if (getMessageType()!= DHCP_OFFER)
 				return;
 
-			DHCPServerIPOption* sioptionPtr = (DHCPServerIPOption*)findOption(DHCP_OPTIONS_SERVER_IDENTIFIER);
+			DHCPIPOption* sioptionPtr = (DHCPIPOption*)findOption(DHCP_OPTIONS_SERVER_IDENTIFIER);
 			if (sioptionPtr == NULL)
 				return;
 
-			DHCPServerIPOption serverIDOption = *sioptionPtr;
-			DHCPServerIPOption requestedIPOption;
+			DHCPIPOption serverIDOption = *sioptionPtr;
+			DHCPRequestedIPOption requestedIPOption;
 			requestedIPOption.ip = chunk.dhcp.yiaddr;
 
 			prepareDHCPRequest();
@@ -96,6 +115,29 @@ void DHCP::onReceive(uint16_t len)
 			{
 				case DHCP_ACK:
 				{
+					DHCPIPOption* subnetOpt = (DHCPIPOption*)findOption(DHCP_OPTIONS_SUBNET);
+					DHCPIPOption* dnsOpt = (DHCPIPOption*)findOption(DHCP_OPTIONS_DNS);
+					DHCPIPOption* routerOpt = (DHCPIPOption*)findOption(DHCP_OPTIONS_ROUTER);
+					if (subnetOpt == NULL || dnsOpt==NULL || routerOpt== NULL)
+						return;
+
+					net::netmask = subnetOpt->ip;
+					net::DNS.serverIP() = dnsOpt->ip;
+					net::gatewayIP = routerOpt->ip;
+					
+					net::localIP = chunk.dhcp.yiaddr;
+					setState(DHCP_STATE_BOUND, 0);
+
+					ACINFO("IP:%d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
+					ACINFO("Subnet:%d.%d.%d.%d", net::netmask.b[0], net::netmask.b[1], net::netmask.b[2], net::netmask.b[3]);
+					ACINFO("DNS:%d.%d.%d.%d", net::DNS.serverIP().b[0], net::DNS.serverIP().b[1], net::DNS.serverIP().b[2], net::DNS.serverIP().b[3]);
+					ACINFO("Gateway:%d.%d.%d.%d", net::gatewayIP.b[0], net::gatewayIP.b[1], net::gatewayIP.b[2], net::gatewayIP.b[3]);
+
+				}break;
+
+				case DHCP_NACK:
+				{
+					initDHCP();//start over
 
 				}break;
 
@@ -128,5 +170,79 @@ DHCPOptionHeader* DHCP::findOption(uint8_t searchCode)
 	}
 
 	return ((searchCode==header->code) ? header : NULL);
+
+}
+
+IPAddress DHCP::getIPFromOption(uint8_t code)
+{
+	
+	DHCPIPOption* ipopt = (DHCPIPOption*)findOption(code);
+	if (ipopt == NULL)
+	{
+		IPAddress i;
+		i.u = 0;
+		return i;
+	}
+	else
+		return ipopt->ip;
+
+}
+
+void DHCP::tick()
+{
+
+	ACDEBUG("tick/state=%S", getStateString());
+
+	if (stateTimer == 1) //handle timeouts
+	{
+		switch (state)
+		{
+			case DHCP_STATE_SELECTING:
+			case DHCP_STATE_REQUESTING:
+			{
+				initDHCP();
+				goto tick_end;
+				
+			}break;
+		}
+	}
+
+	if (stateTimer>0)
+		stateTimer--;
+
+	switch (state)
+	{
+		case DHCP_STATE_SELECTING:
+		{
+			sendDHCPDiscover(); //resend message every tick.
+		}break;
+
+	}
+
+	tick_end:
+	UDPSocket::tick();
+}
+
+
+
+
+__FlashStringHelper* DHCP::getStateString()
+{
+	const char* s;
+
+	switch (state)
+	{
+		case DHCP_STATE_BOUND: s = PSTR("BOUND"); break;
+		case DHCP_STATE_INIT: s = PSTR("INIT"); break;
+		case DHCP_STATE_REBINDING: s = PSTR("REBINDING"); break;
+		case DHCP_STATE_RENEWING: s = PSTR("RENEWING"); break;
+		case DHCP_STATE_REQUESTING: s = PSTR("REQUESTING"); break;
+		case DHCP_STATE_SELECTING: s = PSTR("SELECTING"); break;
+
+		default:
+			s = PSTR("UNKNOWN");
+	}
+
+	return (__FlashStringHelper*)s;
 
 }

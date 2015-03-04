@@ -16,6 +16,9 @@ static const uint8_t DHCP_RELEASE = 7;
 static const uint8_t DHCP_INFORM = 8;
 
 static const uint8_t DHCP_OPTIONS_PAD = 0;
+static const uint8_t DHCP_OPTIONS_SUBNET = 1;
+static const uint8_t DHCP_OPTIONS_ROUTER = 3;
+static const uint8_t DHCP_OPTIONS_DNS = 6;
 static const uint8_t DHCP_OPTIONS_REQUESTED_IP = 50;
 static const uint8_t DHCP_OPTIONS_MESSAGETYPE = 53;
 static const uint8_t DHCP_OPTIONS_SERVER_IDENTIFIER = 54;
@@ -38,11 +41,15 @@ struct DHCPOption : public DHCPOptionHeader
 
 };
 
-struct DHCPServerIPOption : DHCPOptionHeader
+struct DHCPIPOption : DHCPOptionHeader
 {
 	IPAddress ip;
 };
 
+struct DHCPRequestedIPOption : public DHCPOption < DHCP_OPTIONS_REQUESTED_IP, sizeof(IPAddress) >
+{
+	IPAddress ip;
+};
 
 
 template <uint8_t MESSAGETYPE>
@@ -63,16 +70,26 @@ typedef  DHCPMessageTypeOption<DHCP_REQUEST> DHCPRequestMessageTypeOption;
 class DHCP : public UDPSocket, Stateful
 {
 private:
+
+	uint8_t attempts;
+
 	void onReceive(uint16_t len);
 	void setMagicCookie();
-	DHCPOptionHeader* findOption(uint8_t searchCode);
+	void sendDHCPDiscover();
+	void initDHCP();
+
+	NOINLINE DHCPOptionHeader* findOption(uint8_t searchCode);
 	void prepareDHCPRequest();
 	uint8_t getMessageType();
+	IPAddress getIPFromOption(uint8_t code);
+	__FlashStringHelper* getStateString();
+
+	void tick();
 
 public:
 
 	DHCP();
-	void dhcpSetup();
+	bool dhcpSetup();
 
 
 

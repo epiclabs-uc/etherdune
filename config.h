@@ -86,10 +86,12 @@ static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(5000);//DNS timeout
 
 
 //DHCP timeouts, in milliseconds
-static const uint8_t DHCP_TIMEOUT_SELECTING = NTICKS(5000);
+static const uint8_t DHCP_TIMEOUT_SELECTING = NTICKS(1000);
 static const uint8_t DHCP_TIMEOUT_REQUESTING = NTICKS(5000);
 static const uint8_t DHCP_TIMEOUT_RENEWING = NTICKS(5000);
 static const uint8_t DHCP_TIMEOUT_REBINDING = NTICKS(5000);
+
+static const uint8_t DHCP_MAX_ATTEMPTS = 4; //how many times to retry if address request is denied.
 
 
 static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to make room for the control byte required by ENC28J60

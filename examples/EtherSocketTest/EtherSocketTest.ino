@@ -52,8 +52,13 @@ void setup()
 
 	
 
-	dhcp.dhcpSetup();
+	if (!dhcp.dhcpSetup())
+	{
+		Serial.println(F("DHCP setup failed"));
+		ACross::halt(1);
+	}
 
+	Serial.println(F("DHCP setup OK"));
 	
 
 }
