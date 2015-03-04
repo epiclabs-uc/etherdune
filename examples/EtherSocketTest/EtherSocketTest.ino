@@ -31,6 +31,7 @@ void setup()
 
 	while (!Serial.available());
 
+	net::localMAC = mymac;
 
 	if (!net::begin(10))
 		ACERROR("failed to start EtherFlow");

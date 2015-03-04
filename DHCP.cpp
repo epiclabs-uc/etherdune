@@ -48,9 +48,15 @@ void DHCP::sendDHCPDiscover()
 
 	if (net::localIP.b[0]!= 0) //if the current IP address looks like it is valid, then try to request that one.
 	{
-		DHCPRequestedIPOption requestIP;
-		requestIP.ip = net::localIP;
-		write(requestIP);
+		//DHCPRequestedIPOption requestIP;
+		//requestIP.ip = net::localIP;
+		//write(requestIP);
+
+		//slower and uglier but saves 16bytes of flash.
+		const DHCPOption<DHCP_OPTIONS_REQUESTED_IP, sizeof(IPAddress)> r;
+		write(r);
+		write(net::localIP);
+
 		ACINFO("trying to request the same IP: %d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
 	}
 
@@ -88,7 +94,7 @@ void DHCP::onReceive(uint16_t len)
 
 	switch (state)
 	{
-		case DHCP_STATE_RENEWING:
+
 		case DHCP_STATE_SELECTING:
 		{
 			if (getMessageType()!= DHCP_OFFER)
@@ -141,8 +147,6 @@ void DHCP::onReceive(uint16_t len)
 					else
 						renewalTimer = DHCP_DEFAULT_RENEWAL_TIMER;
 
-					renewalTimer = 10;
-
 					net::netmask = subnetOpt->ip;
 					net::DNS.serverIP() = dnsOpt->ip;
 					net::gatewayIP = routerOpt->ip;
@@ -160,7 +164,6 @@ void DHCP::onReceive(uint16_t len)
 				case DHCP_NACK:
 				{
 					initDHCP();//start over
-
 				}break;
 
 			}
