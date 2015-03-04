@@ -300,8 +300,9 @@ struct ICMPHeader
 {
 	uint8_t type;
 	uint8_t code;
-	uint8_t checksum;
-	uint8_t rest[4];
+	uint16_t checksum;
+	uint16_t identifier;
+	uint16_t sequenceNumber;
 };
 
 struct EthernetHeader

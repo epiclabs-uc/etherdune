@@ -91,6 +91,7 @@
     <ClCompile Include="..\..\EasyHTTPClient.cpp" />
     <ClCompile Include="..\..\List.cpp" />
     <ClCompile Include="..\..\NetworkService.cpp" />
+    <ClCompile Include="..\..\Ping.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
     <ClCompile Include="..\..\Socket.cpp" />
     <ClCompile Include="..\..\Stateful.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="..\..\List.h" />
     <ClInclude Include="..\..\net.h" />
     <ClInclude Include="..\..\NetworkService.h" />
+    <ClInclude Include="..\..\Ping.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />
     <ClInclude Include="..\..\Stateful.h" />

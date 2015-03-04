@@ -163,10 +163,10 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 	chunk.ip.identification.setValue(0);
 	chunk.ip.flags = 0;
 	chunk.ip.fragmentOffset = 0;
-	chunk.ip.checksum.setValue(0);
-	chunk.ip.sourceIP = localIP;
 	chunk.ip.destinationIP = remoteIP;
+	chunk.ip.sourceIP = localIP;
 	chunk.ip.TTL = 255;
+	chunk.ip.checksum.setValue(0);
 	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
 }
 
