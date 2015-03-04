@@ -46,6 +46,14 @@ void DHCP::sendDHCPDiscover()
 
 	write(discover);
 
+	if (net::localIP.b[0]!= 0) //if the current IP address looks like it is valid, then try to request that one.
+	{
+		DHCPRequestedIPOption requestIP;
+		requestIP.ip = net::localIP;
+		write(requestIP);
+		ACINFO("trying to request the same IP: %d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
+	}
+
 	write(DHCP_OPTIONS_END);
 
 	setBroadcastRemoteIP();
@@ -80,6 +88,7 @@ void DHCP::onReceive(uint16_t len)
 
 	switch (state)
 	{
+		case DHCP_STATE_RENEWING:
 		case DHCP_STATE_SELECTING:
 		{
 			if (getMessageType()!= DHCP_OFFER)
@@ -121,12 +130,25 @@ void DHCP::onReceive(uint16_t len)
 					if (subnetOpt == NULL || dnsOpt==NULL || routerOpt== NULL)
 						return;
 
+					DHCPTimerOption* timerOpt = (DHCPTimerOption*)findOption(DHCP_OPTIONS_RENEWAL_TIME);
+					if (timerOpt != NULL)
+					{
+						if (timerOpt->timer.h.rawu != 0)
+							renewalTimer = 0xFFFF;
+						else
+							renewalTimer = timerOpt->timer.l.getValue();
+					}
+					else
+						renewalTimer = DHCP_DEFAULT_RENEWAL_TIMER;
+
+					renewalTimer = 10;
+
 					net::netmask = subnetOpt->ip;
 					net::DNS.serverIP() = dnsOpt->ip;
 					net::gatewayIP = routerOpt->ip;
 					
 					net::localIP = chunk.dhcp.yiaddr;
-					setState(DHCP_STATE_BOUND, 0);
+					setState(DHCP_STATE_BOUND, DHCP_TIMEOUT_BOUND);
 
 					ACINFO("IP:%d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
 					ACINFO("Subnet:%d.%d.%d.%d", net::netmask.b[0], net::netmask.b[1], net::netmask.b[2], net::netmask.b[3]);
@@ -173,21 +195,6 @@ DHCPOptionHeader* DHCP::findOption(uint8_t searchCode)
 
 }
 
-IPAddress DHCP::getIPFromOption(uint8_t code)
-{
-	
-	DHCPIPOption* ipopt = (DHCPIPOption*)findOption(code);
-	if (ipopt == NULL)
-	{
-		IPAddress i;
-		i.u = 0;
-		return i;
-	}
-	else
-		return ipopt->ip;
-
-}
-
 void DHCP::tick()
 {
 
@@ -197,12 +204,23 @@ void DHCP::tick()
 	{
 		switch (state)
 		{
+
+			case DHCP_STATE_BOUND:
+			{
+				stateTimer = DHCP_TIMEOUT_BOUND;
+				renewalTimer--;
+				if (renewalTimer > 0)
+					goto tick_end;
+				
+				//renewal timer ran out, fall back bellow to initDHCP();
+				
+			}
 			case DHCP_STATE_SELECTING:
 			case DHCP_STATE_REQUESTING:
 			{
 				initDHCP();
 				goto tick_end;
-				
+
 			}break;
 		}
 	}

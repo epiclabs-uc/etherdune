@@ -15,9 +15,9 @@ ARPService NetworkService::ARP;
 DNSClient NetworkService::DNS;
 
 MACAddress NetworkService::localMAC;
-IPAddress NetworkService::localIP;
-IPAddress NetworkService::gatewayIP;
-IPAddress NetworkService::netmask;
+IPAddress NetworkService::localIP = { 0, 0, 0, 0 };
+IPAddress NetworkService::gatewayIP = { 0, 0, 0, 0 };
+IPAddress NetworkService::netmask = { 0, 0, 0, 0 };
 
 uint8_t NetworkService::srcPort_L_count = 0;
 

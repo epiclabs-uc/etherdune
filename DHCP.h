@@ -22,6 +22,7 @@ static const uint8_t DHCP_OPTIONS_DNS = 6;
 static const uint8_t DHCP_OPTIONS_REQUESTED_IP = 50;
 static const uint8_t DHCP_OPTIONS_MESSAGETYPE = 53;
 static const uint8_t DHCP_OPTIONS_SERVER_IDENTIFIER = 54;
+static const uint8_t DHCP_OPTIONS_RENEWAL_TIME = 58;
 static const uint8_t DHCP_OPTIONS_END = 255;
 
 
@@ -51,6 +52,11 @@ struct DHCPRequestedIPOption : public DHCPOption < DHCP_OPTIONS_REQUESTED_IP, si
 	IPAddress ip;
 };
 
+struct DHCPTimerOption :DHCPOptionHeader
+{
+	nint32_t timer;
+};
+
 
 template <uint8_t MESSAGETYPE>
 struct DHCPMessageTypeOption : public DHCPOption <DHCP_OPTIONS_MESSAGETYPE, 1>
@@ -72,6 +78,7 @@ class DHCP : public UDPSocket, Stateful
 private:
 
 	uint8_t attempts;
+	uint16_t renewalTimer;
 
 	void onReceive(uint16_t len);
 	void setMagicCookie();
@@ -81,7 +88,6 @@ private:
 	NOINLINE DHCPOptionHeader* findOption(uint8_t searchCode);
 	void prepareDHCPRequest();
 	uint8_t getMessageType();
-	IPAddress getIPFromOption(uint8_t code);
 	__FlashStringHelper* getStateString();
 
 	void tick();
