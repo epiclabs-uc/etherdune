@@ -13,3 +13,5 @@ Debug-pc
 /examples/EtherSocketTest/Release/EtherSoc.39FD1975.tlog/unsuccessfulbuild
 /examples/EtherSocketTest/Release/*.pdb
 Debug
+Visual Micro/
+Release/
