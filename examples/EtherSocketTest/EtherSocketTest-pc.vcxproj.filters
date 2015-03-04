@@ -63,7 +63,7 @@
     <ClCompile Include="..\..\DHCP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Ping.cpp">
+    <ClCompile Include="..\..\ICMP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,7 +128,7 @@
     <ClInclude Include="..\..\Stateful.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Ping.h">
+    <ClInclude Include="..\..\ICMP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

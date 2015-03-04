@@ -11,12 +11,12 @@
 #include <VirtualHardware\ACRPCCLient.h>
 
 
-#include "EtherSocketTest.ino"
+// "EtherSocketTest.ino"
 //#include "../EchoServer/EchoServer.ino"
 //#include "../ChatServer/ChatServer.ino"
 //#include "../TCPClientDemo_DaytimeClient/TCPClientDemo_DaytimeClient.ino"
 //#include "../HTTPClientDemo_REST/HTTPClientDemo_REST.ino"
-
+#include "../PingTest/PingTest.ino"
 
 int _tmain(int argc, _TCHAR* argv[])
 {

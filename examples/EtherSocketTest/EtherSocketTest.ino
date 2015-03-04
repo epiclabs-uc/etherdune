@@ -9,7 +9,7 @@
 #include <FlowScanner.h>
 #include <HTTPClient.h>
 #include <DHCP.h>
-#include <Ping.h>
+
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
@@ -22,7 +22,7 @@ IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
 DHCP dhcp;
-Ping ping;
+
 
 void setup()
 {

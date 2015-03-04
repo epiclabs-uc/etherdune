@@ -14,6 +14,8 @@
 //There is a lot of cosmic noise in an Ethernet network, broadcasts, etc that we can filter out using this feature.
 //with 42 bytes we can read an entire ARP packet in the sample
 // + we get IP and UDP full headers as well as TCP sourcePort, localPort and sequenceNumber
+// or even full ICMPHeader
+
 //sizeof(EthernetHeader) = 14
 //sizeof(ARPPacket) = 28
 //total = 42.
@@ -25,6 +27,11 @@
 //sizeof(sequenceNumber) = 4
 //total = 42
 
+//sizeof(EthernetHeader) = 14
+//sizeof(IPHeader) = 20
+//sizeof(ICMPHeader) = 8
+//total = 42
+
 //to disable sampling, set ETHERFLOW_SAMPLE_SIZE to ETHERFLOW_BUFFER_SIZE
 
 #define ETHERFLOW_SAMPLE_SIZE 42  
@@ -33,6 +40,8 @@
 
 #define ENABLE_IP_RX_CHECKSUM true // enabling this will drop packets that have checksum errors in the IP header
 #define ENABLE_UDPTCP_RX_CHECKSUM true // enabling this will drop TCP/UDP packets that have checksum errors
+#define ENABLE_ICMP_RX_CHECKSUM true // enabling this will drop ICMP packets that have checksum errors
+
 
 // ENC28J60 memory mapping
 #define ENC28J60_MEMSIZE  8192 //don't change this, that's just how much RAM there is in your ENC28J60.
@@ -94,6 +103,9 @@ static const uint8_t DHCP_TIMEOUT_BOUND = NTICKS(1000); //set to 1 second so as 
 
 static const uint8_t DHCP_MAX_ATTEMPTS = 4; //how many times to retry if address request is denied.
 static const uint16_t DHCP_DEFAULT_RENEWAL_TIMER = 2 * 60 * 60; //renew every 2h unless stated otherwise by the DHCP server.
+
+//ICMP
+static const uint8_t ICMP_PING_DATA_LENGTH = 32; //size of data to send as part of an echo request
 
 
 static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to make room for the control byte required by ENC28J60
