@@ -2,7 +2,7 @@
 #include "inet.h"
 #include "DNS.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("DHCP");
 
@@ -60,10 +60,7 @@ void DHCP::sendDHCPDiscover()
 		ACINFO("trying to request the same IP: %d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
 	}
 
-	const DHCPClientIdentifierOptionHeader clientIdentifierHeader;
-	write(clientIdentifierHeader);
-	write(net::localMAC);
-
+	writeAdditionalFields();
 
 
 	write(DHCP_OPTIONS_END);
@@ -121,6 +118,7 @@ void DHCP::onReceive(uint16_t len)
 			write(request);
 			write(serverIDOption);
 			write(requestedIPOption);
+			writeAdditionalFields();
 			write(DHCP_OPTIONS_END);
 
 			setBroadcastRemoteIP();
@@ -250,6 +248,18 @@ void DHCP::tick()
 	UDPSocket::tick();
 }
 
+void DHCP::writeAdditionalFields()
+{
+	const DHCPClientIdentifierOptionHeader clientIdentifierHeader;
+	write(clientIdentifierHeader);
+	write(net::localMAC);
+
+#if ENABLE_DHCP_HOSTNAME
+	DHCPOptionHeader hostnameOptionHeader(DHCP_OPTIONS_HOSTNAME, strlen_P(DHCP_HOSTNAME));
+	write(hostnameOptionHeader);
+	write((const __FlashStringHelper*)DHCP_HOSTNAME);
+#endif
+}
 
 
 
@@ -273,3 +283,5 @@ __FlashStringHelper* DHCP::getStateString()
 	return (__FlashStringHelper*)s;
 
 }
+
+

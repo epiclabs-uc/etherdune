@@ -94,6 +94,13 @@ static const uint8_t SCK_TIMEOUT_RESOLVING = NTICKS(3000); // waiting for a DNS 
 static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(5000);//DNS timeout
 
 
+//DHCP
+
+#define ENABLE_DHCP_HOSTNAME _DEBUG //enables sending hostname to DHCP server. By default, only enabled when debugging
+static const char DHCP_HOSTNAME[] PROGMEM = "ARDUINO"; //host name sent to DHCP server.
+
+
+
 //DHCP timeouts, in milliseconds
 static const uint8_t DHCP_TIMEOUT_SELECTING = NTICKS(1000);
 static const uint8_t DHCP_TIMEOUT_REQUESTING = NTICKS(5000);

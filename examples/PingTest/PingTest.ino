@@ -9,6 +9,7 @@
 #include <FlowScanner.h>
 #include <HTTPClient.h>
 #include <ICMP.h>
+#include <DHCP.h>
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
@@ -20,11 +21,11 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
-
+DHCP dhcp;
 
 class ICMPHandler : ICMP
 {
-	const uint8_t PING_PERIOD = NTICKS(1000); //ms
+	static const uint8_t PING_PERIOD = NTICKS(1000); //ms
 	uint8_t timer;
 	IPAddress target;
 
@@ -78,9 +79,9 @@ void setup()
 	while (!Serial.available());
 	
 	net::localMAC = mymac;
-	net::localIP = myIP;
-	net::gatewayIP = gatewayIP;
-	net::netmask = netmask;
+	//net::localIP = myIP;
+	//net::gatewayIP = gatewayIP;
+	//net::netmask = netmask;
 
 	if (!net::begin(10))
 		ACERROR("failed to start EtherFlow");
@@ -92,7 +93,17 @@ void setup()
 	ACINFO("link is up");
 
 
-	pingTest.start(net::gatewayIP);
+	if (!dhcp.dhcpSetup())
+	{
+		Serial.println(F("DHCP setup failed"));
+		ACross::halt(1);
+	}
+
+	Serial.println(F("DHCP setup OK"));
+
+	IPAddress targetIP;
+	targetIP = IPADDR_P(8, 8, 8, 8);
+	pingTest.start(targetIP);
 
 }
 

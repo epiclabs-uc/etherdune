@@ -19,6 +19,7 @@ static const uint8_t DHCP_OPTIONS_PAD = 0;
 static const uint8_t DHCP_OPTIONS_SUBNET = 1;
 static const uint8_t DHCP_OPTIONS_ROUTER = 3;
 static const uint8_t DHCP_OPTIONS_DNS = 6;
+static const uint8_t DHCP_OPTIONS_HOSTNAME = 12;
 static const uint8_t DHCP_OPTIONS_REQUESTED_IP = 50;
 static const uint8_t DHCP_OPTIONS_MESSAGETYPE = 53;
 static const uint8_t DHCP_OPTIONS_SERVER_IDENTIFIER = 54;
@@ -66,6 +67,8 @@ struct DHCPClientIdentifierOptionHeader : DHCPOption<DHCP_OPTIONS_CLIENT_IDENTIF
 };
 
 
+
+
 template <uint8_t MESSAGETYPE>
 struct DHCPMessageTypeOption : public DHCPOption <DHCP_OPTIONS_MESSAGETYPE, 1>
 {
@@ -92,6 +95,7 @@ private:
 	void setMagicCookie();
 	void sendDHCPDiscover();
 	void initDHCP();
+	void writeAdditionalFields();
 
 	NOINLINE DHCPOptionHeader* findOption(uint8_t searchCode);
 	void prepareDHCPRequest();
