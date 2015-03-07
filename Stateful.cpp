@@ -1,7 +1,7 @@
 #include "Stateful.h"
 
 
-#define AC_LOGLEVEL 2
+#define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("Stateful");
 

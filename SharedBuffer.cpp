@@ -129,7 +129,7 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 
 uint16_t SharedBuffer::release()
 {
-	if (nextRead == 0xFFFF)
+	if (isEmpty())
 		return 0;
 
 	BufferHeader header;
@@ -138,14 +138,14 @@ uint16_t SharedBuffer::release()
 	
 	nextRead = header.nextIndex;
 
-	if (nextRead == 0xFFFF)
+	if (isEmpty())
 		lastWritten = 0xFFFF;
 
 	usedSpace=0;
 
 	for (SharedBuffer* s = (SharedBuffer*)bufferList.first; s->nextItem != NULL; s = (SharedBuffer*)s->nextItem)
 	{
-		if (s->nextRead == 0xFFFF)
+		if (s->isEmpty())
 			continue;
 
 		uint16_t d = (s->nextRead < head) ? head - s->nextRead : SHARED_BUFFER_CAPACITY - s->nextRead + head;
@@ -210,4 +210,10 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint
 	}
 
 	return txPtr - (TXSTART_INIT_DATA + dstOffset);
+}
+
+
+bool SharedBuffer::isEmpty()
+{
+	return nextRead == 0xFFFF;
 }

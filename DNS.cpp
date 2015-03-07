@@ -13,7 +13,7 @@ void DNSClient::onReceive(uint16_t len)
 
 	NetworkService::notifyOnDNSResolve(chunk.dns.rcode, chunk.dns.identification, resolvedIP);
 	buffer.release();
-	if (buffer.nextRead != 0xFFFF)
+	if (!buffer.isEmpty())
 		send();
 }
 

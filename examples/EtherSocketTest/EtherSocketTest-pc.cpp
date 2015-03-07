@@ -16,8 +16,9 @@
 //#include "../ChatServer/ChatServer.ino"
 //#include "../TCPClientDemo_DaytimeClient/TCPClientDemo_DaytimeClient.ino"
 //#include "../HTTPClientDemo_REST/HTTPClientDemo_REST.ino"
-#include "../PingTest/PingTest.ino"
+//#include "../PingTest/PingTest.ino"
 //#include "../DHCPTest/DHCPTest.ino"
+#include "../HTTPServerDemo/HTTPServerDemo.ino"
 
 int _tmain(int argc, _TCHAR* argv[])
 {

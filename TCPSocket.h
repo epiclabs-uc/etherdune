@@ -12,15 +12,12 @@ class TCPSocket;
 class TCPSocket : public Socket, public Stateful
 {
 
-protected:
+private:
 
 	uint32_t sequenceNumber;
 	uint32_t ackNumber;
 
-
-private:
-
-	bool sendAck;
+	TCPFlags nextFlags;
 
 	bool onPacketReceived();
 
@@ -31,7 +28,8 @@ private:
 
 	void tick();
 	void sendSYN(bool ack);
-	void sendFIN();
+
+
 
 	__FlashStringHelper* getStateString();
 
@@ -46,10 +44,12 @@ public:
 	void listen();
 	void accept();
 	void accept(TCPSocket& listener);
+	void push();
 
 	virtual void onConnect();
 	virtual void onClose();
 	virtual void onReceive(uint16_t len, const byte* data);
+	virtual void onTerminate();
 
 };
 

@@ -217,6 +217,27 @@ union IPHeader
 
 };
 
+union TCPFlags
+{
+	struct
+	{
+		uint8_t FIN : 1;
+		uint8_t SYN : 1;
+		uint8_t RST : 1;
+		uint8_t PSH : 1;
+		uint8_t ACK : 1;
+		uint8_t URG : 1;
+		uint8_t ECE : 1;
+		uint8_t CWR : 1;
+	};
+	uint8_t raw;
+
+	void clear()
+	{
+		raw = 0;
+	}
+};
+
 struct TCPHeader
 {
 	nint16_t sourcePort;
@@ -231,17 +252,9 @@ struct TCPHeader
 			uint8_t NS : 1;
 			uint8_t reserved : 3;
 			uint8_t headerLength : 4;
-			uint8_t FIN : 1;
-			uint8_t SYN : 1;
-			uint8_t RST : 1;
-			uint8_t PSH : 1;
-			uint8_t ACK : 1;
-			uint8_t URG : 1;
-			uint8_t ECE : 1;
-			uint8_t CWR : 1;
-
+			TCPFlags flags;
 		};
-		uint16_t flags;
+		uint16_t allFlags;
 	};
 
 	nint16_t windowSize;
