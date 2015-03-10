@@ -148,6 +148,8 @@ void TCPSocket::tick()
 
 	if (stateTimer == 1) //handle timeouts
 	{
+		ACTRACE("%S state timeout", getStateString());
+
 		switch (state)
 		{
 			case SCK_STATE_SYN_RECEIVED:
@@ -181,6 +183,10 @@ void TCPSocket::tick()
 		}break;
 
 		case SCK_STATE_FIN_WAIT_1:
+		{
+			if (!buffer.isEmpty())
+				goto sck_state_established;
+		}
 		case SCK_STATE_LAST_ACK:
 		{
 			/*sequenceNumber--;*/
@@ -188,12 +194,13 @@ void TCPSocket::tick()
 
 		}
 		case SCK_STATE_FIN_WAIT_2:
-		case SCK_STATE_TIME_WAIT:
 		{
 			nextFlags.ACK = 1;
 		}
+		case SCK_STATE_TIME_WAIT:
 		case SCK_STATE_ESTABLISHED:
 		{
+			sck_state_established:
 			processOutgoingBuffer();
 		}
 
@@ -238,9 +245,11 @@ bool TCPSocket::onPacketReceived()
 	ACTRACE("incomingAck=%lu localSeqNum=%lu bytesAck=%ld incomingSeqNum=%lu localAckNum=%lu",
 		incomingAckNum, sequenceNumber, bytesAck, incomingSeqNum, ackNumber);
 
-	if (chunk.tcp.flags.RST && state != SCK_STATE_LISTEN)
+	if (chunk.tcp.flags.RST)
 	{
-		terminate();
+		if(state != SCK_STATE_LISTEN)
+			terminate();
+
 		return false;
 	}
 
@@ -272,6 +281,8 @@ bool TCPSocket::onPacketReceived()
 		bytesAck--; // count one less byte (SYN counts as 1 "fake" byte)
 	}
 
+	releaseWindow(bytesAck);
+	
 	if (ackNumber != incomingSeqNum)
 	{
 		ACDEBUG("dropped packet out of sequence.");
@@ -284,7 +295,7 @@ bool TCPSocket::onPacketReceived()
 	ackNumber += bytesReceived;
 	ACTRACE("bytesReceived=%ld", bytesReceived);
 
-	releaseWindow(bytesAck);
+	
 
 	if (bytesReceived > 0) // do not send an ACK if this was a packet with no data
 		nextFlags.ACK = 1;
@@ -327,10 +338,15 @@ bool TCPSocket::onPacketReceived()
 			}
 
 		}break;
+
+		case SCK_STATE_TIME_WAIT:
 		case SCK_STATE_FIN_WAIT_2:
 		{
 			if (chunk.tcp.flags.FIN)
+			{
 				setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
+				nextFlags.ACK = 1;
+			}
 
 		}break;
 

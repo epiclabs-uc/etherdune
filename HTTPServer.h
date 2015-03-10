@@ -16,7 +16,7 @@ static const char requestPatternString[] PROGMEM = requestPatternStringMaxLength
 static const char headerPatternString[] PROGMEM = headerPatternStringMaxLength(HTTP_SERVER_HEADER_NAME_MAX_LENGTH, HTTP_SERVER_HEADER_VALUE_MAX_LENGTH);
 
 
-class HTTPServer :protected TCPSocket
+class HTTPServer :public TCPSocket
 {
 	union
 	{

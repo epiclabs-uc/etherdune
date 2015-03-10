@@ -134,7 +134,20 @@ union IPAddress
 		operator=(&ip);
 	}
 
-
+	//convert IP to string, for debugging purposes only.
+	String toString() 
+	{
+		String st;
+		st.reserve(16);
+		st += b[0];
+		st += '.';
+		st += b[1];
+		st += '.';
+		st += b[2];
+		st += '.';
+		st += b[3];
+		return st;
+	}
 
 };
 

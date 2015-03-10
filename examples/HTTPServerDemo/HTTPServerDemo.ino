@@ -171,6 +171,11 @@ void setup()
 
 
 	server.listen();
+
+	Serial.print("HTTP Server listening on ");
+	Serial.print(net::localIP.toString());
+	Serial.print(":");
+	Serial.println(server.localPort.getValue());
 }
 
 void loop()

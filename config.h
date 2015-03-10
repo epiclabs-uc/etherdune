@@ -67,7 +67,7 @@ static const uint8_t UDP_SRC_PORT_H = 240;
 
 static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
 
-static const uint16_t NETWORK_TIMER_RESOLUTION = 1000; //ms
+static const uint16_t NETWORK_TIMER_RESOLUTION = 200; //ms
 static const uint8_t ARP_TABLE_LENGTH = 2;
 static const int16_t MAX_ARP_TTL = 20; // 20 mins
 
@@ -85,12 +85,12 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
 // thinking something is wrong and doing something about it.
 static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(5000); // (client) represents waiting for a matching connection request after having sent a connection request.
 static const uint8_t SCK_TIMEOUT_SYN_RECEIVED = NTICKS(5000); //(server) SYN has been received, SYN ACK was sent and now waiting for ACK.
-static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
+static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(6000); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
 static const uint8_t SCK_TIMEOUT_FIN_WAIT_2 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP.
 static const uint8_t SCK_TIMEOUT_CLOSE_WAIT = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the local user.
 static const uint8_t SCK_TIMEOUT_CLOSING = NTICKS(2000); // (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
 static const uint8_t SCK_TIMEOUT_LAST_ACK = NTICKS(2000); // (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
-static const uint8_t SCK_TIMEOUT_TIME_WAIT = NTICKS(2000); //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
+static const uint8_t SCK_TIMEOUT_TIME_WAIT = NTICKS(3000); //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
 static const uint8_t SCK_TIMEOUT_RESOLVING = NTICKS(3000); // waiting for a DNS query to resolve
 
 static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(5000);//DNS timeout
