@@ -101,7 +101,7 @@
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\ACross\SPI.cpp" />
+    <ClCompile Include="..\..\..\ACross\ACSPI.cpp" />
     <ClCompile Include="..\..\..\FlowScanner\FlowScanner.cpp" />
     <ClCompile Include="..\..\ARP.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />

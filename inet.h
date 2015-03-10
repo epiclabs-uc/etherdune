@@ -4,14 +4,6 @@
 #include <ACross.h>
 #include "config.h"
 
-static const uint16_t ETHTYPE_ARP = 0x0806;
-static const uint16_t ETHTYPE_IP = 0x0800;
-
-
-static const uint8_t ARP_OPCODE_REPLY_L = 0x02;
-static const uint8_t ARP_OPCODE_REQ_L = 0x01;
-
-
 union u16_t
 {
 	struct
@@ -448,7 +440,17 @@ static const uint8_t DHCP_STATE_BOUND = 3;
 static const uint8_t DHCP_STATE_RENEWING = 4;
 static const uint8_t DHCP_STATE_REBINDING = 5;
 
+static const uint8_t IP_PROTO_ICMP = 1;
+static const uint8_t IP_PROTO_TCP = 6;
+static const uint8_t IP_PROTO_UDP = 17;
 
+static const uint8_t ICMP_TYPE_ECHOREPLY = 0;
+static const uint8_t ICMP_TYPE_ECHOREQUEST = 8;
 
+static const uint16_t ETHTYPE_ARP = 0x0806;
+static const uint16_t ETHTYPE_IP = 0x0800;
+
+static const uint8_t ARP_OPCODE_REPLY_L = 0x02;
+static const uint8_t ARP_OPCODE_REQ_L = 0x01;
 
 #endif

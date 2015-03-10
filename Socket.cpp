@@ -108,7 +108,7 @@ uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
 uint16_t Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
 {
 	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
-	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP_V, dataLength + headerLength);
+	uint16_t sum = calcPseudoHeaderChecksum(IP_PROTO_TCP, dataLength + headerLength);
 	sum = Checksum::calc(sum, headerLength, (uint8_t*)&packet.tcp);
 	sum = Checksum::add(sum, dataChecksum);
 	return ~sum;
@@ -116,7 +116,7 @@ uint16_t Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dat
 
 uint16_t Socket::calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum)
 {
-	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, dataLength + sizeof(UDPHeader));
+	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP, dataLength + sizeof(UDPHeader));
 	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&packet.udp);
 
 	return ~Checksum::add(headerChecksum, dataChecksum);
@@ -130,12 +130,12 @@ bool Socket::verifyUDPTCPChecksum()
 	uint16_t dataOffset;
 	switch (packet.ip.protocol)
 	{
-		case IP_PROTO_TCP_V:
+		case IP_PROTO_TCP:
 		{
 			headerLength = sizeof(IPHeader) + sizeof(TCPHeader);
 			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader);
 		}break;
-		case IP_PROTO_UDP_V:
+		case IP_PROTO_UDP:
 		{
 			headerLength = sizeof(IPHeader) + sizeof(UDPHeader);
 			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader);
@@ -152,7 +152,7 @@ bool Socket::verifyUDPTCPChecksum()
 	dataChecksum = Checksum::calc(dataLength, packet.raw + dataOffset);
 
 	uint16_t sum;
-	if (packet.ip.protocol == IP_PROTO_TCP_V)
+	if (packet.ip.protocol == IP_PROTO_TCP)
 		sum = calcTCPChecksum(false, dataLength, dataChecksum);
 	else
 		sum = calcUDPChecksum(dataLength, dataChecksum);

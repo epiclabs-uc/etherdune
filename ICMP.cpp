@@ -5,7 +5,7 @@ void ICMP::onPingReply(uint16_t time){}
 
 bool ICMP::onPacketReceived()
 {
-	if (!(packet.ip.protocol == IP_PROTO_ICMP_V))
+	if (!(packet.ip.protocol == IP_PROTO_ICMP))
 	{
 		return false;
 	}
@@ -22,9 +22,9 @@ bool ICMP::onPacketReceived()
 
 	switch (packet.icmp.type)
 	{
-		case ICMP_TYPE_ECHOREQUEST_V:
+		case ICMP_TYPE_ECHOREQUEST:
 		{
-			packet.icmp.type = ICMP_TYPE_ECHOREPLY_V;
+			packet.icmp.type = ICMP_TYPE_ECHOREPLY;
 #if !ENABLE_ICMP_RX_CHECKSUM
 			packet.icmp.checksum = 0; //checksum calculation already sets this to zero when verifying above.
 #endif
@@ -34,7 +34,7 @@ bool ICMP::onPacketReceived()
 			sendIPPacket((uint8_t)packet.ip.totalLength.getValue());
 		}break;
 
-		case ICMP_TYPE_ECHOREPLY_V:
+		case ICMP_TYPE_ECHOREPLY:
 		{
 			uint8_t len = ICMP_PING_DATA_LENGTH;
 			for (uint8_t* ptr = (uint8_t*)(&packet.icmp) + sizeof(ICMPHeader); len > 0; len--, ptr++)
@@ -57,13 +57,13 @@ void ICMP::ping(const IPAddress& targetIP)
 {
 	packet.ip.totalLength.setValue(sizeof(ICMPHeader)+ ICMP_PING_DATA_LENGTH);
 
-	packet.ip.protocol = IP_PROTO_ICMP_V;
+	packet.ip.protocol = IP_PROTO_ICMP;
 	uint8_t len = sizeof(IPHeader) + sizeof(ICMPHeader) + ICMP_PING_DATA_LENGTH;
 	packet.ip.totalLength.setValue(len);
 	prepareIPPacket(targetIP);
 	
 	memset((uint8_t*)(&packet.icmp) + sizeof(ICMPHeader), 0x79, ICMP_PING_DATA_LENGTH);
-	packet.icmp.type = ICMP_TYPE_ECHOREQUEST_V;
+	packet.icmp.type = ICMP_TYPE_ECHOREQUEST;
 	packet.icmp.code = 0;
 	packet.icmp.checksum = 0;
 	packet.icmp.timestamp = millis();

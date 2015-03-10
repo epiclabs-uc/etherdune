@@ -5,9 +5,9 @@
 #include "Checksum.h"
 #include "NetworkService.h"
 
-#include <SPI.h>
+#include <ACSPI.h>
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("ENC28J60");
 
@@ -115,6 +115,10 @@ void ENC28J60::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 
 }
 
+/// <summary>
+/// Writes a single byte to the current memory position pointed at by the EWRPT write pointer
+/// </summary>
+/// <param name="b">byte to write</param>
 void ENC28J60::writeByte(byte b)
 {
 	writeBuf(1, &b);

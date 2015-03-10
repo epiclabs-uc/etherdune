@@ -1,18 +1,7 @@
 #ifndef SHARED_BUFFER_H
 #define SHARED_BUFFER_H
 
-
-
-#include "config.h"
 #include "List.h"
-
-struct BufferHeader
-{
-	uint16_t nextIndex;
-	uint16_t length;
-	uint16_t checksum;
-};
-
 
 class SharedBuffer : ListItem
 {
@@ -34,15 +23,13 @@ public:
 	uint16_t release();
 	void flush();
 	bool isEmpty();
-
 	uint16_t fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint16_t count=0xFFFF);
 
 
 public:
+
 	SharedBuffer();
 	~SharedBuffer();
-
-
 
 };
 

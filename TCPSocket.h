@@ -16,29 +16,21 @@ private:
 
 	uint32_t sequenceNumber;
 	uint32_t ackNumber;
-
 	TCPFlags nextFlags;
 
 	bool onPacketReceived();
-
 	void processOutgoingBuffer();
-
 	void prepareTCPPacket(bool options, uint16_t dataLength);
 	void releaseWindow(int32_t& bytesAck);
-
 	void tick();
 	void sendSYN(bool ack);
-
-
-
 	__FlashStringHelper* getStateString();
-
 
 public:
 
 	TCPSocket();
-	void connect();
 
+	void connect();
 	void close();
 	void terminate();
 	void listen();

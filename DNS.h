@@ -8,7 +8,6 @@
 
 class DNSClient : private UDPSocket
 {
-	friend class NetworkService;
 
 private:
 
@@ -16,15 +15,11 @@ private:
 
 	void onReceive(uint16_t len);
 	bool sendPacket();
-	
 	void tick();
 
 public:
 	DNSClient();
 	uint16_t resolve(const char* name);
-
-
-
 
 };
 

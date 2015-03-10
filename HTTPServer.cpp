@@ -4,6 +4,13 @@
 #include <ACLog.h>
 ACROSS_MODULE("HTTPServer");
 
+#define requestPatternStringMaxLength(queryStringLength) "%" QUOTE(queryStringLength) "[^ ] HTTP/%*d.%*d\r\n"
+#define headerPatternStringMaxLength(headerLength, valueLength) "%" QUOTE(headerLength) "[^:]:% %" QUOTE(valueLength) "[^\r]\r\n"
+
+static const char requestPatternString[] PROGMEM = requestPatternStringMaxLength(HTTP_SERVER_QUERY_STRING_MAX_LENGTH);
+static const char headerPatternString[] PROGMEM = headerPatternStringMaxLength(HTTP_SERVER_HEADER_NAME_MAX_LENGTH, HTTP_SERVER_HEADER_VALUE_MAX_LENGTH);
+
+
 void HTTPServer::onBodyReceived(uint16_t len, const byte* data){}
 void HTTPServer::onHeaderReceived(const char* headerName, const char* headerValue){}
 void HTTPServer::onBodyBegin(){}

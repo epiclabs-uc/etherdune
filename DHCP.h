@@ -84,7 +84,7 @@ typedef  DHCPMessageTypeOption<DHCP_REQUEST> DHCPRequestMessageTypeOption;
 
 
 
-class DHCP : public UDPSocket, Stateful
+class DHCP : private UDPSocket, Stateful
 {
 private:
 
@@ -96,21 +96,16 @@ private:
 	void sendDHCPDiscover();
 	void initDHCP();
 	void writeAdditionalFields();
-
 	NOINLINE DHCPOptionHeader* findOption(uint8_t searchCode);
 	void prepareDHCPRequest();
 	uint8_t getMessageType();
 	__FlashStringHelper* getStateString();
-
 	void tick();
 
 public:
 
 	DHCP();
 	bool dhcpSetup();
-
-
-
 
 };
 

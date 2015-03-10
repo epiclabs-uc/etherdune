@@ -4,7 +4,6 @@
 #define _LIST_h
 
 #include <ACross.h>
-
 #include "config.h"
 
 class List;
@@ -12,9 +11,13 @@ class List;
 class ListItem
 {
 	friend class List;
+
 public:
+
 	ListItem();
+
 protected:
+
 	ListItem* nextItem;
 	
 };
@@ -23,11 +26,12 @@ class List
 {
 public:	
 
-	 List();
-	 void add(ListItem* item);
-	 void remove(ListItem* item);
+	ListItem* first;
 
-	 ListItem* first;
+	List();
+	
+	void add(ListItem* item);
+	void remove(ListItem* item);
 
 };
 

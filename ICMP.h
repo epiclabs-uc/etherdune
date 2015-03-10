@@ -3,14 +3,14 @@
 
 #include <ACross.h>
 #include "NetworkService.h"
-#include "inet.h"
 
 class ICMP : protected NetworkService
 {
+
 private:
+	
 	bool onPacketReceived();
 	void calcICMPChecksum();
-
 
 protected:
 
@@ -19,7 +19,6 @@ protected:
 public:
 
 	void ping(const IPAddress& targetIP);
-
 
 };
 

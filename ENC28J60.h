@@ -1,20 +1,10 @@
-#ifndef ESEthernet_h
-#define ESEthernet_h
+#ifndef __EENC28J60__H_
+#define __EENC28J60__H_
 
-// PIN Connections (Using Arduino UNO):
-//   VCC -   3.3V
-//   GND -    GND
-//   SCK - Pin 13
-//   SO  - Pin 12
-//   SI  - Pin 11
-//   CS  - Pin  8
-//
 #define __PROG_TYPES_COMPAT__
-
 
 #include <ACross.h>
 
-#include "net.h"
 #include "inet.h"
 #include "enc28j60constants.h"
 #include "config.h"
@@ -26,27 +16,6 @@ class SharedBuffer;
 class ENC28J60 
 {
 	friend class SharedBuffer;
-
-public:
-
-	static bool broadcast_enabled; //!< True if broadcasts enabled (used to allow temporary disable of broadcast for DHCP or other internal functions)
-	
-
-
-public:
-	static uint8_t begin(uint8_t cspin);
-	static void loop();
-	
-
-
-	
-	static void enableBroadcast(bool temporary = false);
-	static bool isLinkUp();
-
-
-	
-
-
 
 protected:
 
@@ -60,15 +29,20 @@ protected:
 	static void readBuf(uint16_t src, uint16_t len, byte* data);
 	static void readBuf(uint16_t len, byte* data);
 	static byte readByte(uint16_t src);
-
 	static void packetSend(uint16_t len);
 	static void packetSend(uint16_t len, const byte* data);
-
 	static void loadSample();
 	static void loadAll();
 	static void release();
+	static uint8_t begin(uint8_t cspin);
+	static void loop();
+	static void enableBroadcast(bool temporary = false);
 
+public:
 
+	static bool broadcast_enabled; //!< True if broadcasts enabled (used to allow temporary disable of broadcast for DHCP or other internal functions)
+
+	static bool isLinkUp();
 	
 };
 

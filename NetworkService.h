@@ -18,29 +18,24 @@ private:
 	static List activeServices;
 
 	static void processIncomingPacket();
-	
 	static void notifyOnDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
 	
 protected:
 
 	static uint8_t srcPort_L_count;
-
 	static EthBuffer packet;
 	static ARPService ARP;
 
-
-	virtual bool onPacketReceived();
-
-	virtual void tick();
-	virtual void onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
+	NetworkService();
+	~NetworkService();
 
 	static bool sendIPPacket(uint8_t headerLength);
 	static void prepareIPPacket(const IPAddress& remoteIP);
-
 	static bool sameLAN(IPAddress& dst);
 
-	NetworkService();
-	~NetworkService();
+	virtual bool onPacketReceived();
+	virtual void tick();
+	virtual void onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
 
 public:
 	static MACAddress localMAC;

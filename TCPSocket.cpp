@@ -74,7 +74,7 @@ void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 		sizeof(IPHeader) + sizeof(TCPOptions) + sizeof(TCPHeader) :
 		sizeof(IPHeader) + sizeof(TCPHeader)));
 
-	packet.ip.protocol = IP_PROTO_TCP_V;
+	packet.ip.protocol = IP_PROTO_TCP;
 
 	prepareIPPacket();
 
@@ -218,7 +218,7 @@ bool TCPSocket::onPacketReceived()
 {
 	if (!(
 		packet.eth.etherType.getValue() == ETHTYPE_IP &&
-		packet.ip.protocol == IP_PROTO_TCP_V &&
+		packet.ip.protocol == IP_PROTO_TCP &&
 		state != SCK_STATE_CLOSED &&
 		localPort.rawu == packet.tcp.destinationPort.rawu && 
 		((remoteIP.u == packet.ip.sourceIP.u && remotePort.rawu == packet.tcp.sourcePort.rawu) || state == SCK_STATE_LISTEN)

@@ -11,13 +11,12 @@ class ARPService : NetworkService
 	bool processChunk(bool isHeader);
 	void tick();
 
-	
-
 	static void makeWhoHasARPRequest(IPAddress& ip);
 	static void makeARPReply();
 	static void processARPReply();
 
 public:
+	
 	MACAddress* whoHas(IPAddress& ip);
 	ARPService();
 

@@ -8,16 +8,19 @@
 #include <FlowScanner.h>
 
 
-#define requestPatternStringMaxLength(queryStringLength) "%" QUOTE(queryStringLength) "[^ ] HTTP/%*d.%*d\r\n"
-#define headerPatternStringMaxLength(headerLength, valueLength) "%" QUOTE(headerLength) "[^:]:% %" QUOTE(valueLength) "[^\r]\r\n"
-
-
-static const char requestPatternString[] PROGMEM = requestPatternStringMaxLength(HTTP_SERVER_QUERY_STRING_MAX_LENGTH);
-static const char headerPatternString[] PROGMEM = headerPatternStringMaxLength(HTTP_SERVER_HEADER_NAME_MAX_LENGTH, HTTP_SERVER_HEADER_VALUE_MAX_LENGTH);
-
-
 class HTTPServer :public TCPSocket
 {
+private:
+
+	static const uint8_t HTTP_SERVER_STAGE_INIT = 0;
+	static const uint8_t HTTP_SERVER_STAGE_METHOD = 1;
+	static const uint8_t HTTP_SERVER_STAGE_QUERY_STRING = 2;
+	static const uint8_t HTTP_SERVER_STAGE_HEADERS = 3;
+	static const uint8_t HTTP_SERVER_STAGE_BODY = 4;
+	static const uint8_t HTTP_SERVER_STAGE_RESPONSE = 5;
+	static const uint8_t HTTP_SERVER_STAGE_RESPONSE_BODY = 6;
+	static const uint8_t HTTP_SERVER_STAGE_RESPONSE_END = 7;
+
 	union
 	{
 		struct
@@ -32,40 +35,20 @@ class HTTPServer :public TCPSocket
 
 	};
 
-	static const uint8_t HTTP_SERVER_STAGE_INIT = 0;
-	static const uint8_t HTTP_SERVER_STAGE_METHOD = 1;
-	static const uint8_t HTTP_SERVER_STAGE_QUERY_STRING = 2;
-	static const uint8_t HTTP_SERVER_STAGE_HEADERS = 3;
-	static const uint8_t HTTP_SERVER_STAGE_BODY = 4;
-	static const uint8_t HTTP_SERVER_STAGE_RESPONSE = 5;
-	static const uint8_t HTTP_SERVER_STAGE_RESPONSE_BODY = 6;
-	static const uint8_t HTTP_SERVER_STAGE_RESPONSE_END = 7;
-
-
-
 	uint8_t stage;
-
 	uint8_t crlfcount;
-
 	FlowPattern requestPattern;
 	FlowPattern headerPattern;
-
 	FlowScanner scanner;
 
-public:
-	uint8_t httpMethod;
-	uint16_t contentLength;
-
 protected:
+
 	void resetParser();
 
 public:
 
-	virtual void onBodyReceived(uint16_t len, const byte* data);
-	virtual void onHeaderReceived(const char* headerName, const char* headerValue);
-	virtual void onBodyBegin();
-	virtual void onRequest(char* queryString);
-	virtual void onRequestEnd();
+	uint8_t httpMethod;
+	uint16_t contentLength;
 
 	HTTPServer();
 
@@ -83,12 +66,13 @@ public:
 	void beginResponseBody();
 	void endResponse();
 
+	virtual void onBodyReceived(uint16_t len, const byte* data);
+	virtual void onHeaderReceived(const char* headerName, const char* headerValue);
+	virtual void onBodyBegin();
+	virtual void onRequest(char* queryString);
+	virtual void onRequestEnd();
+
 };
-
-
-
-
-
 
 
 #endif

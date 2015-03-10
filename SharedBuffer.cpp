@@ -3,14 +3,19 @@
 #include "ENC28J60.h"
 #include "Checksum.h"
 
-#define AC_LOGLEVEL 6
+#define AC_LOGLEVEL 2
 #include <ACLog.h>
 ACROSS_MODULE("SharedBuffer");
 
+struct BufferHeader
+{
+	uint16_t nextIndex;
+	uint16_t length;
+	uint16_t checksum;
+};
+
 uint16_t SharedBuffer::head = 0;
 uint16_t SharedBuffer::usedSpace = 0;
-
-
 
 SharedBuffer::SharedBuffer() :nextRead(0xFFFF), lastWritten(0xFFFF)
 {
