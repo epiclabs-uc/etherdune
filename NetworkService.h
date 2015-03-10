@@ -5,13 +5,14 @@
 #include "List.h"
 
 class ARPService;
-class ENC28J60;
 class DNSClient;
 
-class NetworkService : private ListItem
+
+class NetworkService : private ListItem, public ENC28J60
 {
-	friend class ENC28J60;
 	friend class DNSClient;
+	friend class ENC28J60;
+
 private:
 
 	static List activeServices;
@@ -24,7 +25,7 @@ protected:
 
 	static uint8_t srcPort_L_count;
 
-	static EthBuffer chunk;
+	static EthBuffer packet;
 	static ARPService ARP;
 
 
@@ -35,12 +36,8 @@ protected:
 
 	static bool sendIPPacket(uint8_t headerLength);
 	static void prepareIPPacket(const IPAddress& remoteIP);
-	static void packetSend(uint16_t len);
-	static void packetSend(uint16_t len, const byte* data);
 
 	static bool sameLAN(IPAddress& dst);
-
-	static void loadAll();
 
 	NetworkService();
 	~NetworkService();
@@ -54,7 +51,6 @@ public:
 	static DNSClient DNS;
 
 	static bool begin(uint8_t cspin);
-	static bool isLinkUp();
 	static void loop();
 
 };

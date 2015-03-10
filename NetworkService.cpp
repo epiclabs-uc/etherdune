@@ -25,7 +25,7 @@ uint8_t NetworkService::srcPort_L_count = 0;
 
 
 static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
-EthBuffer NetworkService::chunk;
+EthBuffer NetworkService::packet;
 
 
 bool NetworkService::onPacketReceived(){ return false; }
@@ -50,13 +50,13 @@ NetworkService::~NetworkService()
 }
 void NetworkService::processIncomingPacket()
 {
-	ACDEBUG("Incoming packet etherType=%x", chunk.eth.etherType.getValue());
+	ACDEBUG("Incoming packet etherType=%x", packet.eth.etherType.getValue());
 
 #if ENABLE_IP_RX_CHECKSUM || ENABLE_UDPTCP_RX_CHECKSUM
 
-		if (chunk.eth.etherType.getValue() == ETHTYPE_IP)
+		if (packet.eth.etherType.getValue() == ETHTYPE_IP)
 		{
-			uint16_t sum = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
+			uint16_t sum = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 			if (0 != sum)
 			{
 				ACWARN("IP Header checksum error");
@@ -93,45 +93,32 @@ void NetworkService::loop()
 bool NetworkService::sendIPPacket(uint8_t headerLength)
 {
 
-	if (chunk.ip.destinationIP.b[3] == 255) //(cheap hack to detect if it is an IP-layer broadcast)
+	if (packet.ip.destinationIP.b[3] == 255) //(cheap hack to detect if it is an IP-layer broadcast)
 	{
 		//LAN broadcast then.
-		memset(&chunk.eth.dstMAC, 0xFF, sizeof(MACAddress));
+		memset(&packet.eth.dstMAC, 0xFF, sizeof(MACAddress));
 	}
 	else
 	{
-		IPAddress dstIP = sameLAN(chunk.ip.destinationIP) ? chunk.ip.destinationIP : gatewayIP;
+		IPAddress dstIP = sameLAN(packet.ip.destinationIP) ? packet.ip.destinationIP : gatewayIP;
 
 		MACAddress* dstMac = ARP.whoHas(dstIP);
 
 		if (dstMac == NULL)
 			return false;
 
-		chunk.eth.dstMAC = *dstMac;
+		packet.eth.dstMAC = *dstMac;
 	}
 
-	chunk.eth.srcMAC = localMAC;
-	chunk.eth.etherType.setValue(ETHTYPE_IP);
+	packet.eth.srcMAC = localMAC;
+	packet.eth.etherType.setValue(ETHTYPE_IP);
 
-	ENC28J60::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, chunk.raw);
-	ENC28J60::packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
+	ENC28J60::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, packet.raw);
+	ENC28J60::packetSend(sizeof(EthernetHeader) + packet.ip.totalLength.getValue());
 
 	return true;
 }
 
-bool NetworkService::isLinkUp()
-{
-	return ENC28J60::isLinkUp();
-}
-
-void NetworkService::packetSend(uint16_t len)
-{
-	ENC28J60::packetSend(len);
-}
-void NetworkService::packetSend(uint16_t len, const byte* data)
-{
-	ENC28J60::packetSend(len, data);
-}
 
 bool NetworkService::sameLAN(IPAddress& dst)
 {
@@ -157,23 +144,18 @@ void NetworkService::notifyOnDNSResolve(uint8_t status, uint16_t id, const IPAdd
 
 void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 {
-	chunk.ip.version = 4;
-	chunk.ip.IHL = 0x05; //20 bytes
-	chunk.ip.raw[1] = 0x00; //DSCP/ECN=0;
-	chunk.ip.identification.setValue(0);
-	chunk.ip.flags = 0;
-	chunk.ip.fragmentOffset = 0;
-	chunk.ip.destinationIP = remoteIP;
-	chunk.ip.sourceIP = localIP;
-	chunk.ip.TTL = 255;
-	chunk.ip.checksum.setValue(0);
-	chunk.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&chunk.ip);
+	packet.ip.version = 4;
+	packet.ip.IHL = 0x05; //20 bytes
+	packet.ip.raw[1] = 0x00; //DSCP/ECN=0;
+	packet.ip.identification.setValue(0);
+	packet.ip.flags = 0;
+	packet.ip.fragmentOffset = 0;
+	packet.ip.destinationIP = remoteIP;
+	packet.ip.sourceIP = localIP;
+	packet.ip.TTL = 255;
+	packet.ip.checksum.setValue(0);
+	packet.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 }
 
-void NetworkService::loadAll()
-{
-#if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
-	ENC28J60::loadAll();
-#endif
-}
+
 

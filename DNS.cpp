@@ -9,9 +9,9 @@ void DNSClient::onReceive(uint16_t len)
 {
 	//Cheap hack: usually the last 4 bytes of the DNS response are the IP address we're looking for.
 
-	IPAddress& resolvedIP = *((IPAddress*)(chunk.udpData + len - sizeof(IPAddress)));
+	IPAddress& resolvedIP = *((IPAddress*)(packet.udpData + len - sizeof(IPAddress)));
 
-	NetworkService::notifyOnDNSResolve(chunk.dns.rcode, chunk.dns.identification, resolvedIP);
+	NetworkService::notifyOnDNSResolve(packet.dns.rcode, packet.dns.identification, resolvedIP);
 	buffer.release();
 	if (!buffer.isEmpty())
 		send();
@@ -28,9 +28,9 @@ uint16_t DNSClient::resolve(const char* name)
 
 	timer = DNS_TIMEOUT_QUERY;
 
-	DNSHeader& header = *(DNSHeader*)chunk.raw;
+	DNSHeader& header = *(DNSHeader*)packet.raw;
 
-	uint8_t* queryPtr = chunk.raw + sizeof(DNSHeader);
+	uint8_t* queryPtr = packet.raw + sizeof(DNSHeader);
 	uint8_t* b = queryPtr;
 	uint8_t* label = b;
 	b++;
@@ -70,7 +70,7 @@ uint16_t DNSClient::resolve(const char* name)
 
 	b += 4;
 
-	write(sizeof(header) + b - queryPtr, chunk.raw);
+	write(sizeof(header) + b - queryPtr, packet.raw);
 
 	send();
 	return id;

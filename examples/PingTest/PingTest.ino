@@ -32,9 +32,9 @@ class ICMPHandler : ICMP
 	void onPingReply(uint16_t time)
 	{
 		printf_P(PSTR("Reply from %d.%d.%d.%d: bytes=%d time=%dms TTL=%d\n"),
-			chunk.ip.sourceIP.b[0], chunk.ip.sourceIP.b[1], chunk.ip.sourceIP.b[2], chunk.ip.sourceIP.b[3],
-			chunk.ip.totalLength.getValue() - sizeof(IPHeader) - sizeof(ICMPHeader),
-			time, chunk.ip.TTL);
+			packet.ip.sourceIP.b[0], packet.ip.sourceIP.b[1], packet.ip.sourceIP.b[2], packet.ip.sourceIP.b[3],
+			packet.ip.totalLength.getValue() - sizeof(IPHeader) - sizeof(ICMPHeader),
+			time, packet.ip.TTL);
 
 	}
 

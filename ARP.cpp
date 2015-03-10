@@ -18,17 +18,17 @@ ARPService::ARPService()
 bool ARPService::onPacketReceived()
 {
 	
-	if (chunk.eth.etherType.getValue() != ETHTYPE_ARP)
+	if (packet.eth.etherType.getValue() != ETHTYPE_ARP)
 		return false;
 
 	ACTRACE("processHeader");
 
-	switch (chunk.arp.OPER.l)
+	switch (packet.arp.OPER.l)
 	{
 		case ARP_OPCODE_REPLY_L:
 		{
 
-			ACTRACE("ARP Reply=%02x:%02x:%02x:%02x:%02x:%02x", chunk.arp.senderMAC.b[0], chunk.arp.senderMAC.b[1], chunk.arp.senderMAC.b[2], chunk.arp.senderMAC.b[3], chunk.arp.senderMAC.b[4], chunk.arp.senderMAC.b[5]);
+			ACTRACE("ARP Reply=%02x:%02x:%02x:%02x:%02x:%02x", packet.arp.senderMAC.b[0], packet.arp.senderMAC.b[1], packet.arp.senderMAC.b[2], packet.arp.senderMAC.b[3], packet.arp.senderMAC.b[4], packet.arp.senderMAC.b[5]);
 			processARPReply();
 
 			return true;
@@ -36,9 +36,9 @@ bool ARPService::onPacketReceived()
 
 		case ARP_OPCODE_REQ_L:
 		{
-			ACTRACE("ARP Request from=%02x:%02x:%02x:%02x:%02x:%02x", chunk.arp.senderMAC.b[0], chunk.arp.senderMAC.b[1], chunk.arp.senderMAC.b[2], chunk.arp.senderMAC.b[3], chunk.arp.senderMAC.b[4], chunk.arp.senderMAC.b[5]);
+			ACTRACE("ARP Request from=%02x:%02x:%02x:%02x:%02x:%02x", packet.arp.senderMAC.b[0], packet.arp.senderMAC.b[1], packet.arp.senderMAC.b[2], packet.arp.senderMAC.b[3], packet.arp.senderMAC.b[4], packet.arp.senderMAC.b[5]);
 
-			if (chunk.arp.targetIP.u == localIP.u)
+			if (packet.arp.targetIP.u == localIP.u)
 				makeARPReply();
 			return true;
 		}break;
@@ -90,33 +90,33 @@ MACAddress* ARPService::whoHas(IPAddress& ip)
 
 void ARPService::makeWhoHasARPRequest(IPAddress& ip)
 {
-	memset(&chunk.eth.dstMAC, 0xFF, sizeof(MACAddress));
-	chunk.eth.srcMAC = chunk.arp.senderMAC = localMAC;
-	chunk.eth.etherType.setValue(ETHTYPE_ARP);
-	chunk.arp.HTYPE.setValue(0x0001);
-	chunk.arp.PTYPE.setValue(0x0800);
-	chunk.arp.HLEN = 0x06;
-	chunk.arp.PLEN = 0x04;
-	chunk.arp.OPER.setValue(0x0001);
-	memset(&chunk.arp.targetMAC, 0x00, sizeof(MACAddress));
-	chunk.arp.targetIP = ip;
-	chunk.arp.senderIP = localIP;
+	memset(&packet.eth.dstMAC, 0xFF, sizeof(MACAddress));
+	packet.eth.srcMAC = packet.arp.senderMAC = localMAC;
+	packet.eth.etherType.setValue(ETHTYPE_ARP);
+	packet.arp.HTYPE.setValue(0x0001);
+	packet.arp.PTYPE.setValue(0x0800);
+	packet.arp.HLEN = 0x06;
+	packet.arp.PLEN = 0x04;
+	packet.arp.OPER.setValue(0x0001);
+	memset(&packet.arp.targetMAC, 0x00, sizeof(MACAddress));
+	packet.arp.targetIP = ip;
+	packet.arp.senderIP = localIP;
 
 
 
-	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
+	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), packet.raw);
 
 }
 
 void ARPService::makeARPReply()
 {
-	chunk.arp.targetMAC = chunk.eth.dstMAC = chunk.eth.srcMAC;
-	chunk.arp.senderMAC = chunk.eth.srcMAC = localMAC;
-	chunk.arp.OPER.l = ARP_OPCODE_REPLY_L;
-	chunk.arp.targetIP = chunk.arp.senderIP;
-	chunk.arp.senderIP = localIP;
+	packet.arp.targetMAC = packet.eth.dstMAC = packet.eth.srcMAC;
+	packet.arp.senderMAC = packet.eth.srcMAC = localMAC;
+	packet.arp.OPER.l = ARP_OPCODE_REPLY_L;
+	packet.arp.targetIP = packet.arp.senderIP;
+	packet.arp.senderIP = localIP;
 
-	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), chunk.raw);
+	packetSend(sizeof(EthernetHeader) + sizeof(ARPPacket), packet.raw);
 }
 
 void ARPService::processARPReply()
@@ -125,7 +125,7 @@ void ARPService::processARPReply()
 	ARPEntry * selectedEntry = NULL;
 	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
 	{
-		if (entry->ip.u == chunk.arp.senderIP.u)
+		if (entry->ip.u == packet.arp.senderIP.u)
 		{
 			selectedEntry = entry;
 			break;
@@ -141,8 +141,8 @@ void ARPService::processARPReply()
 	ACBREAK(selectedEntry!=NULL,"selectedEntry is NULL");
 
 	selectedEntry->status_TTL = MAX_ARP_TTL;
-	selectedEntry->ip = chunk.arp.senderIP;
-	selectedEntry->mac = chunk.arp.senderMAC;
+	selectedEntry->ip = packet.arp.senderIP;
+	selectedEntry->mac = packet.arp.senderMAC;
 
 }
 

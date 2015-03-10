@@ -15,13 +15,13 @@ DHCP::DHCP()
 
 void DHCP::prepareDHCPRequest()
 {
-	memset(&chunk.dhcp, 0, sizeof(chunk.dhcp));
-	chunk.dhcp.op = 1; //request
-	chunk.dhcp.htype = 1; //hardware type=ethernet;
-	chunk.dhcp.hlen = sizeof(MACAddress); //size of hardware address
-	chunk.dhcp.xid.rawu = *(uint32_t*)&localMAC;  //transaction id, should be a random number. for now, use part of our MAC.
-	chunk.dhcp.broadcastFlag = 0x0080;
-	chunk.dhcp.mac = localMAC;
+	memset(&packet.dhcp, 0, sizeof(packet.dhcp));
+	packet.dhcp.op = 1; //request
+	packet.dhcp.htype = 1; //hardware type=ethernet;
+	packet.dhcp.hlen = sizeof(MACAddress); //size of hardware address
+	packet.dhcp.xid.rawu = *(uint32_t*)&localMAC;  //transaction id, should be a random number. for now, use part of our MAC.
+	packet.dhcp.broadcastFlag = 0x0080;
+	packet.dhcp.mac = localMAC;
 	setMagicCookie();
 
 }
@@ -40,7 +40,7 @@ bool DHCP::dhcpSetup()
 void DHCP::sendDHCPDiscover()
 {
 	prepareDHCPRequest();
-	write(chunk.dhcp);
+	write(packet.dhcp);
 
 	const DHCPDiscoverMessageTypeOption discover;
 
@@ -92,7 +92,7 @@ void DHCP::onReceive(uint16_t len)
 {
 	ACTRACE("DHCP response");
 
-	if (chunk.dhcp.xid.rawu != *(uint32_t*)&localMAC) //we're using part of our mac address as "transaction id"
+	if (packet.dhcp.xid.rawu != *(uint32_t*)&localMAC) //we're using part of our mac address as "transaction id"
 		return;
 
 	switch (state)
@@ -109,10 +109,10 @@ void DHCP::onReceive(uint16_t len)
 
 			DHCPIPOption serverIDOption = *sioptionPtr;
 			DHCPRequestedIPOption requestedIPOption;
-			requestedIPOption.ip = chunk.dhcp.yiaddr;
+			requestedIPOption.ip = packet.dhcp.yiaddr;
 
 			prepareDHCPRequest();
-			write(chunk.dhcp);
+			write(packet.dhcp);
 			
 			const DHCPRequestMessageTypeOption request;
 			write(request);
@@ -155,7 +155,7 @@ void DHCP::onReceive(uint16_t len)
 					net::dnsIP = dnsOpt->ip;
 					net::gatewayIP = routerOpt->ip;
 					
-					net::localIP = chunk.dhcp.yiaddr;
+					net::localIP = packet.dhcp.yiaddr;
 					setState(DHCP_STATE_BOUND, DHCP_TIMEOUT_BOUND);
 
 					ACINFO("IP:%d.%d.%d.%d", net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
@@ -181,16 +181,16 @@ void DHCP::onReceive(uint16_t len)
 
 void DHCP::setMagicCookie()
 {
-	chunk.dhcp.magicCookie = IPADDR_P(99, 130, 83, 99);
+	packet.dhcp.magicCookie = IPADDR_P(99, 130, 83, 99);
 }
 
 DHCPOptionHeader* DHCP::findOption(uint8_t searchCode)
 {
 
-	DHCPOptionHeader* header = (DHCPOptionHeader*)&chunk.dhcpOptions;
+	DHCPOptionHeader* header = (DHCPOptionHeader*)&packet.dhcpOptions;
 	for (;
 		header->code != DHCP_OPTIONS_END &&
-		(uint8_t*)header < (uint8_t*)&chunk.dhcpOptions + sizeof(chunk.dhcpOptions);
+		(uint8_t*)header < (uint8_t*)&packet.dhcpOptions + sizeof(packet.dhcpOptions);
 		header = (DHCPOptionHeader*)(((uint8_t*)header) + header->length+sizeof(DHCPOptionHeader)))
 	{
 		if (header->code == searchCode)

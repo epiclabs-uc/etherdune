@@ -20,23 +20,14 @@
 #include "inet.h"
 #include "enc28j60constants.h"
 #include "config.h"
-#include "NetworkService.h"
 
 
-class Socket;
-class SharedBuffer;
 class NetworkService;
-class TCPSocket;
-class UDPSocket;
-class DMATest;
+class SharedBuffer;
+
 class ENC28J60 
 {
-	friend class Socket;
 	friend class SharedBuffer;
-	friend class NetworkService;
-	friend class TCPSocket;
-	friend class UDPSocket;
-	friend class DMATest;
 
 public:
 
@@ -59,7 +50,7 @@ public:
 
 
 
-private:
+protected:
 
 	static void writeByte(byte b);
 	static void writeByte(uint16_t dst, byte b);
@@ -79,11 +70,6 @@ private:
 	static void loadAll();
 	static void release();
 
-public: 
-
-
-
-	
 
 	
 };

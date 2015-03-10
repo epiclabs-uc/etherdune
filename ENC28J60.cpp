@@ -3,6 +3,7 @@
 #include "ENC28J60.h"
 #include <stdarg.h>
 #include "Checksum.h"
+#include "NetworkService.h"
 
 #include <SPI.h>
 
@@ -374,7 +375,7 @@ void ENC28J60::loadSample()
 		{
 			remainingPacketSize = header.byteCount - 4; //remove the CRC count
 			uint16_t len = min(remainingPacketSize, ETHERFLOW_SAMPLE_SIZE);
-			chunkPtr = (byte*)&NetworkService::chunk;
+			chunkPtr = (byte*)&NetworkService::packet;
 			readBuf(len, chunkPtr);
 			remainingPacketSize -= len;
 			chunkPtr += len;
@@ -388,7 +389,10 @@ void ENC28J60::loadSample()
 
 void ENC28J60::loadAll()
 {
-	readBuf(min(remainingPacketSize, sizeof(NetworkService::chunk) - (chunkPtr - (byte*)&NetworkService::chunk)), chunkPtr);
+#if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
+	readBuf(min(remainingPacketSize, sizeof(NetworkService::packet) - (chunkPtr - (byte*)&NetworkService::packet)), chunkPtr);
+#endif
+
 }
 
 

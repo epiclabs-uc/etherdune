@@ -29,19 +29,19 @@ bool UDPSocket::send()
 
 void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 {
-	chunk.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
-	chunk.ip.protocol = IP_PROTO_UDP_V;
+	packet.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
+	packet.ip.protocol = IP_PROTO_UDP_V;
 	prepareIPPacket();
-	chunk.udp.sourcePort = localPort;
-	chunk.udp.destinationPort = remotePort;
+	packet.udp.sourcePort = localPort;
+	packet.udp.destinationPort = remotePort;
 
-	chunk.udp.dataLength.setValue(dataLength + sizeof(UDPHeader));
-	chunk.udp.checksum.zero();
+	packet.udp.dataLength.setValue(dataLength + sizeof(UDPHeader));
+	packet.udp.checksum.zero();
 
 	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP_V, dataLength + sizeof(UDPHeader));
-	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&chunk.udp);
+	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&packet.udp);
 
-	chunk.udp.checksum.rawu = calcUDPChecksum(dataLength, dataChecksum);
+	packet.udp.checksum.rawu = calcUDPChecksum(dataLength, dataChecksum);
 
 }
 
@@ -73,9 +73,9 @@ void UDPSocket::tick()
 bool UDPSocket::onPacketReceived()
 {
 	if (!(
-		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
-		chunk.ip.protocol == IP_PROTO_UDP_V &&
-		localPort.rawu == chunk.udp.destinationPort.rawu))
+		packet.eth.etherType.getValue() == ETHTYPE_IP &&
+		packet.ip.protocol == IP_PROTO_UDP_V &&
+		localPort.rawu == packet.udp.destinationPort.rawu))
 	{
 		return false;
 	}
@@ -92,6 +92,6 @@ bool UDPSocket::onPacketReceived()
 
 #endif
 
-	onReceive(chunk.udp.dataLength.getValue() - sizeof(UDPHeader));
+	onReceive(packet.udp.dataLength.getValue() - sizeof(UDPHeader));
 	return true;
 }

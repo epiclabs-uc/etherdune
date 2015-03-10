@@ -49,10 +49,10 @@ void TCPSocket::listen()
 
 void TCPSocket::accept()
 {
-	remoteIP.u = chunk.ip.sourceIP.u;
-	remotePort = chunk.tcp.sourcePort;
+	remoteIP.u = packet.ip.sourceIP.u;
+	remotePort = packet.tcp.sourcePort;
 
-	ackNumber = chunk.tcp.sequenceNumber.getValue() + 1;
+	ackNumber = packet.tcp.sequenceNumber.getValue() + 1;
 
 	sendSYN(true);
 	setState(SCK_STATE_SYN_RECEIVED, SCK_TIMEOUT_SYN_RECEIVED);
@@ -70,25 +70,25 @@ void TCPSocket::accept(TCPSocket& listener)
 void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 {
 
-	chunk.ip.totalLength.setValue(dataLength + (options ?
+	packet.ip.totalLength.setValue(dataLength + (options ?
 		sizeof(IPHeader) + sizeof(TCPOptions) + sizeof(TCPHeader) :
 		sizeof(IPHeader) + sizeof(TCPHeader)));
 
-	chunk.ip.protocol = IP_PROTO_TCP_V;
+	packet.ip.protocol = IP_PROTO_TCP_V;
 
 	prepareIPPacket();
 
-	chunk.tcp.sourcePort = localPort;
-	chunk.tcp.destinationPort = remotePort;
-	chunk.tcp.sequenceNumber.setValue(sequenceNumber);
-	chunk.tcp.flags.clear();
+	packet.tcp.sourcePort = localPort;
+	packet.tcp.destinationPort = remotePort;
+	packet.tcp.sequenceNumber.setValue(sequenceNumber);
+	packet.tcp.flags.clear();
 
-	chunk.tcp.windowSize.setValue(512);
-	chunk.tcp.acknowledgementNumber.setValue(ackNumber);
-	chunk.tcp.checksum.zero();
-	chunk.tcp.urgentPointer.zero();
+	packet.tcp.windowSize.setValue(512);
+	packet.tcp.acknowledgementNumber.setValue(ackNumber);
+	packet.tcp.checksum.zero();
+	packet.tcp.urgentPointer.zero();
 
-	chunk.tcp.headerLength = options ? (sizeof(TCPHeader) + sizeof(TCPOptions)) / 4 : sizeof(TCPHeader) / 4;
+	packet.tcp.headerLength = options ? (sizeof(TCPHeader) + sizeof(TCPOptions)) / 4 : sizeof(TCPHeader) / 4;
 
 
 }
@@ -100,15 +100,15 @@ void TCPSocket::sendSYN(bool ack)
 
 	prepareTCPPacket(true, 0);
 
-	chunk.tcp.flags.SYN = 1;
-	chunk.tcp.flags.ACK = ack;
+	packet.tcp.flags.SYN = 1;
+	packet.tcp.flags.ACK = ack;
 
-	chunk.tcpOptions.option1 = 0x02;
-	chunk.tcpOptions.option1_length = 0x04;
-	chunk.tcpOptions.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
+	packet.tcpOptions.option1 = 0x02;
+	packet.tcpOptions.option1_length = 0x04;
+	packet.tcpOptions.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
 
 
-	chunk.tcp.checksum.rawu = calcTCPChecksum(true, 0, 0);
+	packet.tcp.checksum.rawu = calcTCPChecksum(true, 0, 0);
 
 	sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader) + sizeof(TCPOptions));
 }
@@ -217,11 +217,11 @@ void TCPSocket::tick()
 bool TCPSocket::onPacketReceived()
 {
 	if (!(
-		chunk.eth.etherType.getValue() == ETHTYPE_IP &&
-		chunk.ip.protocol == IP_PROTO_TCP_V &&
+		packet.eth.etherType.getValue() == ETHTYPE_IP &&
+		packet.ip.protocol == IP_PROTO_TCP_V &&
 		state != SCK_STATE_CLOSED &&
-		localPort.rawu == chunk.tcp.destinationPort.rawu && 
-		((remoteIP.u == chunk.ip.sourceIP.u && remotePort.rawu == chunk.tcp.sourcePort.rawu) || state == SCK_STATE_LISTEN)
+		localPort.rawu == packet.tcp.destinationPort.rawu && 
+		((remoteIP.u == packet.ip.sourceIP.u && remotePort.rawu == packet.tcp.sourcePort.rawu) || state == SCK_STATE_LISTEN)
 		))
 	{
 		return false;
@@ -239,10 +239,10 @@ bool TCPSocket::onPacketReceived()
 
 #endif
 
-	ACTRACE("Header SYN=%d ACK=%d FIN=%d RST=%d", chunk.tcp.flags.SYN, chunk.tcp.flags.ACK, chunk.tcp.flags.FIN, chunk.tcp.flags.RST)
+	ACTRACE("Header SYN=%d ACK=%d FIN=%d RST=%d", packet.tcp.flags.SYN, packet.tcp.flags.ACK, packet.tcp.flags.FIN, packet.tcp.flags.RST)
 
-	uint32_t incomingAckNum = chunk.tcp.acknowledgementNumber.getValue();
-	uint32_t incomingSeqNum = chunk.tcp.sequenceNumber.getValue();
+	uint32_t incomingAckNum = packet.tcp.acknowledgementNumber.getValue();
+	uint32_t incomingSeqNum = packet.tcp.sequenceNumber.getValue();
 
 	int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 	int32_t bytesReceived;
@@ -250,7 +250,7 @@ bool TCPSocket::onPacketReceived()
 	ACTRACE("incomingAck=%lu localSeqNum=%lu bytesAck=%ld incomingSeqNum=%lu localAckNum=%lu",
 		incomingAckNum, sequenceNumber, bytesAck, incomingSeqNum, ackNumber);
 
-	if (chunk.tcp.flags.RST)
+	if (packet.tcp.flags.RST)
 	{
 		if(state != SCK_STATE_LISTEN)
 			terminate();
@@ -262,7 +262,7 @@ bool TCPSocket::onPacketReceived()
 		sequenceNumber += bytesAck;
 
 
-	if (state == SCK_STATE_SYN_SENT && chunk.tcp.flags.SYN && chunk.tcp.flags.ACK)
+	if (state == SCK_STATE_SYN_SENT && packet.tcp.flags.SYN && packet.tcp.flags.ACK)
 	{
 		ackNumber = incomingSeqNum + 1;
 		setState(SCK_STATE_ESTABLISHED, 0);
@@ -271,7 +271,7 @@ bool TCPSocket::onPacketReceived()
 		return false;
 	}
 
-	if (state == SCK_STATE_LISTEN && chunk.tcp.flags.SYN)
+	if (state == SCK_STATE_LISTEN && packet.tcp.flags.SYN)
 	{
 		onConnect();
 		return false;
@@ -279,7 +279,7 @@ bool TCPSocket::onPacketReceived()
 
 	if (state == SCK_STATE_SYN_RECEIVED)
 	{
-		if (!chunk.tcp.flags.ACK)
+		if (!packet.tcp.flags.ACK)
 			return false;
 
 		setState(SCK_STATE_ESTABLISHED, 0);
@@ -295,8 +295,8 @@ bool TCPSocket::onPacketReceived()
 		return false;
 	}
 
-	int16_t headerLength = sizeof(IPHeader) + chunk.tcp.headerLength * 4;
-	bytesReceived = chunk.ip.totalLength.getValue() - headerLength;
+	int16_t headerLength = sizeof(IPHeader) + packet.tcp.headerLength * 4;
+	bytesReceived = packet.ip.totalLength.getValue() - headerLength;
 	ackNumber += bytesReceived;
 	ACTRACE("bytesReceived=%ld", bytesReceived);
 
@@ -306,7 +306,7 @@ bool TCPSocket::onPacketReceived()
 		nextFlags.ACK = 1;
 
 
-	if (chunk.tcp.flags.FIN)
+	if (packet.tcp.flags.FIN)
 	{
 		ackNumber++;
 	}
@@ -319,10 +319,10 @@ bool TCPSocket::onPacketReceived()
 			int16_t slen = min(bytesReceived, (int16_t)(sizeof(EthBuffer) - sizeof(EthernetHeader)) - headerLength);
 
 			if (slen > 0)
-				onReceive((uint16_t)slen, chunk.raw + sizeof(EthernetHeader) + headerLength);
+				onReceive((uint16_t)slen, packet.raw + sizeof(EthernetHeader) + headerLength);
 
 
-			if (chunk.tcp.flags.FIN)
+			if (packet.tcp.flags.FIN)
 			{
 				setState(SCK_STATE_CLOSE_WAIT, 0);
 				onClose();
@@ -336,7 +336,7 @@ bool TCPSocket::onPacketReceived()
 		{
 			if (bytesAck == 1 && buffer.isEmpty())
 			{
-				if (chunk.tcp.flags.FIN)
+				if (packet.tcp.flags.FIN)
 					setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
 				else
 					setState(SCK_STATE_FIN_WAIT_2, SCK_TIMEOUT_FIN_WAIT_2);
@@ -347,7 +347,7 @@ bool TCPSocket::onPacketReceived()
 		case SCK_STATE_TIME_WAIT:
 		case SCK_STATE_FIN_WAIT_2:
 		{
-			if (chunk.tcp.flags.FIN)
+			if (packet.tcp.flags.FIN)
 			{
 				setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
 				nextFlags.ACK = 1;
@@ -386,13 +386,13 @@ void TCPSocket::processOutgoingBuffer()
 	if (nextFlags.raw !=0 || dataLength !=0)
 	{
 		prepareTCPPacket(false, dataLength);
-		chunk.tcp.sequenceNumber.setValue(sequenceNumber);
-		chunk.tcp.flags = nextFlags;
+		packet.tcp.sequenceNumber.setValue(sequenceNumber);
+		packet.tcp.flags = nextFlags;
 		nextFlags.clear();
 	
 		ACTRACE("dataLength=%d dataChecksum=%d", dataLength, dataChecksum);
 
-		chunk.tcp.checksum.rawu = calcTCPChecksum(false, dataLength, dataChecksum);
+		packet.tcp.checksum.rawu = calcTCPChecksum(false, dataLength, dataChecksum);
 
 		sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
 
