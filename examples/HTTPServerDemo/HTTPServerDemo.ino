@@ -218,12 +218,11 @@ public:
 
 
 
-
 class HTTPServerTest : public HTTPServer
 {
 public:
-	const uint8_t ACTION_DIGITALREAD = 1;
-	const uint8_t ACTION_ANALOGREAD = 2;
+	static const uint8_t ACTION_DIGITALREAD = 1;
+	static const uint8_t ACTION_ANALOGREAD = 2;
 
 	uint8_t action;
 	uint8_t pin;
@@ -243,10 +242,10 @@ public:
 
 		if (p != NULL)
 		{
-			if (strcmp_P(p, "digitalRead")==0)
+			if (strcmp_P(p, PSTR("digitalRead"))==0)
 				action = ACTION_DIGITALREAD;
 			else
-				if (strcmp_P(p, "analogRead")==0)
+				if (strcmp_P(p, PSTR("analogRead"))==0)
 					action = ACTION_ANALOGREAD;
 
 		}
@@ -272,7 +271,7 @@ public:
 	{
 		ACTRACE("Request ended");
 		
-		//for ilustration purposes, verify the client used a GET request
+		//for illustrative purpose, verify the client used a GET request
 		if (httpMethod == HTTP_METHOD_GET)
 		{
 
