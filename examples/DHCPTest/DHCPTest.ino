@@ -4,7 +4,7 @@
 #include <UDPSocket.h>
 
 #include <inet.h>
-#include <EtherFlow.h>
+#include <ENC28J60.h>
 #include <DNS.h>
 #include <FlowScanner.h>
 #include <HTTPClient.h>

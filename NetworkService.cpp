@@ -36,7 +36,7 @@ void NetworkService::onDNSResolve(uint8_t status, uint16_t id, const IPAddress& 
 bool NetworkService::begin(uint8_t cspin)
 {
 	tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
-	return 0!= EtherFlow::begin(cspin);
+	return 0!= ENC28J60::begin(cspin);
 }
 
 
@@ -78,7 +78,7 @@ void NetworkService::processIncomingPacket()
 
 void NetworkService::loop()
 {
-	EtherFlow::loadSample();
+	ENC28J60::loadSample();
 
 	if ((int32_t)(millis() - tickTimer) >= 0)
 	{
@@ -113,24 +113,24 @@ bool NetworkService::sendIPPacket(uint8_t headerLength)
 	chunk.eth.srcMAC = localMAC;
 	chunk.eth.etherType.setValue(ETHTYPE_IP);
 
-	EtherFlow::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, chunk.raw);
-	EtherFlow::packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
+	ENC28J60::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, chunk.raw);
+	ENC28J60::packetSend(sizeof(EthernetHeader) + chunk.ip.totalLength.getValue());
 
 	return true;
 }
 
 bool NetworkService::isLinkUp()
 {
-	return EtherFlow::isLinkUp();
+	return ENC28J60::isLinkUp();
 }
 
 void NetworkService::packetSend(uint16_t len)
 {
-	EtherFlow::packetSend(len);
+	ENC28J60::packetSend(len);
 }
 void NetworkService::packetSend(uint16_t len, const byte* data)
 {
-	EtherFlow::packetSend(len, data);
+	ENC28J60::packetSend(len, data);
 }
 
 bool NetworkService::sameLAN(IPAddress& dst)
@@ -173,7 +173,7 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 void NetworkService::loadAll()
 {
 #if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
-	EtherFlow::loadAll();
+	ENC28J60::loadAll();
 #endif
 }
 

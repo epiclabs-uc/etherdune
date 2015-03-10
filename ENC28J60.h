@@ -29,7 +29,7 @@ class NetworkService;
 class TCPSocket;
 class UDPSocket;
 class DMATest;
-class EtherFlow 
+class ENC28J60 
 {
 	friend class Socket;
 	friend class SharedBuffer;

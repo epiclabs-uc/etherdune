@@ -1,16 +1,16 @@
 #ifndef __NETWORKSERVICE_H_
 #define __NETWORKSERVICE_H_
 
-#include "EtherFlow.h"
+#include "ENC28J60.h"
 #include "List.h"
 
 class ARPService;
-class EtherFlow;
+class ENC28J60;
 class DNSClient;
 
 class NetworkService : private ListItem
 {
-	friend class EtherFlow;
+	friend class ENC28J60;
 	friend class DNSClient;
 private:
 

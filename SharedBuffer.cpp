@@ -1,6 +1,6 @@
 #include "SharedBuffer.h"
 
-#include "EtherFlow.h"
+#include "ENC28J60.h"
 #include "Checksum.h"
 
 #define AC_LOGLEVEL 6
@@ -29,7 +29,7 @@ uint16_t SharedBuffer::writeAt(uint16_t index, uint16_t len, const byte* data)
 	// Write in a single step
 	if (len <= SHARED_BUFFER_CAPACITY - index)
 	{
-		EtherFlow::writeBuf(SHARED_BUFFER_INIT + index, len, data);
+		ENC28J60::writeBuf(SHARED_BUFFER_INIT + index, len, data);
 		index += len;
 		if (index == SHARED_BUFFER_CAPACITY) 
 			index = 0;
@@ -40,10 +40,10 @@ uint16_t SharedBuffer::writeAt(uint16_t index, uint16_t len, const byte* data)
 	else
 	{
 		uint16_t size_1 = SHARED_BUFFER_CAPACITY - index;
-		EtherFlow::writeBuf(SHARED_BUFFER_INIT + index, size_1, data);
+		ENC28J60::writeBuf(SHARED_BUFFER_INIT + index, size_1, data);
 		
 		uint16_t size_2 = len - size_1;
-		EtherFlow::writeBuf(SHARED_BUFFER_INIT , size_2, data+size_1);
+		ENC28J60::writeBuf(SHARED_BUFFER_INIT , size_2, data+size_1);
 		
 		index = size_2;
 	}
@@ -71,7 +71,7 @@ uint16_t SharedBuffer::readAt(uint16_t index, uint16_t len, byte* data)
 	// Read in a single step
 	if (len <= SHARED_BUFFER_CAPACITY - index)
 	{
-		EtherFlow::readBuf(SHARED_BUFFER_INIT + index, len, data);
+		ENC28J60::readBuf(SHARED_BUFFER_INIT + index, len, data);
 		index += len;
 		if (index == SHARED_BUFFER_CAPACITY) index = 0;
 	}
@@ -79,10 +79,10 @@ uint16_t SharedBuffer::readAt(uint16_t index, uint16_t len, byte* data)
 	else
 	{
 		uint16_t size_1 = SHARED_BUFFER_CAPACITY - index;
-		EtherFlow::readBuf(SHARED_BUFFER_INIT + index, size_1, data);
+		ENC28J60::readBuf(SHARED_BUFFER_INIT + index, size_1, data);
 		
 		uint16_t size_2 = len - size_1;
-		EtherFlow::readBuf(SHARED_BUFFER_INIT, size_2, data + size_1);
+		ENC28J60::readBuf(SHARED_BUFFER_INIT, size_2, data + size_1);
 		
 		index = size_2;
 	}
@@ -194,13 +194,13 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint
 		if (src + len > SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY)
 		{
 			len = SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY - src; 
-			EtherFlow::moveMem(txPtr, src, len);
+			ENC28J60::moveMem(txPtr, src, len);
 			txPtr += len;
 			len = header.length - len; 
 			src = SHARED_BUFFER_INIT;
 		}
 
-		EtherFlow::moveMem(txPtr, src,len);
+		ENC28J60::moveMem(txPtr, src,len);
 
 		checksum = Checksum::add(checksum, header.checksum, odd);
 

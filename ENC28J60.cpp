@@ -1,6 +1,6 @@
 
 #include <ACross.h>
-#include "EtherFlow.h"
+#include "ENC28J60.h"
 #include <stdarg.h>
 #include "Checksum.h"
 
@@ -8,7 +8,7 @@
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
-ACROSS_MODULE("EtherFlow");
+ACROSS_MODULE("ENC28J60");
 
 static uint8_t selectPin;
 static byte Enc28j60Bank;
@@ -18,7 +18,7 @@ static uint16_t remainingPacketSize;
 static byte* chunkPtr;
 
 
-bool EtherFlow::broadcast_enabled = false;
+bool ENC28J60::broadcast_enabled = false;
 
 
 
@@ -86,20 +86,20 @@ static void writeReg(byte address, uint16_t data)
 	writeRegByte(address + 1, data >> 8);
 }
 
-void EtherFlow::readBuf(uint16_t len, byte* data) 
+void ENC28J60::readBuf(uint16_t len, byte* data) 
 {
 
 	uint8_t b = ENC28J60_READ_BUF_MEM;
 	ACross::SPI::sendReceive(selectPin, 1, &b, len, data);
 }
 
-void EtherFlow::readBuf(uint16_t src, uint16_t len, byte* data)
+void ENC28J60::readBuf(uint16_t src, uint16_t len, byte* data)
 {
 	writeReg(ERDPT, src);
 	readBuf(len, data);
 }
 
-void EtherFlow::writeBuf(uint16_t len, const byte* data) 
+void ENC28J60::writeBuf(uint16_t len, const byte* data) 
 {
 
 	uint8_t b = ENC28J60_WRITE_BUF_MEM;
@@ -107,23 +107,23 @@ void EtherFlow::writeBuf(uint16_t len, const byte* data)
 
 }
 
-void EtherFlow::writeBuf(uint16_t dst, uint16_t len, const byte* data)
+void ENC28J60::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 {
 	writeReg(EWRPT, dst);
 	writeBuf(len, data);
 
 }
 
-void EtherFlow::writeByte(byte b)
+void ENC28J60::writeByte(byte b)
 {
 	writeBuf(1, &b);
 }
-void EtherFlow::writeByte(uint16_t dst, byte b)
+void ENC28J60::writeByte(uint16_t dst, byte b)
 {
 	writeBuf(dst, 1, &b);
 }
 
-byte EtherFlow::readByte(uint16_t src)
+byte ENC28J60::readByte(uint16_t src)
 {
 	byte b;
 	readBuf(src, 1, &b);
@@ -131,13 +131,13 @@ byte EtherFlow::readByte(uint16_t src)
 }
 
 #if ENABLE_HW_CHECKSUM
-uint16_t EtherFlow::hardwareChecksumRxOffset(uint16_t offset, uint16_t len)
+uint16_t ENC28J60::hardwareChecksumRxOffset(uint16_t offset, uint16_t len)
 {
 	uint16_t src = incRxPtr(currentPacketPtr, offset);
 	return hardwareChecksum(src, len);
 }
 
-uint16_t EtherFlow::hardwareChecksum(uint16_t src, uint16_t len)
+uint16_t ENC28J60::hardwareChecksum(uint16_t src, uint16_t len)
 {
 	if (len == 0)
 		return 0;
@@ -182,7 +182,7 @@ inline uint16_t incRxPtr(uint16_t ptr, uint16_t len)
 	return ptr;
 }
 
-void EtherFlow::moveMem(uint16_t dest, uint16_t src, uint16_t len)
+void ENC28J60::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 {
 
 	//as ENC28J60 DMA is unable to copy single bytes:
@@ -240,7 +240,7 @@ void EtherFlow::moveMem(uint16_t dest, uint16_t src, uint16_t len)
 
 
 
-void EtherFlow::packetSend(uint16_t len)
+void ENC28J60::packetSend(uint16_t len)
 {
 	// see http://forum.mysensors.org/topic/536/
 	// while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
@@ -259,13 +259,13 @@ void EtherFlow::packetSend(uint16_t len)
 
 }
 
-void EtherFlow::packetSend(uint16_t len, const byte* data)
+void ENC28J60::packetSend(uint16_t len, const byte* data)
 {
 	writeBuf(TXSTART_INIT_DATA, len, data);
 	packetSend(len);
 }
 
-void EtherFlow::enableBroadcast(bool temporary) {
+void ENC28J60::enableBroadcast(bool temporary) {
 	writeRegByte(ERXFCON, readRegByte(ERXFCON) | ERXFCON_BCEN);
 	if (!temporary)
 		broadcast_enabled = true;
@@ -287,11 +287,11 @@ static uint16_t readPhyByte(byte address) {
 	return readRegByte(MIRD + 1);
 }
 
-bool EtherFlow::isLinkUp() {
+bool ENC28J60::isLinkUp() {
 	return (readPhyByte(PHSTAT2) >> 2) & 1;
 }
 
-uint8_t EtherFlow::begin(uint8_t cspin)
+uint8_t ENC28J60::begin(uint8_t cspin)
 {
 	
 	
@@ -353,7 +353,7 @@ uint8_t EtherFlow::begin(uint8_t cspin)
 }
 
 
-void EtherFlow::loadSample()
+void ENC28J60::loadSample()
 {
 	if (readRegByte(EPKTCNT) > 0)
 	{
@@ -386,14 +386,14 @@ void EtherFlow::loadSample()
 
 }
 
-void EtherFlow::loadAll()
+void ENC28J60::loadAll()
 {
 	readBuf(min(remainingPacketSize, sizeof(NetworkService::chunk) - (chunkPtr - (byte*)&NetworkService::chunk)), chunkPtr);
 }
 
 
 
-void EtherFlow::release()
+void ENC28J60::release()
 {
 	if (nextPacketPtr - 1 > RXSTOP_INIT)
 		writeReg(ERXRDPT, RXSTOP_INIT);

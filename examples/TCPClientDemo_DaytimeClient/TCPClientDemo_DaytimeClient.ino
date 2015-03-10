@@ -3,7 +3,6 @@
 
 
 #include <ACross.h>
-#include <EtherFlow.h>
 #include <FlowScanner.h>
 #include <Checksum.h>
 #include <TCPSocket.h>

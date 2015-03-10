@@ -88,7 +88,6 @@
     <ClInclude Include="..\..\config.h" />
     <ClInclude Include="..\..\DHCP.h" />
     <ClInclude Include="..\..\enc28j60constants.h" />
-    <ClInclude Include="..\..\EtherFlow.h" />
     <ClInclude Include="..\..\HTTPClient.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />
@@ -107,7 +106,6 @@
     <ClCompile Include="..\..\ARP.cpp" />
     <ClCompile Include="..\..\Checksum.cpp" />
     <ClCompile Include="..\..\DHCP.cpp" />
-    <ClCompile Include="..\..\EtherFlow.cpp" />
     <ClCompile Include="..\..\HTTPClient.cpp" />
     <ClCompile Include="..\..\List.cpp" />
     <ClCompile Include="..\..\NetworkService.cpp" />
