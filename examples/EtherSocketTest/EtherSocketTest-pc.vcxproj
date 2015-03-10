@@ -113,6 +113,7 @@
     <ClInclude Include="..\..\EtherFlow.h" />
     <ClInclude Include="..\..\HTTPClient.h" />
     <ClInclude Include="..\..\EasyHTTPClient.h" />
+    <ClInclude Include="..\..\HTTPConstants.h" />
     <ClInclude Include="..\..\ICMP.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />

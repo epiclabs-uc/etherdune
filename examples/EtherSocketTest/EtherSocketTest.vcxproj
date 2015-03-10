@@ -96,6 +96,7 @@
     <ClInclude Include="..\..\NetworkService.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />
+    <ClInclude Include="..\..\TCPListener.h" />
     <ClInclude Include="..\..\TCPSocket.h" />
     <ClInclude Include="..\..\UDPSocket.h" />
     <ClInclude Include="Visual Micro\.EtherSocketTest.vsarduino.h" />
