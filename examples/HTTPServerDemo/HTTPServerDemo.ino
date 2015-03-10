@@ -182,7 +182,7 @@ void setup()
 
 void loop()
 {
-	NetworkService::loop();
+	net::loop();
 
 }
 

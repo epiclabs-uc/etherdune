@@ -12,8 +12,6 @@
 #define __PROG_TYPES_COMPAT__
 
 
-
-
 #include <ACross.h>
 
 #include "net.h"

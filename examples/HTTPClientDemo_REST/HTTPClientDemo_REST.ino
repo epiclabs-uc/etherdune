@@ -2,26 +2,34 @@
 // the local temperature of a city.
 
 #include <ACross.h>
-#include <Checksum.h>
-#include <TCPSocket.h>
-#include <UDPSocket.h>
-
-#include <inet.h>
-#include <ENC28J60.h>
-#include <DNS.h>
 #include <FlowScanner.h>
 #include <HTTPClient.h>
+#include <DNS.h>
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("HTTPClient demo");
 
+#define DHCP_ENABLE true
 
-MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
-IPAddress_P gatewayIP = { 192, 168, 1, 1 };
-IPAddress_P myIP = { 192, 168, 1, 33 };
-IPAddress_P netmask = { 255, 255, 255, 0 };
-IPAddress_P dns = { 8, 8, 8, 8 };
+static MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
+
+//the following parameters will be ignored and not linked if DHCP_ENABLE is set to true.
+static IPAddress_P gatewayIP = { 192, 168, 1, 1 };
+static IPAddress_P myIP = { 192, 168, 1, 33 };
+static IPAddress_P netmask = { 255, 255, 255, 0 };
+static IPAddress_P dns = { 8, 8, 8, 8 };
+
+
+#if DHCP_ENABLE
+
+#include <DHCP.h>
+DHCP dhcp;
+
+#else
+
+#endif
+
 
 DNSClient net::DNS;
 
@@ -59,7 +67,6 @@ public:
 	void onBodyReceived(uint16_t len, const byte* data)
 	{
 		ACTRACE("HTTP bytes received=%d", len);
-		//Serial.write(data, len);
 
 		byte* buf = (byte*)data;
 		
@@ -99,18 +106,12 @@ void setup()
 
 	while (!Serial.available());
 
-
-	net::localIP = myIP;
 	net::localMAC = mymac;
-	net::gatewayIP = gatewayIP;
-	net::netmask = netmask;
-	net::dnsIP = dns;
-
 
 	if (!net::begin(10))
 	{
 		ACERROR("failed to start EtherFlow");
-		Serial.println(F("failed to start EtherFlow"));	
+		Serial.println(F("failed to start EtherFlow"));
 	}
 
 	ACINFO("waiting for link...");
@@ -119,7 +120,34 @@ void setup()
 
 	ACINFO("link is up");
 
-	
+
+#if DHCP_ENABLE
+	Serial.println("Obtaining DHCP configuration...");
+
+	if (!dhcp.dhcpSetup())
+	{
+		Serial.println(F("DHCP setup failed"));
+		ACross::halt(1);
+	}
+
+	Serial.println(F("DHCP setup OK"));
+
+	Serial.println(F("DHCP config:"));
+	Serial.print(F("Local IP: "));
+	Serial.println(net::localIP.toString());
+	Serial.print(F("Network mask: "));
+	Serial.println(net::netmask.toString());
+	Serial.print(F("Gateway IP: "));
+	Serial.println(net::gatewayIP.toString());
+	Serial.print(F("DNS IP: "));
+	Serial.println(net::dnsIP.toString());
+#else
+	net::localIP = myIP;
+	net::gatewayIP = gatewayIP;
+	net::netmask = netmask;
+	net::dnsIP = dns;
+
+#endif
 
 	http.start();
 
@@ -131,6 +159,6 @@ void setup()
 
 void loop()
 {
-	NetworkService::loop();
+	net::loop();
 
 }

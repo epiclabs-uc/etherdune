@@ -1,13 +1,5 @@
 #include <ACross.h>
-#include <Checksum.h>
-#include <TCPSocket.h>
-#include <UDPSocket.h>
-
-#include <inet.h>
-#include <ENC28J60.h>
-#include <DNS.h>
 #include <FlowScanner.h>
-#include <HTTPClient.h>
 #include <DHCP.h>
 
 
@@ -27,7 +19,7 @@ void setup()
 	Serial.begin(115200);
 	ACross::init();
 
-
+	Serial.println(F("EtherFlow DHCP sample"));
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());
@@ -43,7 +35,7 @@ void setup()
 
 	ACINFO("link is up");
 
-
+	Serial.println("Obtaining DHCP configuration...");
 
 	if (!dhcp.dhcpSetup())
 	{
@@ -53,13 +45,23 @@ void setup()
 
 	Serial.println(F("DHCP setup OK"));
 
+	Serial.println(F("DHCP config:"));
+	Serial.print(F("Local IP: "));
+	Serial.println(net::localIP.toString());
+	Serial.print(F("Network mask: "));
+	Serial.println(net::netmask.toString());
+	Serial.print(F("Gateway IP: "));
+	Serial.println(net::gatewayIP.toString());
+	Serial.print(F("DNS IP: "));
+	Serial.println(net::dnsIP.toString());
 
+	
 }
 
 
 void loop()
 {
-	NetworkService::loop();
+	net::loop();
 
 }
 
