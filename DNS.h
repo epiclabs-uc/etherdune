@@ -23,13 +23,6 @@ public:
 	DNSClient();
 	uint16_t resolve(const char* name);
 
-	inline IPAddress& serverIP()
-	{
-		return remoteIP;
-	}
-
-
-
 
 
 

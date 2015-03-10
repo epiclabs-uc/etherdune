@@ -12,12 +12,12 @@ List NetworkService::activeServices;
 List SharedBuffer::bufferList;
 
 ARPService NetworkService::ARP;
-DNSClient NetworkService::DNS;
 
 MACAddress NetworkService::localMAC;
 IPAddress NetworkService::localIP = { 0, 0, 0, 0 };
 IPAddress NetworkService::gatewayIP = { 0, 0, 0, 0 };
 IPAddress NetworkService::netmask = { 0, 0, 0, 0 };
+IPAddress NetworkService::dnsIP = { 0, 0, 0, 0 };
 
 uint8_t NetworkService::srcPort_L_count = 0;
 

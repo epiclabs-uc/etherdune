@@ -18,6 +18,8 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
+DNSClient net::DNS;
+
 #include <HTTPServer.h>
 
 

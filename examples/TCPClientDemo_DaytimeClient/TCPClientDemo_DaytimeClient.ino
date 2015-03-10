@@ -23,6 +23,8 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
+DNSClient net::DNS;
+
 class MyProtocol : public TCPSocket
 {
 	uint16_t DNSid;
@@ -54,7 +56,7 @@ public:
 		Serial.write(data, len);
 		//time info comes in this format
 		//http://www.nist.gov/pml/div688/grp40/its.cfm
-		//this code cam be improved by parsing the received string to sync Arduino's own timer, for example
+		//this code can be improved by parsing the received string to sync Arduino's own timer, for example
 	}
 
 
@@ -89,7 +91,7 @@ void setup()
 	net::localMAC = mymac;
 	net::gatewayIP = gatewayIP;
 	net::netmask = netmask;
-
+	net::dnsIP = IPADDR_P(8, 8, 8, 8);
 
 	if (!net::begin(10))
 		ACERROR("failed to start EtherFlow");
@@ -100,7 +102,7 @@ void setup()
 
 	ACINFO("link is up");
 
-	net::DNS.serverIP() = IPADDR_P(8, 8, 8, 8);
+	
 
 	Serial.println(F("connecting..."));
 	sck.start();

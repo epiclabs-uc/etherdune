@@ -27,8 +27,13 @@ TCPSocket::TCPSocket()
 
 void TCPSocket::connect()
 {
+	
+#if _DEBUG
 	randomSeed((uint16_t)millis() + analogRead(A1) + analogRead(A5));
-	localPort.l = random(255); //srcPort_L_count++;
+	localPort.l = random(255); 
+#else
+	localPort.l = srcPort_L_count++;
+#endif
 	localPort.h = TCP_SRC_PORT_H;
 	ackNumber = 0;
 

@@ -152,7 +152,7 @@ void DHCP::onReceive(uint16_t len)
 						renewalTimer = DHCP_DEFAULT_RENEWAL_TIMER;
 
 					net::netmask = subnetOpt->ip;
-					net::DNS.serverIP() = dnsOpt->ip;
+					net::dnsIP = dnsOpt->ip;
 					net::gatewayIP = routerOpt->ip;
 					
 					net::localIP = chunk.dhcp.yiaddr;

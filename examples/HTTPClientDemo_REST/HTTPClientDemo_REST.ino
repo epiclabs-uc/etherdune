@@ -23,6 +23,8 @@ IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 IPAddress_P dns = { 8, 8, 8, 8 };
 
+DNSClient net::DNS;
+
 DEFINE_FLOWPATTERN(temperaturePattern, "\"temp\":%7[^,]"); // look for a string like this "temp":12.321, and extract the values
 
 class MyHTTPClient : public HTTPClient
@@ -102,7 +104,7 @@ void setup()
 	net::localMAC = mymac;
 	net::gatewayIP = gatewayIP;
 	net::netmask = netmask;
-	net::DNS.serverIP() = dns;
+	net::dnsIP = dns;
 
 
 	if (!net::begin(10))

@@ -24,6 +24,8 @@ DNSClient::DNSClient()
 
 uint16_t DNSClient::resolve(const char* name)
 {
+	remoteIP = dnsIP;
+
 	timer = DNS_TIMEOUT_QUERY;
 
 	DNSHeader& header = *(DNSHeader*)chunk.raw;
