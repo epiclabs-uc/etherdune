@@ -120,8 +120,6 @@ static const char HTTP_RESPONSE_BAD_GATEWAY_STR[] PROGMEM = "Bad Gateway";
 static const char HTTP_RESPONSE_SERVICE_UNAVAILABLE_STR[] PROGMEM = "Service Unavailable";
 static const char HTTP_RESPONSE_GATEWAY_TIMEOUT_STR[] PROGMEM = "Gateway Timeout";
 static const char HTTP_RESPONSE_HTTP_VERSION_NOT_SUPPORTED_STR[] PROGMEM = "HTTP Version Not Supported";
-
-
 static const char HTTP_HEADER_ACCEPT[] PROGMEM = "Accept";  // Content-Types that are acceptable for the response. See Content negotiation.
 static const char HTTP_HEADER_ACCEPT_CHARSET[] PROGMEM = "Accept-Charset";  // Character sets that are acceptable
 static const char HTTP_HEADER_ACCEPT_ENCODING[] PROGMEM = "Accept-Encoding";  // List of acceptable encodings. See HTTP compression.
@@ -130,7 +128,6 @@ static const char HTTP_HEADER_ACCEPT_DATETIME[] PROGMEM = "Accept-Datetime";  //
 static const char HTTP_HEADER_AUTHORIZATION[] PROGMEM = "Authorization";  // Authentication credentials for HTTP authentication
 static const char HTTP_HEADER_CACHE_CONTROL[] PROGMEM = "Cache-Control";  // Used to specify directives that must be obeyed by all caching mechanisms along the request-response chain
 static const char HTTP_HEADER_CONNECTION[] PROGMEM = "Connection";  // Control options for the current connection and list of hop-by-hop request fields[8]
-static const char HTTP_HEADER_PERMANENT[] PROGMEM = "Permanent";  // 
 static const char HTTP_HEADER_COOKIE[] PROGMEM = "Cookie";  // An HTTP cookie previously sent by the server with Set-Cookie (below)
 static const char HTTP_HEADER_CONTENT_LENGTH[] PROGMEM = "Content-Length";  // The length of the request body in octets (8-bit bytes)
 static const char HTTP_HEADER_CONTENT_MD5[] PROGMEM = "Content-MD5";  // A Base64-encoded binary MD5 sum of the content of the request body
@@ -155,5 +152,34 @@ static const char HTTP_HEADER_USER_AGENT[] PROGMEM = "User-Agent";  // The user 
 static const char HTTP_HEADER_UPGRADE[] PROGMEM = "Upgrade";  // Ask the server to upgrade to another protocol.
 static const char HTTP_HEADER_VIA[] PROGMEM = "Via";  // Informs the server of proxies through which the request was sent.
 static const char HTTP_HEADER_WARNING[] PROGMEM = "Warning";  // A general warning about possible problems with the entity body.
+static const char HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN[] PROGMEM = "Access-Control-Allow-Origin";  // Specifying which web sites can participate in cross-origin resource sharing
+static const char HTTP_HEADER_ACCEPT_PATCH[] PROGMEM = "Accept-Patch";  // Specifies which patch document formats this server supports
+static const char HTTP_HEADER_ACCEPT_RANGES[] PROGMEM = "Accept-Ranges";  // What partial content range types this server supports
+static const char HTTP_HEADER_AGE[] PROGMEM = "Age";  // The age the object has been in a proxy cache in seconds
+static const char HTTP_HEADER_ALLOW[] PROGMEM = "Allow";  // Valid actions for a specified resource. To be used for a 405 Method not allowed
+static const char HTTP_HEADER_CONTENT_ENCODING[] PROGMEM = "Content-Encoding";  // The type of encoding used on the data. See HTTP compression.
+static const char HTTP_HEADER_CONTENT_LANGUAGE[] PROGMEM = "Content-Language";  // The language the content is in
+static const char HTTP_HEADER_CONTENT_LOCATION[] PROGMEM = "Content-Location";  // An alternate location for the returned data
+static const char HTTP_HEADER_CONTENT_DISPOSITION[] PROGMEM = "Content-Disposition";  // An opportunity to raise a "File Download" dialogue box for a known MIME type with binary format or suggest a filename for dynamic content. Quotes are necessary with special characters.
+static const char HTTP_HEADER_CONTENT_RANGE[] PROGMEM = "Content-Range";  // Where in a full body message this partial message belongs
+static const char HTTP_HEADER_ETAG[] PROGMEM = "ETag";  // An identifier for a specific version of a resource, often a message digest
+static const char HTTP_HEADER_EXPIRES[] PROGMEM = "Expires";  // Gives the date/time after which the response is considered stale (in "HTTP-date" format as defined by RFC 7231)
+static const char HTTP_HEADER_LAST_MODIFIED[] PROGMEM = "Last-Modified";  // The last modified date for the requested object (in "HTTP-date" format as defined by RFC 7231)
+static const char HTTP_HEADER_LINK[] PROGMEM = "Link";  // Used to express a typed relationship with another resource, where the relation type is defined by RFC 5988
+static const char HTTP_HEADER_LOCATION[] PROGMEM = "Location";  // Used in redirection, or when a new resource has been created.
+static const char HTTP_HEADER_P3P[] PROGMEM = "P3P";  // This field is supposed to set P3P policy, in the form of P3P:CP="your_compact_policy". However, P3P did not take off,[31] most browsers have never fully implemented it, a lot of websites set this field with fake policy text, that was enough to fool browsers the existence of P3P policy and grant permissions for third party cookies.
+static const char HTTP_HEADER_PROXY_AUTHENTICATE[] PROGMEM = "Proxy-Authenticate";  // Request authentication to access the proxy.
+static const char HTTP_HEADER_REFRESH[] PROGMEM = "Refresh";  // Used in redirection, or when a new resource has been created. This refresh redirects after 5 seconds.
+static const char HTTP_HEADER_RETRY_AFTER[] PROGMEM = "Retry-After";  // If an entity is temporarily unavailable, this instructs the client to try again later. Value could be a specified period of time (in seconds) or a HTTP-date.[32]
+static const char HTTP_HEADER_SERVER[] PROGMEM = "Server";  // A name for the server
+static const char HTTP_HEADER_SET_COOKIE[] PROGMEM = "Set-Cookie";  // An HTTP cookie
+static const char HTTP_HEADER_STATUS[] PROGMEM = "Status";  // CGI header field specifying the status of the HTTP response. Normal HTTP responses use a separate "Status-Line" instead, defined by RFC 7230.[33]
+static const char HTTP_HEADER_STRICT_TRANSPORT_SECURITY[] PROGMEM = "Strict-Transport-Security";  // A HSTS Policy informing the HTTP client how long to cache the HTTPS only policy and whether this applies to subdomains.
+static const char HTTP_HEADER_TRAILER[] PROGMEM = "Trailer";  // The Trailer general field value indicates that the given set of header fields is present in the trailer of a message encoded with chunked transfer coding.
+static const char HTTP_HEADER_TRANSFER_ENCODING[] PROGMEM = "Transfer-Encoding";  // The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity.
+static const char HTTP_HEADER_VARY[] PROGMEM = "Vary";  // Tells downstream proxies how to match future request headers to decide whether the cached response can be used rather than requesting a fresh one from the origin server.
+static const char HTTP_HEADER_WWW_AUTHENTICATE[] PROGMEM = "WWW-Authenticate";  // Indicates the authentication scheme that should be used to access the requested entity.
+
+
 
 #endif

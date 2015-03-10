@@ -112,6 +112,8 @@ void TCPSocket::sendSYN(bool ack)
 void TCPSocket::terminate()
 {
 	setState(SCK_STATE_CLOSED, 0);
+	ACASSERT(buffer.isEmpty(), "tx buffer not empty");
+	buffer.flush();
 	onTerminate();
 }
 

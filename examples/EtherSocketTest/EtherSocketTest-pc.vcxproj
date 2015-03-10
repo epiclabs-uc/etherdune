@@ -89,6 +89,7 @@
     <ClCompile Include="..\..\EtherFlow.cpp" />
     <ClCompile Include="..\..\HTTPClient.cpp" />
     <ClCompile Include="..\..\EasyHTTPClient.cpp" />
+    <ClCompile Include="..\..\HTTPServer.cpp" />
     <ClCompile Include="..\..\ICMP.cpp" />
     <ClCompile Include="..\..\List.cpp" />
     <ClCompile Include="..\..\NetworkService.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="..\..\HTTPClient.h" />
     <ClInclude Include="..\..\EasyHTTPClient.h" />
     <ClInclude Include="..\..\HTTPConstants.h" />
+    <ClInclude Include="..\..\HTTPServer.h" />
     <ClInclude Include="..\..\ICMP.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />

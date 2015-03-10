@@ -53,11 +53,13 @@
 static const uint16_t RXSTART_INIT =         0x0000;  // start of RX buffer, room for 2 packets
 static const uint16_t RXSTOP_INIT=          0x0BFF;  // end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
 
-static const uint16_t TXBUFFER_SIZE = 1024;
+static const uint16_t TX_STATUS_VECTOR_SIZE = 7; //don't change this, it is how it is.
+
+static const uint16_t TXBUFFER_SIZE = 1024 - TX_STATUS_VECTOR_SIZE; //7 bytes for the TX status vector, written after the last sent byte.
 static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
 static const uint16_t TXSTOP_INIT = (TXSTART_INIT + TXBUFFER_SIZE - 1);  // end of TX buffer
 
-static const uint16_t SHARED_BUFFER_INIT = TXSTOP_INIT + 1;
+static const uint16_t SHARED_BUFFER_INIT = TXSTOP_INIT + 1 + TX_STATUS_VECTOR_SIZE;
 static const uint16_t SHARED_BUFFER_CAPACITY = ENC28J60_MEMSIZE - SHARED_BUFFER_INIT;
 
 static const uint8_t TCP_SRC_PORT_H = 250;
@@ -115,11 +117,17 @@ static const uint16_t DHCP_DEFAULT_RENEWAL_TIMER = 2 * 60 * 60; //renew every 2h
 static const uint8_t ICMP_PING_DATA_LENGTH = 32; //size of data to send as part of an echo request
 
 
+//HTTP SERVER
+#define HTTP_SERVER_HEADER_NAME_MAX_LENGTH 20 //max buffer to hold a header name, e.g. "Content-Type"
+#define HTTP_SERVER_HEADER_VALUE_MAX_LENGTH 20 // max buffer to hold a header value, e.g. "text/html"
+#define HTTP_SERVER_QUERY_STRING_MAX_LENGTH 41 // max buffer to hold the entire query string, e.g. "/digitalRead?pin=14"
+
+
 static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to make room for the control byte required by ENC28J60
 
 #define CLOCK(id,x) unsigned long clock##id=millis();x;dsprint("" #x ": " );dprint(millis() - clock##id);dsprintln(" ms.")
 #define PRINTSIZEOF(thing) AC_DEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
-
+#define QUOTE(str) #str
 
 //error checking
 
