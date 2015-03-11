@@ -127,18 +127,12 @@ union IPAddress
 	}
 
 	//convert IP to string, for debugging purposes only.
-	String toString() 
+	//if this function is used anywhere in your code, it will permanently allocate 16 bytes of RAM
+	char* toString() const
 	{
-		String st;
-		st.reserve(16);
-		st += b[0];
-		st += '.';
-		st += b[1];
-		st += '.';
-		st += b[2];
-		st += '.';
-		st += b[3];
-		return st;
+		static char addressString[16];
+		sprintf(addressString, "%d.%d.%d.%d", b[0], b[1], b[2], b[3]);
+		return addressString;
 	}
 
 };

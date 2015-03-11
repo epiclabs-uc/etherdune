@@ -1,3 +1,18 @@
+// EtherFlow DNS Service
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements the basics of DNS so as to resolve hostnames to IP addresses
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include "DNS.h"
 #include "Checksum.h"
 
@@ -22,6 +37,11 @@ DNSClient::DNSClient()
 	remotePort.setValue(53);
 }
 
+/// <summary>
+/// Resolves a host name to an IP address
+/// </summary>
+/// <param name="name">host name to resolve</param>
+/// <returns>Returns an numeric id token to match against the identification parameter of \ref onDNSResolve virtual callback function </returns>
 uint16_t DNSClient::resolve(const char* name)
 {
 	remoteIP = dnsIP;

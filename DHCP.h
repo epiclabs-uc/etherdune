@@ -1,3 +1,37 @@
+// EtherFlow DHCP Service
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements the basics of DHCP so as to obtain and maintain an IP lease
+// along with DNS, gateway IP and netmask.
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+/// \class DHCP
+/// \brief EtherFlow DHCP Service
+/// \details Implements the basics of DHCP so as to obtain and maintain an IP lease
+/// along with DNS, gateway IP and netmask.
+/// See \ref DHCPConfig for EtherFlow config parameters that apply to DHCP.
+///
+/// EtherFlow DHCP is a crude "straight to the point" implementation of DHCP. 
+/// It does not implement a full RENEW/REBIND cycle, but rather shortcuts the whole process
+/// fully renewing the lease once the timeout expires. This simplifies the implementation
+/// saving valuable flash/code space.
+///
+/// In order to use DHCP in your project, instantiate an object of this class, call
+/// \ref dhcpSetup and keep it alive for as long
+/// as you want to keep the lease active.
+///
+/// If you do not instantiate the \ref DHCP class in your code, it will not be compiled in, therefore
+/// not affecting your code size if unused.
+
 #ifndef _DHCP_H_
 #define _DHCP_H_
 

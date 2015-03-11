@@ -90,7 +90,6 @@
     <ClInclude Include="..\..\HTTPClient.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />
-    <ClInclude Include="..\..\net.h" />
     <ClInclude Include="..\..\NetworkService.h" />
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />

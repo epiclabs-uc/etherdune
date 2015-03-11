@@ -11,7 +11,12 @@ void UDPSocket::onReceive(uint16_t len) {  }
 
 UDPSocket::UDPSocket() :sending(false)
 {
-	localPort.l = random(255); //srcPort_L_count++;
+#if _DEBUG
+	localPort.l = random(255);
+#else
+	localPort.l = srcPort_L_count++;
+#endif
+
 	localPort.h = UDP_SRC_PORT_H;
 }
 

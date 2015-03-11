@@ -18,7 +18,7 @@ private:
 	static List activeServices;
 
 	static void processIncomingPacket();
-	static void notifyOnDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
+	static void notifyOnDNSResolve(uint8_t status, uint16_t identification, const IPAddress& ip);
 	
 protected:
 
@@ -35,7 +35,7 @@ protected:
 
 	virtual bool onPacketReceived();
 	virtual void tick();
-	virtual void onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip);
+	virtual void onDNSResolve(uint8_t status, uint16_t identification, const IPAddress& ip);
 
 public:
 	static MACAddress localMAC;

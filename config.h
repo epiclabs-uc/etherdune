@@ -22,6 +22,13 @@
 /// All Etherflow settings, buffer sizes, compilation options, etc
 ///@{
 
+/// <summary>Resolution of the NetworkService timer. All network services
+/// (instances of the NetworkService class) receive a call to tick()
+/// each time this amount of milliseconds is ellapsed. 
+/// The recommended default is 200ms.
+/// </summary>
+static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
+
 
 /// @defgroup config_buffers Packet buffer configuration
 /// Definition of buffer sizes
@@ -93,87 +100,193 @@
 
 ///@}
 
+/// @defgroup ENC28J60Config ENC28J60 Hardware configuration
+/// ENC28J60 memory segmentation and internal buffer sizes.
+///
+/// Buffer boundaries applied to internal 8K ram. The default configuration
+/// allocates the entire available packet buffer space.
+///
+/// RX buffer: packets are received here in a circular buffer fashion.
+/// The larger this buffer, the more packets that can be waiting for processing.
+/// The default allows for approximately two ethernet frames. However, EtherFlow
+/// will request the other end to send packets as small as possible given
+/// memory is limited in the microcontroller.
+///
+/// TX buffer: space to assemble an outgoing packet.
+/// The larger the buffer, the larger you can have Etherflow send TCP segments out.
+/// You should not make this larger than 1500 which is the maximum size of an Ethernet frame anyway.
+///
+/// Shared buffer: This will automatically compute as the remainder: 8192 - RXBUFFER_SIZE - TXBUFFER_SIZE.
+/// This is sort of a software-managed circular buffer shared among all sockets.
+/// It holds TCP segments that may need to be retransmitted and serves as an assembly area when you call
+/// write() on a socket. A minimum of 2048 bytes is recommended.
+///@{
 
-// ENC28J60 memory mapping
-#define ENC28J60_MEMSIZE  8192 //don't change this, that's just how much RAM there is in your ENC28J60.
+/// <summary> max frame length which the conroller will accept:
+/// (note: maximum ethernet frame length would be 1518)
+/// </summary>
+#define MAX_FRAMELEN      1500
 
-// The RXSTART_INIT must be zero. See Rev. B4 Silicon Errata point 5.
-// Buffer boundaries applied to internal 8K ram
-// the entire available packet buffer space is allocated
+#define RXBUFFER_SIZE 3072 //!< size of the receive buffer size. This determines how large can an outgoing packet be. Make sure it is an even number.
+#define TXBUFFER_SIZE 1024  //!< size of the transmit buffer size. This determines how large can an outgoing packet be.
 
-static const uint16_t RXSTART_INIT = 0x0000;  // start of RX buffer, room for 2 packets
-static const uint16_t RXSTOP_INIT= 0x0BFF;  // end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
+///@}
 
-static const uint16_t TX_STATUS_VECTOR_SIZE = 7; //don't change this, it is how it is.
+/// @defgroup TCPUDPConfig TCP and UDP configuration
+/// Default ports, timeouts, retries, etc.
+///
+///@{
 
-static const uint16_t TXBUFFER_SIZE = 1024 - TX_STATUS_VECTOR_SIZE; //7 bytes for the TX status vector, written after the last sent byte.
-static const uint16_t TXSTART_INIT = (RXSTOP_INIT + 1);  // start of TX buffer
-static const uint16_t TXSTOP_INIT = (TXSTART_INIT + TXBUFFER_SIZE - 1);  // end of TX buffer
+/// <summary>Indicates the most significant byte of the source port number that Etherflow will
+/// use by default when making outgoing connections. Each new socket will increment the least significant byte until it wraps around.
+/// </summary>
+static const uint8_t TCP_SRC_PORT_H = 250; 
 
-static const uint16_t SHARED_BUFFER_INIT = TXSTOP_INIT + 1 + TX_STATUS_VECTOR_SIZE;
-static const uint16_t SHARED_BUFFER_CAPACITY = ENC28J60_MEMSIZE - SHARED_BUFFER_INIT;
-
-static const uint8_t TCP_SRC_PORT_H = 250;
+/// <summary>Indicates the most significant byte of the source port number that Etherflow will
+/// use by default when making outgoing connections. Each new UDP socket will increment the least significant byte until it wraps around.
+/// </summary>
 static const uint8_t UDP_SRC_PORT_H = 240;
 
-static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512;
+static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512; //!< Maximum size of payload accepted by the library
+static const uint8_t MAX_TCP_CONNECT_RETRIES = 50; //!< how many SYN packets to send before giving up.
 
-static const uint16_t NETWORK_TIMER_RESOLUTION = 200; //ms
-static const uint8_t ARP_TABLE_LENGTH = 2;
-static const int16_t MAX_ARP_TTL = 20; // 20 mins
 
-static const uint8_t MAX_TCP_CONNECT_RETRIES = 50;
+	/// @defgroup TCPTimings TCP state timeout configuration
+	/// TCP timeouts, in milliseconds.
+	/// These represent how much patience will EtherFlow have waiting in this state before
+	/// thinking something is wrong and doing something about it.
+	///@{
+	#define SCK_TIMEOUT_SYN_SENT_MS  5000 //!< (client) represents waiting for a matching connection request after having sent a connection request.
+	#define SCK_TIMEOUT_SYN_RECEIVED_MS  5000 //!< (server) SYN has been received, SYN ACK was sent and now waiting for ACK.
+	#define SCK_TIMEOUT_FIN_WAIT_1_MS  6000 //!< (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
+	#define SCK_TIMEOUT_FIN_WAIT_2_MS  2000 //!< (both server and client) represents waiting for a connection termination request from the remote TCP.
+	#define SCK_TIMEOUT_CLOSE_WAIT_MS  2000 //!< (both server and client) represents waiting for a connection termination request from the local user.
+	#define SCK_TIMEOUT_CLOSING_MS  2000 //!< (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
+	#define SCK_TIMEOUT_LAST_ACK_MS  2000 //!< (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
+	#define SCK_TIMEOUT_TIME_WAIT_MS  3000 //!<(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
+	#define SCK_TIMEOUT_RESOLVING_MS  3000 //!< waiting for a DNS query to resolve
+	///@}
 
-// max frame length which the conroller will accept:
-// (note: maximum ethernet frame length would be 1518)
-#define MAX_FRAMELEN      1500
-#define FULL_SPEED  1   // switch to full-speed SPI for bulk transfers
+///@}
+
+/// @defgroup ARPConfig ARP configuration
+/// Size of ARP table and TTL
+///
+///@{
+
+static const uint8_t ARP_TABLE_LENGTH = 2; //!< Maximum number of entries in the ARP table. Each ARP entry takes up sizeof(ARPEntry) = 11 bytes, so size carefully.
+static const int16_t MAX_ARP_TTL = 20; //!< Time the ARP entry is considered fresh, in minutes.
+
+///@}
+
+/// @defgroup DNSConfig DNS configuration
+/// DNS timeouts, in milliseconds
+///
+///@{
+
+#define DNS_TIMEOUT_QUERY_MS 5000 //!< How long to wait before giving up on a DNS query
+
+///@}
+
+
+/// @defgroup DHCPConfig DHCP configuration and timeouts
+/// DHCP options and timeout configuration
+///
+///@{
+
+/// <summary>Enables sending hostname to DHCP server. By default, only enabled when debugging.
+/// When this option is enabled, EtherFlow identifies itself before the DHCP server. Most routers show a list
+/// of connected hosts along with their names. Enabling this option will make your application to show up there.
+/// </summary>
+#define ENABLE_DHCP_HOSTNAME _DEBUG
+
+static const char DHCP_HOSTNAME[] PROGMEM = "ARDUINO"; //!< host name sent to DHCP server.
+
+	/// @defgroup DHCPTimings DHCP state timeout configuration
+	/// DHCP timeouts
+	/// These represent how much patience will EtherFlow have waiting in this state before
+	/// thinking something is wrong and doing something about it.
+	///@{
+
+	#define DHCP_TIMEOUT_SELECTING_MS  1000 //!< (in milliseconds) DHCP timeout in the SELECTING DHCP phase (waiting for reply to DHCP DISCOVER)
+	#define DHCP_TIMEOUT_REQUESTING_MS  5000 //!< (in milliseconds) DHCP timeout in the REQUESTING phase (waiting for reply to DHCP REQUEST)
+	#define DHCP_TIMEOUT_BOUND_MS  1000 //!< (in milliseconds) set to 1 second so as to decrement the renewal timer
+
+	static const uint8_t DHCP_MAX_ATTEMPTS = 4; //!< how many times to retry if address request is denied.
+
+	static const uint16_t DHCP_DEFAULT_RENEWAL_TIMER_S = 7200; //!< Time in *seconds* to hold the IP lease, unless stated otherwise by the DHCP server. Default is 2h.
+
+	///@}
+
+///@}
+
+/// @defgroup ICMPConfig ICMP configuration
+/// ICMP configuration section
+///
+///@{
+
+static const uint8_t ICMP_PING_DATA_LENGTH = 32; //!< size of data to send as part of an echo request
+
+///@}
+
+/// @defgroup HTTPServerConfig HTTPServer class configuration
+/// HTTPServer class configuration section
+///
+/// Defines buffer space dedicated to temporarily hold queryString and one header name/value pair while the request is being received.
+/// The buffer space for header name/value is shared with queryString, therefore it is recommended that the sum
+/// of both HTTP_SERVER_HEADER_NAME_MAX_LENGTH and HTTP_SERVER_HEADER_VALUE_MAX_LENGTH + 1 equals HTTP_SERVER_QUERY_STRING_MAX_LENGTH
+///@{
+#define HTTP_SERVER_HEADER_NAME_MAX_LENGTH 20 //!< max buffer to hold a header name, e.g. "Content-Type"
+#define HTTP_SERVER_HEADER_VALUE_MAX_LENGTH 20 //!< max buffer to hold a header value, e.g. "text/html"
+#define HTTP_SERVER_QUERY_STRING_MAX_LENGTH 41 //!< max buffer to hold the entire query string, e.g. "/digitalRead?pin=14"
+///@}
+
+// ----------------- END OF CONFIGURATION ------------------------
+
+// what follows are just computed values based on the above.
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+/// @defgroup ENC28J60Config_computed ENC28J60 Computed memory boundaries
+/// Don't change anything in this section, since it is all computed from the values entered above.
+/// RXSTART_INIT must be zero. See Rev. B4 Silicon Errata point 5. 
+///@{
+#define RXSTART_INIT  0x0000  //!<  start of RX buffer. Due to hardware bugs, this must be zero.
+#define RXSTOP_INIT (RXBUFFER_SIZE-1)  //!< end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
+
+#define TX_STATUS_VECTOR_SIZE  7 //!< don't change this, it is how it is.
+
+#define TXSTART_INIT  (RXSTOP_INIT + 1)  //!< start of TX buffer
+#define TXSTOP_INIT  (TXSTART_INIT + TXBUFFER_SIZE - 1)  //!< end of TX buffer
+
+/// <summary> don't change this, that's just how much RAM there is in your ENC28J60</summary>
+#define ENC28J60_MEMSIZE  8192 
+
+#define SHARED_BUFFER_INIT  (TXSTOP_INIT + 1 + TX_STATUS_VECTOR_SIZE) //!< start of the shared buffer area
+#define SHARED_BUFFER_CAPACITY  (ENC28J60_MEMSIZE - SHARED_BUFFER_INIT) //!< resulting capacity of the shared buffer area.
+
+#define TXSTART_INIT_DATA (TXSTART_INIT + 1) // skip 1 byte to make room for the control byte required by ENC28J60
+
+///@}
 
 #define NTICKS(ms) ((ms)/NETWORK_TIMER_RESOLUTION)
 
-// TCP timeouts, in milliseconds
-// These represent how much patience will EtherFlow have waiting in this state before
-// thinking something is wrong and doing something about it.
-static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(5000); // (client) represents waiting for a matching connection request after having sent a connection request.
-static const uint8_t SCK_TIMEOUT_SYN_RECEIVED = NTICKS(5000); //(server) SYN has been received, SYN ACK was sent and now waiting for ACK.
-static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(6000); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
-static const uint8_t SCK_TIMEOUT_FIN_WAIT_2 = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the remote TCP.
-static const uint8_t SCK_TIMEOUT_CLOSE_WAIT = NTICKS(2000); // (both server and client) represents waiting for a connection termination request from the local user.
-static const uint8_t SCK_TIMEOUT_CLOSING = NTICKS(2000); // (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
-static const uint8_t SCK_TIMEOUT_LAST_ACK = NTICKS(2000); // (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
-static const uint8_t SCK_TIMEOUT_TIME_WAIT = NTICKS(3000); //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
-static const uint8_t SCK_TIMEOUT_RESOLVING = NTICKS(3000); // waiting for a DNS query to resolve
+static const uint8_t SCK_TIMEOUT_SYN_SENT = NTICKS(SCK_TIMEOUT_SYN_SENT_MS); // (client) represents waiting for a matching connection request after having sent a connection request.
+static const uint8_t SCK_TIMEOUT_SYN_RECEIVED = NTICKS(SCK_TIMEOUT_SYN_RECEIVED_MS); //(server) SYN has been received, SYN ACK was sent and now waiting for ACK.
+static const uint8_t SCK_TIMEOUT_FIN_WAIT_1 = NTICKS(SCK_TIMEOUT_FIN_WAIT_1_MS); // (both server and client) represents waiting for a connection termination request from the remote TCP, or an acknowledgment of the connection termination request previously sent.
+static const uint8_t SCK_TIMEOUT_FIN_WAIT_2 = NTICKS(SCK_TIMEOUT_FIN_WAIT_2_MS); // (both server and client) represents waiting for a connection termination request from the remote TCP.
+static const uint8_t SCK_TIMEOUT_CLOSE_WAIT = NTICKS(SCK_TIMEOUT_CLOSE_WAIT_MS); // (both server and client) represents waiting for a connection termination request from the local user.
+static const uint8_t SCK_TIMEOUT_CLOSING = NTICKS(SCK_TIMEOUT_CLOSING_MS); // (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
+static const uint8_t SCK_TIMEOUT_LAST_ACK = NTICKS(SCK_TIMEOUT_LAST_ACK_MS); // (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
+static const uint8_t SCK_TIMEOUT_TIME_WAIT = NTICKS(SCK_TIMEOUT_TIME_WAIT_MS); //(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
+static const uint8_t SCK_TIMEOUT_RESOLVING = NTICKS(SCK_TIMEOUT_RESOLVING_MS); // waiting for a DNS query to resolve
 
-static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(5000);//DNS timeout
+static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(DNS_TIMEOUT_QUERY_MS);//DNS timeout
 
-
-//DHCP
-
-#define ENABLE_DHCP_HOSTNAME _DEBUG //enables sending hostname to DHCP server. By default, only enabled when debugging
-static const char DHCP_HOSTNAME[] PROGMEM = "ARDUINO"; //host name sent to DHCP server.
-
-
-//DHCP timeouts, in milliseconds
-static const uint8_t DHCP_TIMEOUT_SELECTING = NTICKS(1000);
-static const uint8_t DHCP_TIMEOUT_REQUESTING = NTICKS(5000);
-static const uint8_t DHCP_TIMEOUT_RENEWING = NTICKS(5000);
-static const uint8_t DHCP_TIMEOUT_REBINDING = NTICKS(5000);
-static const uint8_t DHCP_TIMEOUT_BOUND = NTICKS(1000); //set to 1 second so as to decrement the renewal timer
-
-static const uint8_t DHCP_MAX_ATTEMPTS = 4; //how many times to retry if address request is denied.
-static const uint16_t DHCP_DEFAULT_RENEWAL_TIMER = 2 * 60 * 60; //renew every 2h unless stated otherwise by the DHCP server.
-
-//ICMP
-static const uint8_t ICMP_PING_DATA_LENGTH = 32; //size of data to send as part of an echo request
-
-
-//HTTP SERVER
-#define HTTP_SERVER_HEADER_NAME_MAX_LENGTH 20 //max buffer to hold a header name, e.g. "Content-Type"
-#define HTTP_SERVER_HEADER_VALUE_MAX_LENGTH 20 // max buffer to hold a header value, e.g. "text/html"
-#define HTTP_SERVER_QUERY_STRING_MAX_LENGTH 41 // max buffer to hold the entire query string, e.g. "/digitalRead?pin=14"
-
-
-static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to make room for the control byte required by ENC28J60
+static const uint8_t DHCP_TIMEOUT_SELECTING = NTICKS(DHCP_TIMEOUT_SELECTING_MS);
+static const uint8_t DHCP_TIMEOUT_REQUESTING = NTICKS(DHCP_TIMEOUT_REQUESTING_MS);
+static const uint8_t DHCP_TIMEOUT_BOUND = NTICKS(DHCP_TIMEOUT_BOUND_MS); 
+static const uint16_t DHCP_DEFAULT_RENEWAL_TIMER = DHCP_DEFAULT_RENEWAL_TIMER_S * 1000 / DHCP_TIMEOUT_BOUND_MS;
 
 #define QUOTE(str) #str
 
@@ -194,6 +307,22 @@ static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to ma
 
 #if ETHERFLOW_BUFFER_SIZE & 1
 #error ETHERFLOW_BUFFER_SIZE must be an even number
+#endif
+
+#define BUFFER_END (SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY)
+
+#if (BUFFER_END) != (ENC28J60_MEMSIZE)
+#error Memory mapping error
+#endif
+
+#if RXBUFFER_SIZE & 1
+#error RXBUFFER_SIZE must be an even number
+#endif
+
+#if (SHARED_BUFFER_CAPACITY) < 2048
+#error Resulting shared buffer capacity is too small. Reduce TXBUFFER_SIZE or RXBUFFER_SIZE to allow for more shared buffer.
+#endif
+
 #endif
 
 ///@}

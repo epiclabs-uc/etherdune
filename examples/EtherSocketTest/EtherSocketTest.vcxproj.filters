@@ -30,9 +30,6 @@
     <ClInclude Include="..\..\inet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\net.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>

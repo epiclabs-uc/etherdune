@@ -26,6 +26,11 @@ void DHCP::prepareDHCPRequest()
 
 }
 
+/// <summary>
+/// Attempts to configure the IP settings: local IP, subnet mask, gateway and DNS via DHCP.
+/// This call will block until Etherflow is configured or timeout and return false.
+/// </summary>
+/// <returns>true if successful, false otherwise.</returns>
 bool DHCP::dhcpSetup()
 {
 	attempts = DHCP_MAX_ATTEMPTS;

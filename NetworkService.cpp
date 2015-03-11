@@ -30,7 +30,7 @@ EthBuffer NetworkService::packet;
 
 bool NetworkService::onPacketReceived(){ return false; }
 void NetworkService::tick(){}
-void NetworkService::onDNSResolve(uint8_t status, uint16_t id, const IPAddress& ip) {}
+void NetworkService::onDNSResolve(uint8_t status, uint16_t identification, const IPAddress& ip) {}
 
 
 bool NetworkService::begin(uint8_t cspin)
