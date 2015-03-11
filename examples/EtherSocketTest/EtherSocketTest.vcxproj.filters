@@ -42,9 +42,6 @@
     <ClInclude Include="..\..\Checksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\ACross\SPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\List.h">
       <Filter>Header Files</Filter>
     </ClInclude>

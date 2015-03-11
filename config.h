@@ -1,46 +1,97 @@
+// EtherFlow configuration file
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Etherflow settings, buffer sizes, compilation options, etc
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #ifndef __EtherFlow_CONFIG__
 #define __EtherFlow_CONFIG__
 
 #include <ACross.h>
 
-// EtherFlow configuration
-
-//RAM memory buffer size to hold a packet.
-//default is 566 which is enough to hold a TCP packet of 512 bytes
-#define ETHERFLOW_BUFFER_SIZE 566   
+/// @defgroup config_h Etherflow configuration
+/// All Etherflow settings, buffer sizes, compilation options, etc
+///@{
 
 
-//ETHERFLOW_SAMPLE_SIZE: minimum amount of bytes to read to decide whether we want the rest of the packet or not
-//There is a lot of cosmic noise in an Ethernet network, broadcasts, etc that we can filter out using this feature.
-//with 42 bytes we can read an entire ARP packet in the sample
-// + we get IP and UDP full headers as well as TCP sourcePort, localPort and sequenceNumber
-// or even full ICMPHeader
+/// @defgroup config_buffers Packet buffer configuration
+/// Definition of buffer sizes
+///@{
 
-//sizeof(EthernetHeader) = 14
-//sizeof(ARPPacket) = 28
-//total = 42.
+/// <summary>
+/// RAM memory buffer size to hold a packet.
+/// default is 566 which is enough to hold a TCP packet of 512 bytes
+/// </summary>
+#define ETHERFLOW_BUFFER_SIZE 566 
 
-//sizeof(EtheretHeader) = 14
-//sizeof(IPHeader) = 20
-//sizeof(sourcePort) = 2
-//sizeof(destinationPort)= 2
-//sizeof(sequenceNumber) = 4
-//total = 42
 
-//sizeof(EthernetHeader) = 14
-//sizeof(IPHeader) = 20
-//sizeof(ICMPHeader) = 8
-//total = 42
-
-//to disable sampling, set ETHERFLOW_SAMPLE_SIZE to ETHERFLOW_BUFFER_SIZE
-
+/// <summary>
+/// Minimum amount of bytes to read to decide whether we want the rest of the packet or not.
+/// There is a lot of cosmic noise in an Ethernet network, broadcasts, etc that we can filter out using this feature.
+/// With 42 bytes we can read an entire ARP packet in the sample.
+/// plus we get IP and UDP full headers as well as TCP sourcePort, localPort and sequenceNumber,
+///  or even full ICMPHeader
+/// 
+/// Data Entity    |   Size  
+/// -------------- | ------
+/// EthernetHeader |  14
+/// ARPPacket      |  28
+///  TOTAL         |  42
+/// 
+/// Data Entity    |   Size  
+/// -------------- | ------
+/// EthernetHeader |  14
+/// IPHeader       |  20
+/// sourcePort     |  2
+/// sequenceNumber |  4
+///  TOTAL         |  42
+/// 
+/// Data Entity    |   Size  
+/// -------------- | ------
+/// EthernetHeader |  14
+/// IPHeader       |  20
+/// ICMPHeader     |  8
+///  TOTAL         |  42
+/// 
+///
+/// To disable sampling, set ETHERFLOW_SAMPLE_SIZE to ETHERFLOW_BUFFER_SIZE
+/// </summary>
 #define ETHERFLOW_SAMPLE_SIZE 42  
 
-//Checksum options
+///@}
 
-#define ENABLE_IP_RX_CHECKSUM true // enabling this will drop packets that have checksum errors in the IP header
-#define ENABLE_UDPTCP_RX_CHECKSUM true // enabling this will drop TCP/UDP packets that have checksum errors
-#define ENABLE_ICMP_RX_CHECKSUM true // enabling this will drop ICMP packets that have checksum errors
+/// @defgroup checksumConfig Checksum configuration
+/// Options to enable/disable checksum checking throughout EtherFlow
+///@{
+
+/// <summary>
+/// Whether or not to check the integrity of the IP header.
+/// Enabling this will drop packets that have checksum errors in the IP header
+/// </summary>
+#define ENABLE_IP_RX_CHECKSUM true
+
+/// <summary>
+/// Whether or not to check the integrity of TCP and UDP packets.
+/// Enabling this will drop packets that have checksum errors.
+/// </summary>
+#define ENABLE_UDPTCP_RX_CHECKSUM true
+
+/// <summary>
+/// Whether or not to check the integrity of ICMP packets.
+/// Enabling this will drop packets that have checksum errors.
+/// </summary>
+#define ENABLE_ICMP_RX_CHECKSUM true 
+
+///@}
 
 
 // ENC28J60 memory mapping
@@ -50,8 +101,8 @@
 // Buffer boundaries applied to internal 8K ram
 // the entire available packet buffer space is allocated
 
-static const uint16_t RXSTART_INIT =         0x0000;  // start of RX buffer, room for 2 packets
-static const uint16_t RXSTOP_INIT=          0x0BFF;  // end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
+static const uint16_t RXSTART_INIT = 0x0000;  // start of RX buffer, room for 2 packets
+static const uint16_t RXSTOP_INIT= 0x0BFF;  // end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
 
 static const uint16_t TX_STATUS_VECTOR_SIZE = 7; //don't change this, it is how it is.
 
@@ -102,7 +153,6 @@ static const uint8_t DNS_TIMEOUT_QUERY = NTICKS(5000);//DNS timeout
 static const char DHCP_HOSTNAME[] PROGMEM = "ARDUINO"; //host name sent to DHCP server.
 
 
-
 //DHCP timeouts, in milliseconds
 static const uint8_t DHCP_TIMEOUT_SELECTING = NTICKS(1000);
 static const uint8_t DHCP_TIMEOUT_REQUESTING = NTICKS(5000);
@@ -125,8 +175,6 @@ static const uint8_t ICMP_PING_DATA_LENGTH = 32; //size of data to send as part 
 
 static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to make room for the control byte required by ENC28J60
 
-#define CLOCK(id,x) unsigned long clock##id=millis();x;dsprint("" #x ": " );dprint(millis() - clock##id);dsprintln(" ms.")
-#define PRINTSIZEOF(thing) AC_DEBUG(dsprint("sizeof(" #thing ")=");dprintln(sizeof(thing)))
 #define QUOTE(str) #str
 
 //error checking
@@ -148,5 +196,6 @@ static const uint16_t TXSTART_INIT_DATA = TXSTART_INIT + 1; // skip 1 byte to ma
 #error ETHERFLOW_BUFFER_SIZE must be an even number
 #endif
 
+///@}
 
 #endif

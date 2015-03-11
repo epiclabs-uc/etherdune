@@ -1,3 +1,18 @@
+// EtherFlow ARP Service
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements the ARP protocol as an EtherFlow service
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include "ARP.h"
 
 #define AC_LOGLEVEL 2
@@ -68,6 +83,15 @@ void ARPService::tick()
 }
 
 
+/// <summary>
+/// Attempts to return the MAC address associated with the provided IP address.
+/// If the result is found in the cache, it is returned, otherwise, an ARP
+/// query is issued and whoHas returns NULL
+/// </summary>
+/// <param name="ip">IP to search</param>
+/// <returns>NULL if the IP address was not in the cache (a query is immediately issued). Otherwise, a pointer
+/// to a MAC address within the ARP table.
+/// </returns>
 MACAddress* ARPService::whoHas(IPAddress& ip)
 {
 	for (ARPEntry* entry = arpTable + (ARP_TABLE_LENGTH - 1); entry >= arpTable; entry--)
