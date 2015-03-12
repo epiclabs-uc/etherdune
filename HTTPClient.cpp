@@ -44,7 +44,7 @@ void HTTPClient::onHeaderReceived(uint16_t len, const byte* data) {}
 void HTTPClient::onBodyReceived(uint16_t len, const byte* data) {}
 /// <summary>
 /// Called when all HTTP headers have been received and the body of the response is about to arrive.
-/// This call gives an opportunity to configure the scanner (FlowScanner) or other parser to process the
+/// This call gives an opportunity to configure the \ref scanner (FlowScanner) or other parser to process the
 /// body as it arrives.
 /// </summary>
 void HTTPClient::onBodyBegin(){};

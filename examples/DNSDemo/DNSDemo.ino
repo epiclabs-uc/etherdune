@@ -13,7 +13,7 @@
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 
-/// \file
+/// \file 
 /// \details Demonstrates simple usage of the DNSClient class and `net::DNS()` to resolve a hostname to an IP address.
 /// See the DNSClient documentation for more information.
 /// \cond

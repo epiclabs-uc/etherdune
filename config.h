@@ -147,7 +147,7 @@ static const uint8_t TCP_SRC_PORT_H = 250;
 /// </summary>
 static const uint8_t UDP_SRC_PORT_H = 240;
 
-static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512; //!< Maximum size of payload accepted by the library
+static const uint16_t TCP_MAXIMUM_SEGMENT_SIZE = 512; //!< Maximum size of payload accepted by the library.
 static const uint8_t MAX_TCP_CONNECT_RETRIES = 50; //!< how many SYN packets to send before giving up.
 
 
@@ -163,8 +163,8 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50; //!< how many SYN packets to 
 	#define SCK_TIMEOUT_CLOSE_WAIT_MS  2000 //!< (both server and client) represents waiting for a connection termination request from the local user.
 	#define SCK_TIMEOUT_CLOSING_MS  2000 //!< (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
 	#define SCK_TIMEOUT_LAST_ACK_MS  2000 //!< (both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
-	#define SCK_TIMEOUT_TIME_WAIT_MS  3000 //!<(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime).]
-	#define SCK_TIMEOUT_RESOLVING_MS  3000 //!< waiting for a DNS query to resolve
+	#define SCK_TIMEOUT_TIME_WAIT_MS  3000 //!<(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as a MSL (maximum segment lifetime)].
+	#define SCK_TIMEOUT_RESOLVING_MS  3000 //!< waiting for a DNS query to resolve.
 	///@}
 
 ///@}

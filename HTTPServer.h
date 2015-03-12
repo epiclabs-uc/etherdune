@@ -22,16 +22,26 @@
 /// notifications about the progress of the incoming request and capture the needed data for your application
 ///
 /// This class can only serve one request at a time. Combine with TCPListener to be able to "spawn" children
-/// sockets that serve each request independently.
+/// sockets that serve each request independently. (see HTTPServerDemo_MultipleClients.ino example)
 ///
 /// The flow of calls works as follows:
-/// 1. onRequest() - called immediately after the first lime that contains the HTTP method and query string is received
+/// 1. onRequest() - called immediately after the first line that contains the HTTP method and query string is received
 /// 2. onHeaderReceived() - called once for each header in the request
 /// 4. onBodyBegin() - called when all HTTP headers have been received and the body of the request is about to arrive
 /// 5. onBodyReceived() - called once for each fragment of the body that is received.
 /// 6. onRequestEnd() - called after all the body has been received
 ///
-/// See HTTPServerDemo.ino for a full example on how to use this class.
+/// Depending on what information your server is interested in in order to be able to service the request, you
+/// may initiate your response at any of the above event handlers. For example if you are only interested in the query string
+/// you can override onRequest() only and build your response there on the spot.
+///
+/// To build a response, call the following functions:
+/// 1.- beginResponse() or beginResponse_P(), to send a status code and optional message
+/// 2.- Any number of calls to writeHeader() overload, if any, to send the different HTTP response headers.
+/// 3.- beginResponseBody() to mark the beginning of the response body.
+/// 4.- Finally, call endResponse() to indicate the other party the response is over.
+///
+/// See HTTPServerDemo.ino and HTTPServerDemo_MultipleClients.ino for examples on how to use this class.
 
 
 #ifndef _HTTP_SERVER_H_
@@ -57,6 +67,7 @@ private:
 	static const uint8_t HTTP_SERVER_STAGE_RESPONSE_BODY = 6;
 	static const uint8_t HTTP_SERVER_STAGE_RESPONSE_END = 7;
 
+	/// \cond
 	union
 	{
 		struct
@@ -70,6 +81,7 @@ private:
 		};
 
 	};
+	/// \endcond
 
 	uint8_t stage;
 	uint8_t crlfcount;
@@ -81,15 +93,19 @@ private:
 	void onConnect();
 	void onConnectRequest();
 	void onClose();
+	void resetParser();
 
 protected:
 
-	void resetParser();
+	
 
 public:
 
-	uint8_t httpMethod;
-	uint16_t contentLength;
+	uint8_t httpMethod; //!< Indicates what HTTP method was used in this request. Valid only after onRequest() has been called.
+						//!< see \ref HTTPConstants_Methods for a list of possible values.
+	
+	uint16_t contentLength; //!< captured length of the incoming request, in bytes. Valid only after onBodyBegin() is called.
+							//!< `contentLength` will be zero if no `Content-Length` header was present in the request.
 
 	HTTPServer();
 
@@ -97,7 +113,7 @@ public:
 	void beginResponse(uint16_t statusCode, const String& message = "");
 	void beginResponse_P(uint16_t statusCode, PGM_P message);
 	void writeHeader(const String& headerName, const String& headerValue);
-	void writeHeader(PGM_P headerName, const String& headerValue);
+	void writeHeader_P(PGM_P headerName, const String& headerValue);
 	void writeContentTypeHeader(const String& contentType);
 	void writeContentTypeHeader_P(PGM_P contentType);
 	void beginResponseBody();

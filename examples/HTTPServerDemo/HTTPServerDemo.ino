@@ -1,3 +1,23 @@
+// EtherFlow HTTP Server demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Demonstrates how to build a simple web server
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+/// \file 
+/// \details Demonstrates how to build a simple web server that allows the user to monitor the state of various pins.
+/// See the HTTPServer class documentation for more information.
+/// \cond
+
 #include <ACross.h>
 #include <Checksum.h>
 #include <TCPSocket.h>
@@ -17,12 +37,6 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
-
-
-#include <HTTPServer.h>
-
-
-
 class HTTPServerTest : public HTTPServer
 {
 public:
@@ -33,99 +47,95 @@ public:
 	{
 		ACTRACE("Requested URL:%s", queryString);
 
-		if (strcmp_P(queryString, PSTR("/")) == 0)
+		//for illustrative purposes, enforce that only a GET method is used to access this server
+		if (httpMethod != HTTP_METHOD_GET)
 		{
-			beginResponse_P(HTTP_RESPONSE_OK, HTTP_RESPONSE_OK_STR);
-			writeContentTypeHeader_P(CONTENT_TYPE_TEXT_HTML);
+			beginResponse(HTTP_RESPONSE_METHOD_NOT_ALLOWED, HTTP_RESPONSE_METHOD_NOT_ALLOWED_STR);
+			writeHeader(F("Allow"), F("GET"));
 			beginResponseBody();
-			String title(F("Arduino Pin Monitor"));
-
-			write(F("<html><head><title>%</title></head><body><h1>%</h1><h2>Select pin to monitor:</h2><h3>digital</h3><ul>"), &title, &title);
-
-			for (uint8_t pin = 2; pin < 13; pin++)
-			{
-				String pinStr(pin);
-				write(F("<li><a href=\"/digitalRead/%\">Pin %</a></li>"), &pinStr, &pinStr);
-			}
-
-			write(F("</ul><h3>Analog</h3><ul>"));
-
-			for (uint8_t pin = A0; pin <= A7; pin++)
-			{
-				String pinStr(pin);
-				String APinStr(pin - A0);
-				write(F("<li><a href=\"/analogRead/%\">Pin A%</a></li>"), &pinStr, &APinStr);
-
-			}
-			write(F("</ul></html>"));
-
+			write(F("Use a GET request"));
+			
 		}
 		else
 		{
-			if (strcmp_P(queryString, PSTR("/favicon.ico")) == 0)
+
+			if (strcmp_P(queryString, PSTR("/")) == 0)
 			{
-				beginResponse_P(HTTP_RESPONSE_FOUND, HTTP_RESPONSE_FOUND_STR);
-				writeHeader(HTTP_HEADER_LOCATION, F("http://www.iconj.com/ico/c/a/capa77m3l6.ico"));
+				beginResponse_P(HTTP_RESPONSE_OK, HTTP_RESPONSE_OK_STR);
+				writeContentTypeHeader_P(CONTENT_TYPE_TEXT_HTML);
+				beginResponseBody();
+				String title(F("Arduino Pin Monitor"));
+
+				write(F("<html><head><title>%</title></head><body><h1>%</h1><h2>Select pin to monitor:</h2><h3>digital</h3><ul>"), &title, &title);
+
+				for (uint8_t pin = 2; pin < 13; pin++)
+				{
+					String pinStr(pin);
+					write(F("<li><a href=\"/digitalRead/%\">Pin %</a></li>"), &pinStr, &pinStr);
+				}
+
+				write(F("</ul><h3>Analog</h3><ul>"));
+
+				for (uint8_t pin = A0; pin <= A7; pin++)
+				{
+					String pinStr(pin);
+					String APinStr(pin - A0);
+					write(F("<li><a href=\"/analogRead/%\">Pin A%</a></li>"), &pinStr, &APinStr);
+
+				}
+				write(F("</ul></html>"));
+
 			}
 			else
 			{
-				uint8_t action;
-				uint8_t pin;
-				char* p;
-				p = strtok(queryString, "/");
-
-
-				if (p != NULL)
+				if (strcmp_P(queryString, PSTR("/favicon.ico")) == 0)
 				{
-					if (strcmp_P(p, PSTR("digitalRead")) == 0)
-						action = ACTION_DIGITALREAD;
-					else
-					{
-						if (strcmp_P(p, PSTR("analogRead")) == 0)
-							action = ACTION_ANALOGREAD;
-						else
-						{
-							beginResponse_P(HTTP_RESPONSE_NOT_FOUND, HTTP_RESPONSE_NOT_FOUND_STR);
-							beginResponseBody();
-							write(F("<html><body><h1>404 not found!</h1></body></html>"));
-							endResponse();
-							return;
-
-						}
-					}
-
-
-				}
-				p = strtok(NULL, "/");
-				if (p != NULL)
-				{
-					pin = atoi(p);
-				}
-
-
-				//for illustrative purposes, verify the client used a GET request
-				if (httpMethod == HTTP_METHOD_GET)
-				{
-
-					beginResponse_P(HTTP_RESPONSE_OK, HTTP_RESPONSE_OK_STR);
-					writeContentTypeHeader_P(CONTENT_TYPE_TEXT_HTML);
-					beginResponseBody();
-					String strPin(pin);
-					uint16_t val = (action == ACTION_ANALOGREAD) ? analogRead(pin) : digitalRead(pin);
-					String strVal(val);
-
-					write(F("<html><head><meta http-equiv=\"refresh\" content=\"10\" /></head><body><h1>pin%=%</h1></body></html>"), &strPin, &strVal);
+					beginResponse_P(HTTP_RESPONSE_FOUND, HTTP_RESPONSE_FOUND_STR);
+					writeHeader(HTTP_HEADER_LOCATION, F("http://www.iconj.com/ico/c/a/capa77m3l6.ico"));
 				}
 				else
 				{
-					beginResponse(HTTP_RESPONSE_METHOD_NOT_ALLOWED, HTTP_RESPONSE_METHOD_NOT_ALLOWED_STR);
-					writeHeader(F("Allow"), F("GET"));
-					beginResponseBody();
-					write(F("Use a GET request"));
+					uint8_t action=0;
+					uint8_t pin;
+					char* p;
+					p = strtok(queryString, "/");
+
+
+					if (p != NULL)
+					{
+						if (strcmp_P(p, PSTR("digitalRead")) == 0)
+							action = ACTION_DIGITALREAD;
+						else
+						{
+							if (strcmp_P(p, PSTR("analogRead")) == 0)
+								action = ACTION_ANALOGREAD;
+						}
+					}
+
+					if (action != 0)
+					{
+						p = strtok(NULL, "/");
+						if (p != NULL)
+						{
+							pin = atoi(p);
+						}
+
+						beginResponse_P(HTTP_RESPONSE_OK, HTTP_RESPONSE_OK_STR);
+						writeContentTypeHeader_P(CONTENT_TYPE_TEXT_HTML);
+						beginResponseBody();
+						String strPin(pin);
+						uint16_t val = (action == ACTION_ANALOGREAD) ? analogRead(pin) : digitalRead(pin);
+						String strVal(val);
+
+						write(F("<html><head><meta http-equiv=\"refresh\" content=\"10\" /></head><body><h1>pin%=%</h1></body></html>"), &strPin, &strVal);
+					}
+					else
+					{
+						beginResponse_P(HTTP_RESPONSE_NOT_FOUND, HTTP_RESPONSE_NOT_FOUND_STR);
+						beginResponseBody();
+						write(F("<html><body><h1>404 not found!</h1></body></html>"));
+					}
 				}
-
-
-
 			}
 		}
 
@@ -203,3 +213,4 @@ void loop()
 
 }
 
+/// \endcond
