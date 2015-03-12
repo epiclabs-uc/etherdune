@@ -157,5 +157,9 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 	packet.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 }
 
-
+DNSClient& NetworkService::DNS()
+{
+	static DNSClient dns;
+	return dns;
+}
 

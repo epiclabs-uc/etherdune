@@ -1,10 +1,28 @@
-//Demonstrates the HTTPClient class by connecting to a weather REST service and extracting
-// the local temperature of a city.
+// EtherFlow HTTPClient class demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Demonstrates the HTTPClient class by connecting to a weather REST service
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+/// \file
+/// \details Demonstrates the HTTPClient class by connecting to a weather REST service and 
+/// extracting the local temperature of a city.
+
+/// See the HTTPClient documentation for more information.
+/// \cond
 
 #include <ACross.h>
 #include <FlowScanner.h>
 #include <HTTPClient.h>
-#include <DNS.h>
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
@@ -30,8 +48,6 @@ DHCP dhcp;
 
 #endif
 
-
-DNSClient net::DNS;
 
 DEFINE_FLOWPATTERN(temperaturePattern, "\"temp\":%7[^,]"); // look for a string like this "temp":12.321, and extract the values
 
@@ -162,3 +178,5 @@ void loop()
 	net::loop();
 
 }
+
+/// \endcond

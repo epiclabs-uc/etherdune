@@ -1,3 +1,24 @@
+// EtherFlow DNS Demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Configures EtherFlow to resolve a hostname and print its IP address.
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+/// \file
+/// \details Demonstrates simple usage of the DNSClient class and `net::DNS()` to resolve a hostname to an IP address.
+/// See the DNSClient documentation for more information.
+/// \cond
+
+
 #include <ACross.h>
 #include <FlowScanner.h>
 #include <DNS.h>
@@ -14,9 +35,6 @@ IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 IPAddress_P dnsIP = { 8, 8, 8, 8 };
 
-DNSClient net::DNS;
-
-
 class DNSResolver : public NetworkService
 {
 	uint16_t id;
@@ -29,7 +47,7 @@ class DNSResolver : public NetworkService
 			{
 				id = 0;
 				Serial.print(F("Resolved hostname to: "));
-				//Serial.println(ip.toString());
+				Serial.println(ip.toString());
 
 			}
 			else
@@ -42,7 +60,7 @@ class DNSResolver : public NetworkService
 public:
 	void resolve(const char* hostName)
 	{
-		id = net::DNS.resolve(hostName);
+		id = DNS().resolve(hostName);
 		Serial.print(F("Resolving "));
 		Serial.print(hostName);
 		Serial.println(F(" ..."));
@@ -90,4 +108,7 @@ void loop()
 	net::loop();
 
 }
+
+/// \endcond
+
 

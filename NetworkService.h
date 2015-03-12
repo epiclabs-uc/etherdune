@@ -43,10 +43,11 @@ public:
 	static IPAddress gatewayIP;
 	static IPAddress netmask;
 	static IPAddress dnsIP;
-	static DNSClient DNS;
+	
 
 	static bool begin(uint8_t cspin);
 	static void loop();
+	static DNSClient& DNS();
 
 };
 

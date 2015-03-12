@@ -1,3 +1,18 @@
+// EtherFlow HTTP Client class
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Provides an easy way to query a web server
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include "HTTPClient.h"
 #include "DNS.h"
 
@@ -6,10 +21,32 @@
 ACROSS_MODULE("HTTPClient");
 
 
+/// <summary>
+/// Called immediately after the first line is received and there is a status code, e.g. `200 OK`.
+/// The HTTP status code is stored in the \ref statusCode member variable.
+/// </summary>
 void HTTPClient::onResponseReceived() {}
+/// <summary>
+/// Called after all the body has been received
+/// </summary>
 void HTTPClient::onResponseEnd() {}
+/// <summary>
+/// Called once for each fragment of the header portion of the response
+/// </summary>
+/// <param name="len">length of the data byte array containing the header</param>
+/// <param name="data">pointer to the buffer containing the header data</param>
 void HTTPClient::onHeaderReceived(uint16_t len, const byte* data) {}
+/// <summary>
+/// Called once for each fragment of the body that is received.
+/// </summary>
+/// <param name="len">length of the buffer that contains the body portion received</param>
+/// <param name="data">pointer to the buffer containing the body data</param>
 void HTTPClient::onBodyReceived(uint16_t len, const byte* data) {}
+/// <summary>
+/// Called when all HTTP headers have been received and the body of the response is about to arrive.
+/// This call gives an opportunity to configure the scanner (FlowScanner) or other parser to process the
+/// body as it arrives.
+/// </summary>
 void HTTPClient::onBodyBegin(){};
 
 
@@ -30,7 +67,7 @@ void HTTPClient::request(const String& hostName, const String& resource, uint16_
 	res = resource;
 
 	if (remoteIP.u == 0)
-		DNSid = DNS.resolve(hostName.c_str());
+		DNSid = DNS().resolve(hostName.c_str());
 	else
 		connect();
 }

@@ -1,3 +1,20 @@
+// EtherFlow ENC28J60 hardware driver
+// Author: Javier Peletier <jm@friendev.com>
+// Credits: Initially based off EtherCard's own enc28j60.cpp file, but heavily modified afterwards.
+// Credits: Jean-Claude Wippler, Guido Socher and Pascal Stang
+// Summary: Encapsulates access to the ENC28J60 hardware
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 
 #include <ACross.h>
 #include "ENC28J60.h"
@@ -17,11 +34,6 @@ static uint16_t nextPacketPtr;
 
 static uint16_t remainingPacketSize;
 static byte* chunkPtr;
-
-
-bool ENC28J60::broadcast_enabled = false;
-
-
 
 void initSPI() 
 {
@@ -115,10 +127,6 @@ void ENC28J60::writeBuf(uint16_t dst, uint16_t len, const byte* data)
 
 }
 
-/// <summary>
-/// Writes a single byte to the current memory position pointed at by the EWRPT write pointer
-/// </summary>
-/// <param name="b">byte to write</param>
 void ENC28J60::writeByte(byte b)
 {
 	writeBuf(1, &b);
@@ -270,10 +278,9 @@ void ENC28J60::packetSend(uint16_t len, const byte* data)
 	packetSend(len);
 }
 
-void ENC28J60::enableBroadcast(bool temporary) {
+void ENC28J60::enableBroadcast() 
+{
 	writeRegByte(ERXFCON, readRegByte(ERXFCON) | ERXFCON_BCEN);
-	if (!temporary)
-		broadcast_enabled = true;
 }
 
 static void writePhy(byte address, uint16_t data) {
@@ -292,17 +299,16 @@ static uint16_t readPhyByte(byte address) {
 	return readRegByte(MIRD + 1);
 }
 
+/// <summary>
+/// Determines whether the network link is ready
+/// </summary>
+/// <returns></returns>
 bool ENC28J60::isLinkUp() {
 	return (readPhyByte(PHSTAT2) >> 2) & 1;
 }
 
 uint8_t ENC28J60::begin(uint8_t cspin)
 {
-	
-	
-	
-	
-//	if (bitRead(SPCR, SPE) == 0)
 	
 	initSPI();
 	selectPin = cspin;

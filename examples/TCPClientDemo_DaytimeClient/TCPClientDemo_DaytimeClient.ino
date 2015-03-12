@@ -4,13 +4,9 @@
 
 #include <ACross.h>
 #include <FlowScanner.h>
-#include <Checksum.h>
 #include <TCPSocket.h>
-#include <UDPSocket.h>
-
-#include <inet.h>
-
 #include <DNS.h>
+
 
 #define AC_LOGLEVEL 5
 #include <ACLog.h>
@@ -22,7 +18,7 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
-DNSClient net::DNS;
+
 
 class MyProtocol : public TCPSocket
 {
@@ -33,7 +29,7 @@ public:
 	{
 		remotePort.setValue(13);
 
-		DNSid = net::DNS.resolve("ntp-nist.ldsbc.edu");
+		DNSid = net::DNS().resolve("ntp-nist.ldsbc.edu");
 		//alternatives here: http://www.jumpjet.info/Offbeat-Internet/Public/Daytime/url.htm
 	}
 
