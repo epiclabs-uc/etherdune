@@ -90,7 +90,7 @@ void NetworkService::loop()
 	}
 }
 
-bool NetworkService::sendIPPacket(uint8_t headerLength)
+bool NetworkService::sendIPPacket(uint16_t headerLength)
 {
 
 	if (packet.ip.destinationIP.b[3] == 255) //(cheap hack to detect if it is an IP-layer broadcast)

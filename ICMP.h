@@ -33,15 +33,14 @@ class ICMP : protected NetworkService
 private:
 	
 	bool onPacketReceived();
-	void calcICMPChecksum();
 
 protected:
 
-	virtual void onPingReply(uint16_t time);
+	bool loadAll();
+	void calcICMPChecksum();
+	void sendICMPPacket(const IPAddress& targetIP, uint16_t dataLength);
 
-public:
-
-	void ping(const IPAddress& targetIP);
+	virtual bool onICMPMessage() = 0;
 
 };
 

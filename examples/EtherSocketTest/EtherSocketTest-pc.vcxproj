@@ -90,6 +90,8 @@
     <ClCompile Include="..\..\HTTPClient.cpp" />
     <ClCompile Include="..\..\HTTPServer.cpp" />
     <ClCompile Include="..\..\ICMP.cpp" />
+    <ClCompile Include="..\..\ICMPPingAutoReply.cpp" />
+    <ClCompile Include="..\..\ICMPPinger.cpp" />
     <ClCompile Include="..\..\List.cpp" />
     <ClCompile Include="..\..\NetworkService.cpp" />
     <ClCompile Include="..\..\SharedBuffer.cpp" />
@@ -115,6 +117,8 @@
     <ClInclude Include="..\..\HTTPConstants.h" />
     <ClInclude Include="..\..\HTTPServer.h" />
     <ClInclude Include="..\..\ICMP.h" />
+    <ClInclude Include="..\..\ICMPPingAutoReply.h" />
+    <ClInclude Include="..\..\ICMPPinger.h" />
     <ClInclude Include="..\..\inet.h" />
     <ClInclude Include="..\..\List.h" />
     <ClInclude Include="..\..\NetworkService.h" />

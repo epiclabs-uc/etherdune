@@ -29,7 +29,7 @@ protected:
 	NetworkService();
 	~NetworkService();
 
-	static bool sendIPPacket(uint8_t headerLength);
+	static bool sendIPPacket(uint16_t headerLength);
 	static void prepareIPPacket(const IPAddress& remoteIP);
 	static bool sameLAN(IPAddress& dst);
 

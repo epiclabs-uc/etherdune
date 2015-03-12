@@ -402,7 +402,7 @@ void ENC28J60::loadAll()
 #if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
 	readBuf(min(remainingPacketSize, sizeof(NetworkService::packet) - (chunkPtr - (byte*)&NetworkService::packet)), chunkPtr);
 #endif
-
+	remainingPacketSize = 0;
 }
 
 

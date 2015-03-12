@@ -322,6 +322,11 @@ struct ICMPHeader
 		};
 		uint32_t timestamp;
 	};
+
+	uint8_t* dataStart()
+	{
+		return (uint8_t*)this + sizeof(ICMPHeader);
+	}
 };
 
 struct EthernetHeader
