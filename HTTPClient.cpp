@@ -59,6 +59,12 @@ HTTPClient::HTTPClient() :
 	remotePort.setValue(80);
 }
 
+/// <summary>
+/// Starts a new HTTP request. Any previously ongoing request is aborted.
+/// </summary>
+/// <param name="hostName">Name of the host to connect to, e.g. www.friendev.com</param>
+/// <param name="resource">Resource path, e.g. /index.html</param>
+/// <param name="port">TCP port, 80 by default</param>
 void HTTPClient::request(const String& hostName, const String& resource, uint16_t port )
 {
 	remotePort.setValue(port);

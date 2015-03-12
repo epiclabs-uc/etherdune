@@ -18,8 +18,8 @@
 //#include "../HTTPClientDemo_REST/HTTPClientDemo_REST.ino"
 //#include "../PingTest/PingTest.ino"
 //#include "../DHCPTest/DHCPTest.ino"
-//#include "../HTTPServerDemo/HTTPServerDemo.ino"
-#include "../DNSDemo/DNSDemo.ino"
+#include "../HTTPServerDemo/HTTPServerDemo.ino"
+//#include "../DNSDemo/DNSDemo.ino"
 
 
 int _tmain(int argc, _TCHAR* argv[])

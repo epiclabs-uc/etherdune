@@ -39,19 +39,16 @@ public:
 		listen();
 	}
 
-	void onConnect()
+	void onConnectRequest()
 	{
-		ACTRACE("onConnect");
-		Serial.println(F("New client connected"));
-		say(F(">> Somebody joined the room\n"));
+		ACTRACE("onConnectRequest");
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			ChatServer& sck = clients[i];
 			if (sck.getState() == SCK_STATE_CLOSED)
 			{
-				sck.accept(*this);
-				sck.write(F("Welcome to the chat room\n")); //accept connection and send a welcome message
+				sck.accept(*this); // accept connection
 				return;
 			}
 		}
@@ -60,9 +57,20 @@ public:
 
 	}
 
+	void onConnect()
+	{
+		write(F("Welcome to the chat room\n")); //send a welcome message
+		Serial.println(F("New client connected"));
+		say(F(">> Somebody joined the room\n"),this);
+	}
+
 	void onClose()
 	{
 		close(); //properly close the connection.
+	}
+
+	void onTerminate()
+	{
 		Serial.println(F("Client disconnected."));
 		say(F(">> Someone left the room\n"));
 	}

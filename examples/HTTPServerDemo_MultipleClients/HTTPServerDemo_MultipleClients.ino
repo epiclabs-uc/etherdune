@@ -6,10 +6,11 @@
 #include <ENC28J60.h>
 #include <FlowScanner.h>
 #include <HTTPServer.h>
+#include <TCPListener.h>
 
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
-ACROSS_MODULE("HTTPServerDemo");
+ACROSS_MODULE("HTTPServerDemo_MultipleClients");
 
 
 MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
@@ -17,13 +18,14 @@ IPAddress_P gatewayIP = { 192, 168, 1, 1 };
 IPAddress_P myIP = { 192, 168, 1, 33 };
 IPAddress_P netmask = { 255, 255, 255, 0 };
 
+static const uint8_t MAX_CLIENTS = 2; // maximum number of simultaneous HTTP clients
 
 
 #include <HTTPServer.h>
 
 
 
-class HTTPServerTest : public HTTPServer
+class HTTPServerTestMulti : public HTTPServer
 {
 public:
 	static const uint8_t ACTION_DIGITALREAD = 1;
@@ -40,20 +42,20 @@ public:
 			beginResponseBody();
 			String title(F("Arduino Pin Monitor"));
 
-			write(F("<html><head><title>%</title></head><body><h1>%</h1><h2>Select pin to monitor:</h2><h3>digital</h3><ul>"), &title, &title);
+			write(F("<html><head><title>%</title></head><body><h1>%</h1><h2>Select pin to monitor:</h2><h3>digital</h3><ul>"),&title,&title);
 
 			for (uint8_t pin = 2; pin < 13; pin++)
 			{
 				String pinStr(pin);
 				write(F("<li><a href=\"/digitalRead/%\">Pin %</a></li>"), &pinStr, &pinStr);
 			}
-
+			
 			write(F("</ul><h3>Analog</h3><ul>"));
-
+			
 			for (uint8_t pin = A0; pin <= A7; pin++)
 			{
 				String pinStr(pin);
-				String APinStr(pin - A0);
+				String APinStr(pin-A0);
 				write(F("<li><a href=\"/analogRead/%\">Pin A%</a></li>"), &pinStr, &APinStr);
 
 			}
@@ -93,7 +95,7 @@ public:
 
 						}
 					}
-
+						
 
 				}
 				p = strtok(NULL, "/");
@@ -147,16 +149,14 @@ public:
 		ACTRACE("Request ended");
 	}
 
-	void onTerminate()
-	{
-		listen(); // listen again for the next request.
-	}
 
 
 
-}server;
+
+};
 
 
+TCPListener<HTTPServerTestMulti, MAX_CLIENTS> server;
 
 
 void setup()
@@ -168,7 +168,7 @@ void setup()
 	ACross::printf_serial_init();
 #endif
 
-	printf(PSTR("HTTP Server EtherFlow sample\n"));
+	printf(PSTR("Multiple client HTTP Server EtherFlow sample\n"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	printf(PSTR("Press any key to start...\n"));
 
@@ -189,7 +189,7 @@ void setup()
 	ACINFO("link is up");
 
 
-	server.listen();
+	server.listen(80);
 
 	Serial.print("HTTP Server listening on ");
 	Serial.print(net::localIP.toString());

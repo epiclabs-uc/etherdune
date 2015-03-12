@@ -133,9 +133,12 @@ void HTTPServer::resetParser()
 	httpMethod = 0;
 }
 
+void HTTPServer::onConnectRequest()
+{
+	accept(); //accept any connection request
+}
 void HTTPServer::onConnect()
 {
-	accept();
 	ACTRACE("HTTP connection open");
 	resetParser();
 }
@@ -145,11 +148,6 @@ void HTTPServer::onClose()
 	ACTRACE("HTTP connection closed by peer");
 	close();
 
-}
-
-void HTTPServer::onTerminate()
-{
-	listen();
 }
 
 void HTTPServer::beginResponse(uint16_t statusCode, const String& message)

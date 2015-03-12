@@ -11,6 +11,7 @@ ACROSS_MODULE("TCPSocket");
 
 void TCPSocket::onClose() {}
 void TCPSocket::onConnect() {}
+void TCPSocket::onConnectRequest() {}
 void TCPSocket::onReceive(uint16_t len, const byte* data) {}
 void TCPSocket::onTerminate() {}
 
@@ -134,6 +135,7 @@ void TCPSocket::close()
 		case SCK_STATE_ESTABLISHED:
 		{
 			setState(SCK_STATE_FIN_WAIT_1, SCK_TIMEOUT_FIN_WAIT_1);
+			nextFlags.FIN = 1;
 		}break;
 
 		default:
@@ -192,11 +194,10 @@ void TCPSocket::tick()
 			if (!buffer.isEmpty())
 				goto sck_state_established;
 		}
+		case SCK_STATE_CLOSING:
 		case SCK_STATE_LAST_ACK:
 		{
-			/*sequenceNumber--;*/
 			nextFlags.FIN = 1;
-
 		}
 		case SCK_STATE_FIN_WAIT_2:
 		{
@@ -255,7 +256,7 @@ bool TCPSocket::onPacketReceived()
 		if(state != SCK_STATE_LISTEN)
 			terminate();
 
-		return false;
+		return true;
 	}
 
 	if (bytesAck > 0)
@@ -266,24 +267,25 @@ bool TCPSocket::onPacketReceived()
 	{
 		ackNumber = incomingSeqNum + 1;
 		setState(SCK_STATE_ESTABLISHED, 0);
-		onConnect();
 		nextFlags.ACK = 1;
-		return false;
+		onConnect();
+		return true;
 	}
 
 	if (state == SCK_STATE_LISTEN && packet.tcp.flags.SYN)
 	{
-		onConnect();
-		return false;
+		onConnectRequest();
+		return true;
 	}
 
 	if (state == SCK_STATE_SYN_RECEIVED)
 	{
 		if (!packet.tcp.flags.ACK)
-			return false;
+			return true;
 
 		setState(SCK_STATE_ESTABLISHED, 0);
 		bytesAck--; // count one less byte (SYN counts as 1 "fake" byte)
+		onConnect();
 	}
 
 	releaseWindow(bytesAck);
@@ -292,7 +294,7 @@ bool TCPSocket::onPacketReceived()
 	{
 		ACDEBUG("dropped packet out of sequence.");
 		nextFlags.ACK = 1;
-		return false;
+		return true;
 	}
 
 	int16_t headerLength = sizeof(IPHeader) + packet.tcp.headerLength * 4;
@@ -341,6 +343,24 @@ bool TCPSocket::onPacketReceived()
 				else
 					setState(SCK_STATE_FIN_WAIT_2, SCK_TIMEOUT_FIN_WAIT_2);
 			}
+			else
+			{
+				if (packet.tcp.flags.FIN)
+				{
+					setState(SCK_STATE_CLOSING, SCK_TIMEOUT_CLOSING);
+					nextFlags.ACK = 1;
+				}
+			}
+
+		}break;
+		case SCK_STATE_CLOSING:
+		{
+			if (bytesAck == 1 && buffer.isEmpty())
+				setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
+			else
+			{
+				nextFlags.ACK = 1;
+			}
 
 		}break;
 
@@ -370,10 +390,6 @@ bool TCPSocket::onPacketReceived()
 	return true;
 }
 
-
-
-
-
 void TCPSocket::processOutgoingBuffer()
 {
 	ACTRACE("processOutgoingBuffer");
@@ -381,9 +397,12 @@ void TCPSocket::processOutgoingBuffer()
 	uint16_t dataChecksum = 0;
 
 	if (!buffer.isEmpty())
+	{
 		dataLength = buffer.fillTxBuffer(sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader), dataChecksum);
+		nextFlags.ACK = 1;
+	}
 
-	if (nextFlags.raw !=0 || dataLength !=0)
+	if (nextFlags.raw !=0)
 	{
 		prepareTCPPacket(false, dataLength);
 		packet.tcp.sequenceNumber.setValue(sequenceNumber);

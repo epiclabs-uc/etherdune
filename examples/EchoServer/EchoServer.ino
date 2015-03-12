@@ -30,11 +30,14 @@ public:
 		listen();
 	}
 
+	void onConnectRequest()
+	{
+		ACTRACE("onConnectRequest");
+		accept(); //accept connection.
+	}
 	void onConnect()
 	{
 		ACTRACE("onConnect");
-
-		accept(); //accept connection and send a welcome message
 
 		write(F("How about a nice game of chess?\n"));
 		Serial.println(F("Client connected"));
@@ -44,7 +47,6 @@ public:
 	void onClose()
 	{
 		close(); //property close the connection and then listen again.
-		listen();
 		Serial.println(F("Client disconnected"));
 	}
 
@@ -52,6 +54,11 @@ public:
 	{
 		ACTRACE("onReceive: %d bytes",len);
 		write(len, data); //echo everything back
+	}
+
+	void onTerminate()
+	{
+		listen();
 	}
 
 

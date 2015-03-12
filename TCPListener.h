@@ -10,7 +10,6 @@ class TCPListener : public TCPSocket
 {
 protected:
 	SOCKET clients[MAX_CLIENTS];
-	virtual void onAccept(const SOCKET& socket){}
 	virtual void onNoMoreConnections(){}
 
 protected:
@@ -19,7 +18,7 @@ protected:
 	{
 		TCPSocket::listen();
 	}
-	void onConnect()
+	void onConnectRequest()
 	{
 
 		for (int i = 0; i < MAX_CLIENTS; i++)

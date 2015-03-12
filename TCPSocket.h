@@ -39,6 +39,7 @@ public:
 	void push();
 
 	virtual void onConnect();
+	virtual void onConnectRequest();
 	virtual void onClose();
 	virtual void onReceive(uint16_t len, const byte* data);
 	virtual void onTerminate();

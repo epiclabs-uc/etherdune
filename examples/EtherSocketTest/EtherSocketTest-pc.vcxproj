@@ -121,6 +121,7 @@
     <ClInclude Include="..\..\SharedBuffer.h" />
     <ClInclude Include="..\..\Socket.h" />
     <ClInclude Include="..\..\Stateful.h" />
+    <ClInclude Include="..\..\TCPListener.h" />
     <ClInclude Include="..\..\TCPSocket.h" />
     <ClInclude Include="..\..\UDPSocket.h" />
   </ItemGroup>
