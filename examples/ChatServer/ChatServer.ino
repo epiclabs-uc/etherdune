@@ -14,14 +14,10 @@ ACROSS_MODULE("ChatServer");
 
 
 static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
-MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
-IPAddress_P gatewayIP = { 192, 168, 1, 1 };
-IPAddress_P myIP  = { 192, 168, 1, 33 };
-IPAddress_P netmask  = { 255, 255, 255, 0 };
-
-static const uint8_t CS_PIN = 10;
-
-
+static MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
+static IPAddress_P gatewayIP = { 192, 168, 1, 1 };
+static IPAddress_P myIP  = { 192, 168, 1, 33 };
+static IPAddress_P netmask  = { 255, 255, 255, 0 };
 
 static const uint8_t MAX_CLIENTS = 4;
 static const uint16_t CHAT_SERVER_TCP_PORT = 2500;

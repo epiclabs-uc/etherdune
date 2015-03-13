@@ -30,8 +30,8 @@ ACROSS_MODULE("HTTPClient demo");
 
 #define DHCP_ENABLE true
 
-static static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
-MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
+static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
+static MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
 
 //the following parameters will be ignored and not linked if DHCP_ENABLE is set to true.
 static IPAddress_P gatewayIP = { 192, 168, 1, 1 };

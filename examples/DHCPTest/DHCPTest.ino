@@ -9,7 +9,7 @@ ACROSS_MODULE("DHCPTest");
 
 
 static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
-MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
+static MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
 
 DHCP dhcp;
 
