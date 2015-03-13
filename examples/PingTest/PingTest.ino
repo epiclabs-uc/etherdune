@@ -1,3 +1,23 @@
+// EtherFlow ICMP Ping example
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Demonstrates how to use ICMPPinger and ICMPPingAutoReply classes
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+/// \file
+/// \brief Demonstrates how to use ICMPPinger and ICMPPingAutoReply classes
+
+/// \cond
+
 #include <ACross.h>
 #include <Checksum.h>
 #include <TCPSocket.h>
@@ -16,7 +36,7 @@
 #include <ACLog.h>
 ACROSS_MODULE("PingTest");
 
-
+static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
 MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
 
 DHCP dhcp;
@@ -81,7 +101,7 @@ void setup()
 	
 	net::localMAC = mymac;
 
-	if (!net::begin(10))
+	if (!net::begin(CS_PIN))
 		ACERROR("failed to start EtherFlow");
 
 	ACINFO("waiting for link...");
@@ -99,6 +119,9 @@ void setup()
 
 	Serial.println(F("DHCP setup OK"));
 
+	printf_P(PSTR("Local IP is %d.%d.%d.%d. Try pinging me!\n\n"),
+		net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
+
 	IPAddress targetIP;
 	targetIP = IPADDR_P(8, 8, 8, 8);
 	pingTest.start(targetIP);
@@ -111,3 +134,4 @@ void loop()
 
 }
 
+/// \endcond

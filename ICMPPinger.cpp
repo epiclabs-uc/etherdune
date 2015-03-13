@@ -1,3 +1,18 @@
+// EtherFlow ICMP Pinger class
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements an ICMP Echo request service
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include "ICMPPinger.h"
 
 bool ICMPPinger::onICMPMessage()
@@ -20,6 +35,12 @@ bool ICMPPinger::onICMPMessage()
 }
 
 
+/// <summary>
+/// Send an %ICMP Echo request (ping) to the specified target IP address.
+/// You can specify the length of the test payload by editing the \ref ICMP_PING_DATA_LENGTH configuration constant.
+/// See \ref ICMPConfig for more information
+/// </summary>
+/// <param name="targetIP">The target IP address</param>
 void ICMPPinger::ping(const IPAddress& targetIP)
 {
 	memset(packet.icmp.dataStart(), 0x79, ICMP_PING_DATA_LENGTH);

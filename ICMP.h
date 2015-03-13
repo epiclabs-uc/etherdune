@@ -1,6 +1,7 @@
-// EtherFlow ICMP Echo implementation
+// EtherFlow ICMP Abstract base class
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: Allows the application to send and respond to ICMP Echo (ping) requests
+// Summary: Implements common ICMP packet building routines and ICMP checksum
+// Summary: Used as base class for ICMP Echo (ping)
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
 //
@@ -14,11 +15,11 @@
 // PARTICULAR PURPOSE.
 
 /// \class ICMP
-/// \brief Allows the application to send and respond to ICMP Echo (ping) requests
+/// \brief Implements common ICMP packet building routines and ICMP checksum
 /// \details 
-/// Implements the ICMP protocol. If you only want to have your application respond to ping requests,
-/// instantiate 
-/// 
+/// Implements code common to all ICMP services, such as checksum and packet preparation
+///
+/// This is an abstract base class, a building block for any ICMP-based service.
 ///
 
 #ifndef _ICMP_H_

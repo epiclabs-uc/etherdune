@@ -22,7 +22,6 @@ private:
 	
 protected:
 
-	static uint8_t srcPort_L_count;
 	static EthBuffer packet;
 	static ARPService ARP;
 

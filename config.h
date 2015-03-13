@@ -93,7 +93,7 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
 #define ENABLE_UDPTCP_RX_CHECKSUM true
 
 /// <summary>
-/// Whether or not to check the integrity of ICMP packets.
+/// Whether or not to check the integrity of %ICMP packets.
 /// Enabling this will drop packets that have checksum errors.
 /// </summary>
 #define ENABLE_ICMP_RX_CHECKSUM true 
@@ -101,7 +101,7 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
 ///@}
 
 /// @defgroup ENC28J60Config ENC28J60 Hardware configuration
-/// ENC28J60 memory segmentation and internal buffer sizes.
+/// %ENC28J60 memory segmentation and internal buffer sizes.
 ///
 /// Buffer boundaries applied to internal 8K ram. The default configuration
 /// allocates the entire available packet buffer space.
@@ -221,8 +221,9 @@ static const char DHCP_HOSTNAME[] PROGMEM = "ARDUINO"; //!< host name sent to DH
 ///@}
 
 /// @defgroup ICMPConfig ICMP configuration
-/// ICMP configuration section
+/// %ICMP configuration section
 ///
+/// See also \ref ENABLE_ICMP_RX_CHECKSUM
 ///@{
 
 static const uint8_t ICMP_PING_DATA_LENGTH = 32; //!< size of data to send as part of an echo request
