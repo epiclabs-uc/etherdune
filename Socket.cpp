@@ -134,50 +134,42 @@ uint16_t Socket::calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum)
 }
 
 
-bool Socket::verifyUDPTCPChecksum()
+
+uint16_t Socket::calcDataChecksum(uint16_t& length, uint16_t dataOffset)
+{
+
+	length = packet.ip.totalLength.getValue() - length;
+
+	return Checksum::calc(length, packet.raw + dataOffset);
+}
+
+bool Socket::verifyTCPChecksum()
 {
 #if ENABLE_UDPTCP_RX_CHECKSUM
-	uint8_t headerLength;
-	uint16_t dataOffset;
-	switch (packet.ip.protocol)
-	{
-		case IP_PROTO_TCP:
-		{
-			headerLength = sizeof(IPHeader) + sizeof(TCPHeader);
-			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader);
-		}break;
-		case IP_PROTO_UDP:
-		{
-			headerLength = sizeof(IPHeader) + sizeof(UDPHeader);
-			dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader);
-		}break;
-		default:
-			return true;
-	}
-
-	uint16_t dataChecksum;
-
-	uint16_t totalLength = packet.ip.totalLength.getValue();
-	uint16_t dataLength = totalLength - headerLength;
-
-	dataChecksum = Checksum::calc(dataLength, packet.raw + dataOffset);
-
-	uint16_t sum;
-	if (packet.ip.protocol == IP_PROTO_TCP)
-		sum = calcTCPChecksum(false, dataLength, dataChecksum);
-	else
-		sum = calcUDPChecksum(dataLength, dataChecksum);
+	uint16_t length = sizeof(IPHeader) + sizeof(TCPHeader);
+	uint16_t dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(TCPHeader);
+	uint16_t sum = calcDataChecksum(length, dataOffset);
+	sum = calcTCPChecksum(false, length, sum);
 
 	return 0 == sum;
-
-
 #else
 	return true;
 #endif
-
 }
 
+bool Socket::verifyUDPChecksum()
+{
+#if ENABLE_UDPTCP_RX_CHECKSUM
+	uint16_t length = sizeof(IPHeader) + sizeof(UDPHeader);
+	uint16_t dataOffset = sizeof(EthernetHeader) + sizeof(IPHeader) + sizeof(UDPHeader);
+	uint16_t sum = calcDataChecksum(length, dataOffset);
+	sum = calcUDPChecksum(length, sum);
 
+	return 0 == sum;
+#else
+	return true;
+#endif
+}
 
 void Socket::setBroadcastRemoteIP()
 {

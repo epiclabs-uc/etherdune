@@ -36,8 +36,9 @@ class Socket : protected NetworkService
 	static uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
 	static uint16_t calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum);
 	static uint16_t calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum);
-	static bool verifyUDPTCPChecksum();
-
+	static bool verifyTCPChecksum();
+	static bool verifyUDPChecksum();
+	static uint16_t calcDataChecksum(uint16_t& length, uint16_t dataOffset);
 	void setBroadcastRemoteIP();
 
  public:

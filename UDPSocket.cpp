@@ -89,7 +89,7 @@ bool UDPSocket::onPacketReceived()
 
 #if ENABLE_UDPTCP_RX_CHECKSUM
 
-	if (!verifyUDPTCPChecksum())
+	if (!verifyUDPChecksum())
 	{
 		ACWARN("UDP checksum error");
 		return true;// drop packet, UDP checksum error

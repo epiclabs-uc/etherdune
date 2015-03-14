@@ -232,7 +232,7 @@ bool TCPSocket::onPacketReceived()
 
 #if ENABLE_UDPTCP_RX_CHECKSUM
 
-	if (!verifyUDPTCPChecksum())
+	if (!verifyTCPChecksum())
 	{
 		ACWARN("TCP checksum error");
 		return true;// drop packet, TCP checksum error
