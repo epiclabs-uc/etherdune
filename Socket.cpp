@@ -1,6 +1,17 @@
-// 
-// 
-// 
+// EtherFlow Socket base class
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Base class for TCP and UDP sockets
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
 
 #include "Socket.h"
 #include "Checksum.h"
@@ -165,6 +176,8 @@ bool Socket::verifyUDPTCPChecksum()
 #endif
 
 }
+
+
 
 void Socket::setBroadcastRemoteIP()
 {

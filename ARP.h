@@ -13,6 +13,16 @@
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 
+/// \class ARPService
+/// \brief Implements the ARP protocol as an EtherFlow service
+/// \details This class maintains the ARP table, handles incoming ARP requests
+/// and allows to perform ARP queries in the network to discover other hosts
+///
+/// This service is instantiated by default, meaning you do not need to do anything
+/// to make it work. You can configure ARP settings in the \ref ARPConfig section
+/// of the configuration file
+
+
 #ifndef __ARP_H_
 #define __ARP_H_
 

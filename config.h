@@ -174,7 +174,7 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50; //!< how many SYN packets to 
 ///
 ///@{
 
-static const uint8_t ARP_TABLE_LENGTH = 2; //!< Maximum number of entries in the ARP table. Each ARP entry takes up sizeof(ARPEntry) = 11 bytes, so size carefully.
+static const uint8_t ARP_TABLE_LENGTH = 2; //!< Maximum number of entries in the ARP table. Each ARP entry takes up `sizeof (ARPEntry) = 11` bytes, so size carefully.
 static const int16_t MAX_ARP_TTL = 20; //!< Time the ARP entry is considered fresh, in minutes.
 
 ///@}

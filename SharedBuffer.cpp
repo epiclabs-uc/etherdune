@@ -1,3 +1,18 @@
+// EtherFlow Shared circular buffer class
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements a "shared" circular buffer using spare ENC28J60 memory
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include "SharedBuffer.h"
 
 #include "ENC28J60.h"
@@ -68,7 +83,7 @@ uint16_t SharedBuffer::append(uint16_t len, const byte* data)
 
 	usedSpace += bytes_to_write;
 	
-	return usedSpace;
+	return bytes_to_write;
 }
 
 uint16_t SharedBuffer::readAt(uint16_t index, uint16_t len, byte* data)
@@ -97,10 +112,14 @@ uint16_t SharedBuffer::readAt(uint16_t index, uint16_t len, byte* data)
 }
 
 
+/// <summary>
+/// Writes a fragment to the shared buffer
+/// </summary>
+/// <param name="len">length of the data pointed by `data`</param>
+/// <param name="data">pointer to the data to write</param>
+/// <returns>Number of bytes actually written</returns>
 uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 {
-	ACTRACE("write_before() head=%d, usedSpace=%d", head, usedSpace);
-
 	int16_t availableSpace = SHARED_BUFFER_CAPACITY - usedSpace - sizeof(BufferHeader);
 	if (availableSpace < 0)
 		availableSpace = 0;
@@ -128,10 +147,13 @@ uint16_t SharedBuffer::write(uint16_t len, const byte* data)
 
 	lastWritten = h;
 
-	ACTRACE("write_after() head=%d, usedSpace=%d", head,usedSpace);
 	return len;
 }
 
+/// <summary>
+/// Releases one fragment of data
+/// </summary>
+/// <returns>The amount of data released</returns>
 uint16_t SharedBuffer::release()
 {
 	if (isEmpty())
@@ -165,12 +187,23 @@ uint16_t SharedBuffer::release()
 
 }
 
+/// <summary>
+/// Releases all data in this buffer, freeing up space.
+/// </summary>
 void SharedBuffer::flush()
 {
 	while (release());
 }
 
 
+/// <summary>
+/// Copies up to `count` fragments to the transmit buffer via DMA, concatenating them starting at given offset.
+/// This function may copy fewer fragments than `count` to make sure not to overflow the TX buffer
+/// </summary>
+/// <param name="dstOffset">Destination %ENC28J60 memory address, encoded as an offset within the tx buffer.</param>
+/// <param name="checksum">[out] Resulting checksum of copied data</param>
+/// <param name="count">Maximum number of fragments to concatenate</param>
+/// <returns>Total number of bytes copied to the tx buffer</returns>
 uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint16_t count )
 {
 
@@ -218,6 +251,10 @@ uint16_t SharedBuffer::fillTxBuffer(uint16_t dstOffset, uint16_t& checksum, uint
 }
 
 
+/// <summary>
+/// Determines whether this buffer is empty
+/// </summary>
+/// <returns>`true` if the buffer is empty. `false` otherwise</returns>
 bool SharedBuffer::isEmpty()
 {
 	return nextRead == 0xFFFF;

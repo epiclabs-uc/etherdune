@@ -1,3 +1,20 @@
+// EtherFlow Network Service base class
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Base class for any network service running in EtherFlow 
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+
+
 #include "NetworkService.h"
 #include "ARP.h"
 #include "DNS.h"
@@ -26,12 +43,27 @@ IPAddress NetworkService::dnsIP = { 0, 0, 0, 0 };
 static uint32_t tickTimer = NETWORK_TIMER_RESOLUTION;
 EthBuffer NetworkService::packet;
 
-
-bool NetworkService::onPacketReceived(){ return false; }
+/// <summary>
+/// This is a timer function that is called every \ref NETWORK_TIMER_RESOLUTION milliseconds on every service.
+///
+/// It allows each network service to perform upkeep tasks, handle timeouts or send queued messages.
+/// </summary>
 void NetworkService::tick(){}
+/// <summary>
+/// Called on each network service every time a DNS response is received.
+/// </summary>
+/// <param name="status">Status of the DNS reply. Corresponds to the DHS Header status field. 
+/// Nonzero if an error was detected, zero otherwise</param>
+/// <param name="identification">Identification token to match a query to a response. See DNSClient for more information</param>
+/// <param name="ip">If `status` equals `0`, this contains the resolved IP address</param>
 void NetworkService::onDNSResolve(uint8_t status, uint16_t identification, const IPAddress& ip) {}
 
 
+/// <summary>
+/// Initializes EtherFlow and the underlying hardware
+/// </summary>
+/// <param name="cspin">ENC28J60 chip select pin to use</param>
+/// <returns>`true` if successful, `false` otherwise.</returns>
 bool NetworkService::begin(uint8_t cspin)
 {
 	tickTimer = millis() + NETWORK_TIMER_RESOLUTION;
@@ -75,6 +107,10 @@ void NetworkService::processIncomingPacket()
 	
 }
 
+/// <summary>
+/// Gives processing time to EtherFlow so that it can check for incoming packets or send queued packets.
+/// Call this with the highest frequency possible, usually in your sketch's `%loop()` function.
+/// </summary>
 void NetworkService::loop()
 {
 	ENC28J60::loadSample();
@@ -89,7 +125,12 @@ void NetworkService::loop()
 	}
 }
 
-bool NetworkService::sendIPPacket(uint16_t headerLength)
+/// <summary>
+/// Puts the current in-memory \ref packet in the network
+/// </summary>
+/// <param name="length">Number of bytes of \ref packet to put in ENC28J60's buffer</param>
+/// <returns></returns>
+bool NetworkService::sendIPPacket(uint16_t length)
 {
 
 	if (packet.ip.destinationIP.b[3] == 255) //(cheap hack to detect if it is an IP-layer broadcast)
@@ -112,13 +153,18 @@ bool NetworkService::sendIPPacket(uint16_t headerLength)
 	packet.eth.srcMAC = localMAC;
 	packet.eth.etherType.setValue(ETHTYPE_IP);
 
-	ENC28J60::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + headerLength, packet.raw);
+	ENC28J60::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + length, packet.raw);
 	ENC28J60::packetSend(sizeof(EthernetHeader) + packet.ip.totalLength.getValue());
 
 	return true;
 }
 
 
+/// <summary>
+/// Determines whether the given IP is in the same subnet as \ref localIP
+/// </summary>
+/// <param name="dst">IP address to test</param>
+/// <returns></returns>
 bool NetworkService::sameLAN(IPAddress& dst)
 {
 	if (localIP.b[0] == 0 || dst.b[0] == 0) 
@@ -141,6 +187,10 @@ void NetworkService::notifyOnDNSResolve(uint8_t status, uint16_t id, const IPAdd
 
 
 
+/// <summary>
+/// Sets up common IP header values for all outgoing IP packets and calculates the IP header checksum
+/// </summary>
+/// <param name="remoteIP">IP of the remote host</param>
 void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 {
 	packet.ip.version = 4;
@@ -156,6 +206,12 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 	packet.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 }
 
+/// <summary>
+/// Obtains access to the DNS service singleton instance.
+///
+/// Use of this function will immediately compile in all code needed for DNS to work.
+/// </summary>
+/// <returns>The DNSClient singleton instance</returns>
 DNSClient& NetworkService::DNS()
 {
 	static DNSClient dns;
