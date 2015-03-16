@@ -42,6 +42,14 @@ void Socket::prepareIPPacket()
 
 
 
+/// <summary>
+/// In the case of TCP, writes the given data buffer to the socket.
+///
+/// For UDP sockets, appends the given data buffer to the current packet being built
+/// </summary>
+/// <param name="len">length of the data buffer</param>
+/// <param name="data">pointer to the data to send</param>
+/// <returns>Number of bytes written</returns>
 uint16_t Socket::write(uint16_t len, const byte* data)
 {
 	ACTRACE("write %d bytes. Dump:",len )
@@ -51,11 +59,46 @@ uint16_t Socket::write(uint16_t len, const byte* data)
 	return buffer.write(len, data);
 }
 
+/// <summary>
+/// In the case of TCP, writes the given String to the socket, not including the null-terminating character.
+///
+/// For UDP sockets, appends the given String to the current packet being built, not including the null-terminating character.
+/// </summary>
+/// <param name="s">String to write out</param>
+/// <returns>Number of bytes written</returns>
 uint16_t Socket::write(const String& s)
 {
 	return write(s.length(), (uint8_t*)s.c_str());
 }
 
+/// <summary>
+/// Writes out the specified PROGMEM string that may contain the % escape character. For each
+/// % found, the next argument in the variable arguments list is output instead.
+/// Variable arguments must be of type String*.
+/// To actually write a %, put two %%.
+/// </summary>
+/// <param name="pattern">Pattern PROGMEM string. You can produce this string 
+/// by using the F() macro</param>
+/// <param name="...">Optional substitution String* pointers, one for each % in the pattern string</param>
+/// <returns>Number of bytes written</returns>
+/// <example>
+/// <code>
+/// String status(200);
+/// String statusMessage(F("OK"));
+/// String contentType(F("text/html"));
+/// String message(F("Hello World!"));
+/// 
+/// socket.write(F("HTTP % %\r\nContent-Type:%\r\n\r\n&lt;html&gt;&lt;body&gt;&lt;h1&gt;%&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"), 
+///	    &status, &statusMessage, &contentType, &message);
+/// </code>
+/// Output:
+/// <code>
+/// HTTP 200 OK
+/// Content-Type:text/html
+///
+/// &lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello World!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
+/// </code>
+/// </example>
 uint16_t Socket::write(const __FlashStringHelper* pattern, ...)
 {
 	char c;
@@ -85,17 +128,16 @@ uint16_t Socket::write(const __FlashStringHelper* pattern, ...)
 
 		if (c == 0)
 		{
-			write(i, (uint8_t*)buf);
+			bytes += write(i, (uint8_t*)buf);
 			va_end(args);
 			return bytes;
 		}
 
 		buf[i] = c;
-		bytes++;
 		i++;
 		if (i == sizeof(buf))
 		{
-			write(i, (uint8_t*)buf);
+			bytes += write(i, (uint8_t*)buf);
 			i = 0;
 
 		}
@@ -105,6 +147,13 @@ uint16_t Socket::write(const __FlashStringHelper* pattern, ...)
 
 }
 
+/// <summary>
+/// Calculates the TCP or UDP pseudo header checksum.
+/// </summary>
+/// <param name="protocol">protocol code, either IP_PROTO_TCP or IP_PROTO_UDP</param>
+/// <param name="length">Total length of the frame: UDP/TCP header and data</param>
+/// <returns>The calculated checksum</returns>
+/// <remarks>See more about the TCP/UDP pseudo header checksum here: http://en.wikipedia.org/wiki/Transmission_Control_Protocol#Checksum_computation
 uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
 {
 	nint32_t pseudo;
@@ -116,6 +165,14 @@ uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
 	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
 }
 
+/// <summary>
+/// Calculates the TCP checksum.
+/// </summary>
+/// <param name="options">if set to <c>true</c>, considers extra size of a 2 byte length
+/// option, used in EtherFlow to establish the MSS</param>
+/// <param name="dataLength">Length of the payload</param>
+/// <param name="dataChecksum">Checksum of the payload</param>
+/// <returns>The calculated checksum of the TCP segment</returns>
 uint16_t Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dataChecksum)
 {
 	uint8_t headerLength = options ? sizeof(TCPOptions) + sizeof(TCPHeader) : sizeof(TCPHeader);
@@ -125,6 +182,12 @@ uint16_t Socket::calcTCPChecksum(bool options, uint16_t dataLength, uint16_t dat
 	return ~sum;
 }
 
+/// <summary>
+/// Calculates the UDP checksum.
+/// </summary>
+/// <param name="dataLength">Length of the payload.</param>
+/// <param name="dataChecksum">Checksum of the payload</param>
+/// <returns>The calculated checksum of the UDP datagram</returns>
 uint16_t Socket::calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum)
 {
 	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP, dataLength + sizeof(UDPHeader));
@@ -134,6 +197,10 @@ uint16_t Socket::calcUDPChecksum(uint16_t dataLength, uint16_t dataChecksum)
 }
 
 
+/// <summary>
+/// Verifies if the UDP or TCP checksum of the current packet is correct.
+/// </summary>
+/// <returns><c>true</c> if the checksum is correct, <c>false</c> otherwise</returns>
 bool Socket::verifyUDPTCPChecksum()
 {
 #if ENABLE_UDPTCP_RX_CHECKSUM
@@ -177,8 +244,9 @@ bool Socket::verifyUDPTCPChecksum()
 
 }
 
-
-
+/// <summary>
+/// Sets the remoteIP field to <c>255.255.255.255</c>
+/// </summary>
 void Socket::setBroadcastRemoteIP()
 {
 	remoteIP = IPADDR_P(255, 255, 255, 255);

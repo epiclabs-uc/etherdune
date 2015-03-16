@@ -13,6 +13,16 @@
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 
+/// \class Socket
+/// \brief Base class for TCP and UDP sockets
+/// \details
+/**
+
+This class contains all the code common to TCP and UDP implementations, 
+such as checksum calculation/verification and write functions
+
+*/
+
 #ifndef _SOCKET_h
 #define _SOCKET_h
 
@@ -29,8 +39,8 @@ class Socket : protected NetworkService
 
  protected:
 
-	SharedBuffer buffer;
-	static uint8_t srcPort_L_count;
+	SharedBuffer buffer; //!< output buffer for this socket
+	static uint8_t srcPort_L_count; //!< self-incrementing counter for local ports.
 	
 	void prepareIPPacket();
 	static uint16_t calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length);
@@ -42,14 +52,37 @@ class Socket : protected NetworkService
 
  public:
 
-	 nint16_t remotePort;
-	 nint16_t localPort;
-	 IPAddress remoteIP;
+	 nint16_t remotePort; //!< remote TCP or UDP port
+	 nint16_t localPort; //!< local TCP or UDP port
+	 IPAddress remoteIP; //!< remote IP address to connect to (TCP) or send the next packet to (UDP)
 
 	 uint16_t write(uint16_t len, const byte* data);
 	 uint16_t write(const String& s);
 	 uint16_t write(const __FlashStringHelper* pattern, ...);
 
+	 /// <summary>
+	 /// Writes out the binary representation of the parameter to the socket.
+	 /// If used with a null-terminated string constant, it will output the string **including**
+	 /// the null-terminating character \0.
+	 ///
+	 /// If used with datatypes such as int, it will output the actual binary representation of
+	 /// an integer, not the ASCII visual representation of it.
+	 ///
+	 /// Useful to serialize structs or complex types for sending.
+	 /// </summary>
+	 /// <param name="message">The message.</param>
+	 /// <returns>Number of bytes written</returns>
+	 /// <example><code>
+	 /// struct 
+	 /// {
+	 ///   int status;
+	 ///   byte code;
+	 /// } message;
+	 ///
+	 /// message.status = 200;
+	 /// message.code = 10;
+	 /// socket.write(message);
+	 /// </code></example>
 	 template <class T>
 	 inline uint16_t write(const T& message)
 	 {

@@ -43,9 +43,6 @@ void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 	packet.udp.dataLength.setValue(dataLength + sizeof(UDPHeader));
 	packet.udp.checksum.zero();
 
-	uint16_t headerChecksum = calcPseudoHeaderChecksum(IP_PROTO_UDP, dataLength + sizeof(UDPHeader));
-	headerChecksum = Checksum::calc(headerChecksum, sizeof(UDPHeader), (uint8_t*)&packet.udp);
-
 	packet.udp.checksum.rawu = calcUDPChecksum(dataLength, dataChecksum);
 
 }
