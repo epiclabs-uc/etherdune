@@ -1,6 +1,17 @@
-// 
-// 
-// 
+// EtherFlow TCP implementation as a NetworkService
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements the TCP protocol
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
 
 #include "TCPSocket.h"
 #include "Checksum.h"
@@ -9,10 +20,37 @@
 #include <ACLog.h>
 ACROSS_MODULE("TCPSocket");
 
+/// <summary>
+/// Fires when the other party closed the incoming end of the connection because it has no more data
+/// to send.
+/// Note that the outgoing end of the connection must also be closed by calling close().
+/// A socket is not fully closed until both directions are closed.
+/// Usually you call close() as a response to the onClose() event, but this will depend
+/// on the protocol being implemented.
+/// </summary>
 void TCPSocket::onClose() {}
+/// <summary>
+/// Fires when the socket connection is established. If this was a client socket, onConnect()
+/// fires when SYN-ACK is received.
+///
+/// If this was a listening socket, onConnect fires when the ACK to the SYN-ACK is received,
+/// that is, when the connection is fully established.
+/// </summary>
 void TCPSocket::onConnect() {}
+/// <summary>
+/// Called when a listening socket receives a connection request.
+/// To accept the connection request, call accept()
+/// </summary>
 void TCPSocket::onConnectRequest() {}
+/// <summary>
+/// Called for each data packet received
+/// </summary>
+/// <param name="len">Length of the data received</param>
+/// <param name="data">Pointer to data received</param>
 void TCPSocket::onReceive(uint16_t len, const byte* data) {}
+/// <summary>
+/// Called when the socket is ready to be reused.
+/// </summary>
 void TCPSocket::onTerminate() {}
 
 TCPSocket::TCPSocket()
@@ -26,6 +64,10 @@ TCPSocket::TCPSocket()
 
 }
 
+/// <summary>
+/// Initiates a TCP connection to remoteIP and remotePort.
+// Set these properties prior to calling connect()
+/// </summary>
 void TCPSocket::connect()
 {
 	
@@ -42,12 +84,20 @@ void TCPSocket::connect()
 	sendSYN(false);
 }
 
+/// <summary>
+/// Starts listening on the local port indicated by the
+/// localPort property. Set this property prior to calling listen()
+/// </summary>
 void TCPSocket::listen()
 {
 	remoteIP.u = 0;
 	setState(SCK_STATE_LISTEN, 0);
 }
 
+/// <summary>
+/// Accepts a connection request that has been received on the
+/// port this instance was listening on
+/// </summary>
 void TCPSocket::accept()
 {
 	remoteIP.u = packet.ip.sourceIP.u;
@@ -60,6 +110,13 @@ void TCPSocket::accept()
 
 }
 
+/// <summary>
+/// Accepts a connection request that was sent to another TCPSocket instance.
+/// This allows to "spawn" a socket dedicated to fulfill a client request
+/// while keeping the listening socket available to detect other connection
+/// requests.
+/// </summary>
+/// <param name="listener">The TCPSocket that received the connection request</param>
 void TCPSocket::accept(TCPSocket& listener)
 {
 	sequenceNumber = listener.sequenceNumber;
@@ -115,6 +172,14 @@ void TCPSocket::sendSYN(bool ack)
 }
 
 
+/// <summary>
+/// Immediately shuts down the socket and makes it available for a new task.
+/// Call this method to ensure a full cleanup before reusing a socket instance.
+/// </summary>
+/// <remarks>
+/// Note that using this method will not gracefully terminate a connection.
+/// If a connection was established, no message will be sent to the other party.
+/// </remarks>
 void TCPSocket::terminate()
 {
 	setState(SCK_STATE_CLOSED, 0);
@@ -123,6 +188,9 @@ void TCPSocket::terminate()
 	onTerminate();
 }
 
+/// <summary>
+/// Attempts to gracefully close a connection.
+/// </summary>
 void TCPSocket::close()
 {
 
@@ -419,6 +487,12 @@ void TCPSocket::processOutgoingBuffer()
 
 }
 
+/// <summary>
+/// Sets the PSH TCP flag and also sends data in the outgoing buffer immediately.
+/// Normally, socket writes have a maximum lag of 1 tick (by default 200ms) to try piggyback
+/// ACKs and also attempt to send more data than just one write.
+/// Using push() you can have EhterFlow send data without waiting the 200ms.
+/// </summary>
 void TCPSocket::push()
 {
 	nextFlags.PSH = true;
