@@ -1,3 +1,17 @@
+// EtherFlow UDP implementation as a NetworkService
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements the UDP protocol
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
 
 #include "UDPSocket.h"
 #include "Checksum.h"
@@ -6,6 +20,11 @@
 #include <ACLog.h>
 ACROSS_MODULE("UDPSocket");
 
+/// <summary>
+/// Called when a datagram has arrived.
+/// The data is at <c>packet.udpData</c>
+/// </summary>
+/// <param name="len">length of the datagram</param>
 void UDPSocket::onReceive(uint16_t len) {  }
 
 
@@ -16,10 +35,13 @@ UDPSocket::UDPSocket() :sending(false)
 #else
 	localPort.l = srcPort_L_count++;
 #endif
-
 	localPort.h = UDP_SRC_PORT_H;
 }
 
+/// <summary>
+/// Sends the packet currently in the outgoing buffer
+/// </summary>
+/// <returns></returns>
 bool UDPSocket::send()
 {
 	if (sending)
@@ -32,6 +54,11 @@ bool UDPSocket::send()
 }
 
 
+/// <summary>
+/// Fills out the UDP header and calculates the datagram checksum
+/// </summary>
+/// <param name="dataLength">Length of the data payload.</param>
+/// <param name="dataChecksum">Checksum of the payload.</param>
 void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 {
 	packet.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
@@ -47,6 +74,10 @@ void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 
 }
 
+/// <summary>
+/// Sends the packet currently in the shared buffer
+/// </summary>
+/// <returns></returns>
 bool UDPSocket::sendPacket()
 {
 	uint16_t dataChecksum = 0;

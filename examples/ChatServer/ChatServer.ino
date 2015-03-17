@@ -1,8 +1,35 @@
-// Echo Server sample
-// Listens for TCP connections on port 2500,
-// Launches 1 socket per incoming connection, thus able to serve multiple clients simultaneously
-// once connected,sends a welcome message, then the information received is relayed to all clients
+// EtherFlow Chat Server demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements a simple chat server, demonstrating TCP and how to handle
+// multiple simutaneous clients
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
 
+/**
+\file 
+\brief Implements a simple chat server, demonstrating TCP and how to 
+handle multiple simutaneous clients
+\details
+Listens for TCP connections on port 2500, then launches 1 socket per 
+incoming connection, thus able to serve multiple clients simultaneously.
+When a client connects, the server sends a welcome message, then any message
+received is relayed to all clients.
+
+See the TCPSocket documentation for more information.
+
+\cond
+
+
+*/
 
 #include <ACross.h>
 #include <TCPSocket.h>
@@ -141,3 +168,6 @@ void loop()
 {
 	net::loop();
 }
+
+
+/// \endcond

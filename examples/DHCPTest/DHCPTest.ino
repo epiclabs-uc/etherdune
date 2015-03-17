@@ -1,3 +1,32 @@
+// EtherFlow DHCP client demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Shows how to use DHCP in your project
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
+/**
+\file 
+\brief Demonstrates the usage of the DHCP client
+\details
+Instantiates the DHCP service and requests an IP address.
+The address will be renewed as long as the DHCP object instance
+is alive.
+
+See the DHCP documentation for more information.
+
+\cond
+
+
+*/
 #include <ACross.h>
 #include <FlowScanner.h>
 #include <DHCP.h>
@@ -11,7 +40,7 @@ ACROSS_MODULE("DHCPTest");
 static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
 static MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
 
-DHCP dhcp;
+DHCP dhcp; //instantiate the DHCP service
 
 
 void setup()
@@ -62,7 +91,8 @@ void setup()
 
 void loop()
 {
-	net::loop();
+	net::loop(); //given the DHCP instance is alive, net::loop() will keep the lease alive.
 
 }
 
+/// \endcond

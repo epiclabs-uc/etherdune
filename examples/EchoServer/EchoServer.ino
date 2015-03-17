@@ -1,6 +1,30 @@
-// Echo Server sample
-// Listens for TCP connections on port 2500, sends a welcome message, then echoes back anything received
+// EtherFlow Echo server demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Demonstrates how to build a simple server application
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
 
+/**
+\file
+\brief Demonstrates how to build a simple server application
+\details
+Listens for TCP connections on port 2500, sends a welcome message, then echoes back anything received
+
+See the TCPSocket documentation for more information.
+
+\cond
+
+
+*/
 
 #include <ACross.h>
 #include <TCPSocket.h>
@@ -102,3 +126,4 @@ void loop()
 {
 	net::loop();
 }
+/// \endcond

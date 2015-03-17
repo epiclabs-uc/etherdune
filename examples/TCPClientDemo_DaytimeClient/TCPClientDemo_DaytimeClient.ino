@@ -1,5 +1,31 @@
-//Demonstrates the TCP Client class by connecting to a DAYTIME server (TCP port 13) and retrieving the current time
+// EtherFlow DNS and TCP Daytime client demo
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Demonstrates how to build a simple TCP client application
+// and how to resolve a host name to an IP address.
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
 
+/**
+\file
+\brief Demonstrates how to build a simple TCP client application
+\details
+Connects to a DAYTIME server and prints out the current time
+
+See the TCPSocket documentation for more information.
+
+\cond
+
+
+*/
 
 
 #include <ACross.h>
@@ -110,6 +136,6 @@ void setup()
 void loop()
 {
 	net::loop();
-
-
 }
+
+/// \endcond
