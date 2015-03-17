@@ -55,8 +55,8 @@ HTTPClient::HTTPClient() :
 	bodyBeginPattern(bodyBeginPatternString),
 	DNSid(0)
 {
-	remoteIP.u = 0;
-	remotePort.setValue(80);
+	remoteIP.zero();
+	remotePort = 80;
 }
 
 /// <summary>
@@ -67,7 +67,7 @@ HTTPClient::HTTPClient() :
 /// <param name="port">TCP port, 80 by default</param>
 void HTTPClient::request(const String& hostName, const String& resource, uint16_t port )
 {
-	remotePort.setValue(port);
+	remotePort = port;
 
 	host = hostName;
 	res = resource;

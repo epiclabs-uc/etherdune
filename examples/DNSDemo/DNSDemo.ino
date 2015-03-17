@@ -39,7 +39,7 @@ static IPAddress_P dnsIP = { 8, 8, 8, 8 };
 class DNSResolver : public NetworkService
 {
 	uint16_t id;
-
+	bool onPacketReceived(){ return false; };
 	void onDNSResolve(uint8_t status, uint16_t identification, const IPAddress& ip)
 	{
 		if (identification == id)

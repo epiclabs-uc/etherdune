@@ -1,3 +1,20 @@
+// ENC28J60 constants
+// Author: Javier Peletier <jm@friendev.com>
+// Credits: Based off EtherCard's enc28j60.cpp file, taken only the constants
+// Credits: Jean-Claude Wippler, Guido Socher and Pascal Stang
+// Summary: ENC28J60 hardcoded Constants
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #ifndef _enc28j60constants_h_
 #define _enc28j60constants_h_
 

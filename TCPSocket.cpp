@@ -103,7 +103,7 @@ void TCPSocket::accept()
 	remoteIP.u = packet.ip.sourceIP.u;
 	remotePort = packet.tcp.sourcePort;
 
-	ackNumber = packet.tcp.sequenceNumber.getValue() + 1;
+	ackNumber = packet.tcp.sequenceNumber + 1;
 
 	sendSYN(true);
 	setState(SCK_STATE_SYN_RECEIVED, SCK_TIMEOUT_SYN_RECEIVED);
@@ -120,7 +120,7 @@ void TCPSocket::accept()
 void TCPSocket::accept(TCPSocket& listener)
 {
 	sequenceNumber = listener.sequenceNumber;
-	localPort.rawu = listener.localPort.rawu;
+	localPort.rawValue = listener.localPort.rawValue;
 	accept();
 
 }
@@ -128,9 +128,9 @@ void TCPSocket::accept(TCPSocket& listener)
 void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 {
 
-	packet.ip.totalLength.setValue(dataLength + (options ?
+	packet.ip.totalLength = dataLength + (options ?
 		sizeof(IPHeader) + sizeof(TCPOptions) + sizeof(TCPHeader) :
-		sizeof(IPHeader) + sizeof(TCPHeader)));
+		sizeof(IPHeader) + sizeof(TCPHeader));
 
 	packet.ip.protocol = IP_PROTO_TCP;
 
@@ -138,11 +138,11 @@ void TCPSocket::prepareTCPPacket(bool options, uint16_t dataLength)
 
 	packet.tcp.sourcePort = localPort;
 	packet.tcp.destinationPort = remotePort;
-	packet.tcp.sequenceNumber.setValue(sequenceNumber);
+	packet.tcp.sequenceNumber = sequenceNumber;
 	packet.tcp.flags.clear();
 
-	packet.tcp.windowSize.setValue(512);
-	packet.tcp.acknowledgementNumber.setValue(ackNumber);
+	packet.tcp.windowSize = 512;
+	packet.tcp.acknowledgementNumber = ackNumber;
 	packet.tcp.checksum.zero();
 	packet.tcp.urgentPointer.zero();
 
@@ -163,10 +163,10 @@ void TCPSocket::sendSYN(bool ack)
 
 	packet.tcpOptions.option1 = 0x02;
 	packet.tcpOptions.option1_length = 0x04;
-	packet.tcpOptions.option1_value.setValue(TCP_MAXIMUM_SEGMENT_SIZE);
+	packet.tcpOptions.option1_value = TCP_MAXIMUM_SEGMENT_SIZE;
 
 
-	packet.tcp.checksum.rawu = calcTCPChecksum(true, 0, 0);
+	packet.tcp.checksum.rawValue = calcTCPChecksum(true, 0, 0);
 
 	sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader) + sizeof(TCPOptions));
 }
@@ -286,11 +286,11 @@ void TCPSocket::tick()
 bool TCPSocket::onPacketReceived()
 {
 	if (!(
-		packet.eth.etherType.getValue() == ETHTYPE_IP &&
+		packet.eth.etherType == ETHTYPE_IP &&
 		packet.ip.protocol == IP_PROTO_TCP &&
 		state != SCK_STATE_CLOSED &&
-		localPort.rawu == packet.tcp.destinationPort.rawu && 
-		((remoteIP.u == packet.ip.sourceIP.u && remotePort.rawu == packet.tcp.sourcePort.rawu) || state == SCK_STATE_LISTEN)
+		localPort.rawValue == packet.tcp.destinationPort.rawValue && 
+		((remoteIP.u == packet.ip.sourceIP.u && remotePort.rawValue == packet.tcp.sourcePort.rawValue) || state == SCK_STATE_LISTEN)
 		))
 	{
 		return false;
@@ -310,8 +310,8 @@ bool TCPSocket::onPacketReceived()
 
 	ACTRACE("Header SYN=%d ACK=%d FIN=%d RST=%d", packet.tcp.flags.SYN, packet.tcp.flags.ACK, packet.tcp.flags.FIN, packet.tcp.flags.RST)
 
-	uint32_t incomingAckNum = packet.tcp.acknowledgementNumber.getValue();
-	uint32_t incomingSeqNum = packet.tcp.sequenceNumber.getValue();
+	uint32_t incomingAckNum = packet.tcp.acknowledgementNumber;
+	uint32_t incomingSeqNum = packet.tcp.sequenceNumber;
 
 	int32_t bytesAck = (int32_t)(incomingAckNum - sequenceNumber);
 	int32_t bytesReceived;
@@ -366,7 +366,7 @@ bool TCPSocket::onPacketReceived()
 	}
 
 	int16_t headerLength = sizeof(IPHeader) + packet.tcp.headerLength * 4;
-	bytesReceived = packet.ip.totalLength.getValue() - headerLength;
+	bytesReceived = packet.ip.totalLength - headerLength;
 	ackNumber += bytesReceived;
 	ACTRACE("bytesReceived=%ld", bytesReceived);
 
@@ -473,13 +473,13 @@ void TCPSocket::processOutgoingBuffer()
 	if (nextFlags.raw !=0)
 	{
 		prepareTCPPacket(false, dataLength);
-		packet.tcp.sequenceNumber.setValue(sequenceNumber);
+		packet.tcp.sequenceNumber = sequenceNumber;
 		packet.tcp.flags = nextFlags;
 		nextFlags.clear();
 	
 		ACTRACE("dataLength=%d dataChecksum=%d", dataLength, dataChecksum);
 
-		packet.tcp.checksum.rawu = calcTCPChecksum(false, dataLength, dataChecksum);
+		packet.tcp.checksum.rawValue = calcTCPChecksum(false, dataLength, dataChecksum);
 
 		sendIPPacket(sizeof(IPHeader) + sizeof(TCPHeader));
 

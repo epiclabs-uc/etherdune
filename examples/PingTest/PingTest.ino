@@ -54,7 +54,7 @@ class ICMPHandler : ICMPPinger
 	{
 		printf_P(PSTR("Reply from %d.%d.%d.%d: bytes=%d time=%dms TTL=%d\n"),
 			packet.ip.sourceIP.b[0], packet.ip.sourceIP.b[1], packet.ip.sourceIP.b[2], packet.ip.sourceIP.b[3],
-			packet.ip.totalLength.getValue() - sizeof(IPHeader) - sizeof(ICMPHeader),
+			packet.ip.totalLength - sizeof(IPHeader) - sizeof(ICMPHeader),
 			time, packet.ip.TTL);
 
 	}

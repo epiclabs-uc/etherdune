@@ -58,7 +58,7 @@ bool ICMP::loadAll()
 /// </summary>
 void ICMP::calcICMPChecksum()
 {
-	packet.icmp.checksum = ~Checksum::calc(packet.ip.totalLength.getValue() - sizeof(IPHeader), (uint8_t*)&packet.icmp);
+	packet.icmp.checksum = ~Checksum::calc(packet.ip.totalLength - sizeof(IPHeader), (uint8_t*)&packet.icmp);
 }
 
 /// <summary>
@@ -72,7 +72,7 @@ void ICMP::sendICMPPacket(const IPAddress& targetIP, uint16_t dataLength)
 
 	packet.ip.protocol = IP_PROTO_ICMP;
 	dataLength += sizeof(IPHeader) + sizeof(ICMPHeader);
-	packet.ip.totalLength.setValue(dataLength);
+	packet.ip.totalLength = dataLength;
 	prepareIPPacket(targetIP);
 
 	packet.icmp.checksum = 0;

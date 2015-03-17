@@ -26,17 +26,18 @@ uint8_t Socket::srcPort_L_count = 0;
 
 void Socket::prepareIPPacket()
 {
-	packet.ip.version = 4;
-	packet.ip.IHL = 0x05; //20 bytes
-	packet.ip.raw[1] = 0x00; //DSCP/ECN=0;
-	packet.ip.identification.setValue(0);
-	packet.ip.flags = 0;
-	packet.ip.fragmentOffset = 0;
-	packet.ip.checksum.setValue(0);
-	packet.ip.sourceIP = localIP;
-	packet.ip.destinationIP = remoteIP;
-	packet.ip.TTL = 255;
-	packet.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
+	NetworkService::prepareIPPacket(remoteIP);
+	//packet.ip.version = 4;
+	//packet.ip.IHL = 0x05; //20 bytes
+	//packet.ip.raw[1] = 0x00; //DSCP/ECN=0;
+	//packet.ip.identification.zero();
+	//packet.ip.flags = 0;
+	//packet.ip.fragmentOffset = 0;
+	//packet.ip.checksum.zero();
+	//packet.ip.sourceIP = localIP;
+	//packet.ip.destinationIP = remoteIP;
+	//packet.ip.TTL = 255;
+	//packet.ip.checksum.rawValue = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 }
 
 
@@ -159,7 +160,7 @@ uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
 	nint32_t pseudo;
 	pseudo.h.h = 0;
 	pseudo.h.l = protocol;
-	pseudo.l.setValue(length);
+	pseudo.l=length;
 
 	uint16_t sum = Checksum::calc(sizeof(IPAddress) * 2, (uint8_t*)&packet.ip.sourceIP);
 	return Checksum::calc(sum, sizeof(pseudo), (uint8_t*)&pseudo);
@@ -224,7 +225,7 @@ bool Socket::verifyUDPTCPChecksum()
 
 	uint16_t dataChecksum;
 
-	uint16_t totalLength = packet.ip.totalLength.getValue();
+	uint16_t totalLength = packet.ip.totalLength;
 	uint16_t dataLength = totalLength - headerLength;
 
 	dataChecksum = Checksum::calc(dataLength, packet.raw + dataOffset);
@@ -244,10 +245,3 @@ bool Socket::verifyUDPTCPChecksum()
 
 }
 
-/// <summary>
-/// Sets the remoteIP field to <c>255.255.255.255</c>
-/// </summary>
-void Socket::setBroadcastRemoteIP()
-{
-	remoteIP = IPADDR_P(255, 255, 255, 255);
-}

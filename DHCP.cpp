@@ -1,3 +1,19 @@
+// EtherFlow DHCP Service
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements the basics of DHCP so as to obtain and maintain an IP lease
+// along with DNS, gateway IP and netmask.
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include "DHCP.h"
 #include "inet.h"
 #include "DNS.h"
@@ -8,8 +24,8 @@ ACROSS_MODULE("DHCP");
 
 DHCP::DHCP()
 {
-	remotePort.setValue(67);
-	localPort.setValue(68);
+	remotePort = 67;
+	localPort = 68;
 	state = DHCP_STATE_INIT;
 }
 
@@ -19,7 +35,7 @@ void DHCP::prepareDHCPRequest()
 	packet.dhcp.op = 1; //request
 	packet.dhcp.htype = 1; //hardware type=ethernet;
 	packet.dhcp.hlen = sizeof(MACAddress); //size of hardware address
-	packet.dhcp.xid.rawu = *(uint32_t*)&localMAC;  //transaction id, should be a random number. for now, use part of our MAC.
+	packet.dhcp.xid.rawValue = *(uint32_t*)&localMAC;  //transaction id, should be a random number. for now, use part of our MAC.
 	packet.dhcp.broadcastFlag = 0x0080;
 	packet.dhcp.mac = localMAC;
 	setMagicCookie();
@@ -70,7 +86,7 @@ void DHCP::sendDHCPDiscover()
 
 	write(DHCP_OPTIONS_END);
 
-	setBroadcastRemoteIP();
+	remoteIP.setBroadcastIP();
 
 	send();
 	
@@ -97,7 +113,7 @@ void DHCP::onReceive(uint16_t len)
 {
 	ACTRACE("DHCP response");
 
-	if (packet.dhcp.xid.rawu != *(uint32_t*)&localMAC) //we're using part of our mac address as "transaction id"
+	if (packet.dhcp.xid.rawValue != *(uint32_t*)&localMAC) //we're using part of our mac address as "transaction id"
 		return;
 
 	switch (state)
@@ -126,7 +142,7 @@ void DHCP::onReceive(uint16_t len)
 			writeAdditionalFields();
 			write(DHCP_OPTIONS_END);
 
-			setBroadcastRemoteIP();
+			remoteIP.setBroadcastIP();
 
 			send();
 			setState(DHCP_STATE_REQUESTING, DHCP_TIMEOUT_REQUESTING);
@@ -148,10 +164,10 @@ void DHCP::onReceive(uint16_t len)
 					DHCPTimerOption* timerOpt = (DHCPTimerOption*)findOption(DHCP_OPTIONS_RENEWAL_TIME);
 					if (timerOpt != NULL)
 					{
-						if (timerOpt->timer.h.rawu != 0)
+						if (timerOpt->timer.h.rawValue != 0)
 							renewalTimer = 0xFFFF;
 						else
-							renewalTimer = timerOpt->timer.l.getValue();
+							renewalTimer = timerOpt->timer.l;
 					}
 					else
 						renewalTimer = DHCP_DEFAULT_RENEWAL_TIMER;

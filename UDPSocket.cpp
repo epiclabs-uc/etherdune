@@ -61,16 +61,16 @@ bool UDPSocket::send()
 /// <param name="dataChecksum">Checksum of the payload.</param>
 void UDPSocket::prepareUDPPacket(uint16_t dataLength, uint16_t dataChecksum)
 {
-	packet.ip.totalLength.setValue(dataLength + sizeof(IPHeader) + sizeof(UDPHeader));
+	packet.ip.totalLength=dataLength + sizeof(IPHeader) + sizeof(UDPHeader);
 	packet.ip.protocol = IP_PROTO_UDP;
 	prepareIPPacket();
 	packet.udp.sourcePort = localPort;
 	packet.udp.destinationPort = remotePort;
 
-	packet.udp.dataLength.setValue(dataLength + sizeof(UDPHeader));
+	packet.udp.dataLength = dataLength + sizeof(UDPHeader);
 	packet.udp.checksum.zero();
 
-	packet.udp.checksum.rawu = calcUDPChecksum(dataLength, dataChecksum);
+	packet.udp.checksum.rawValue = calcUDPChecksum(dataLength, dataChecksum);
 
 }
 
@@ -106,9 +106,9 @@ void UDPSocket::tick()
 bool UDPSocket::onPacketReceived()
 {
 	if (!(
-		packet.eth.etherType.getValue() == ETHTYPE_IP &&
+		packet.eth.etherType == ETHTYPE_IP &&
 		packet.ip.protocol == IP_PROTO_UDP &&
-		localPort.rawu == packet.udp.destinationPort.rawu))
+		localPort.rawValue == packet.udp.destinationPort.rawValue))
 	{
 		return false;
 	}
@@ -125,6 +125,6 @@ bool UDPSocket::onPacketReceived()
 
 #endif
 
-	onReceive(packet.udp.dataLength.getValue() - sizeof(UDPHeader));
+	onReceive(packet.udp.dataLength - sizeof(UDPHeader));
 	return true;
 }

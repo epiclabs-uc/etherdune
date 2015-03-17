@@ -33,7 +33,7 @@ ARPService::ARPService()
 bool ARPService::onPacketReceived()
 {
 	
-	if (packet.eth.etherType.getValue() != ETHTYPE_ARP)
+	if (packet.eth.etherType != ETHTYPE_ARP)
 		return false;
 
 	ACTRACE("processHeader");
@@ -116,12 +116,12 @@ void ARPService::makeWhoHasARPRequest(IPAddress& ip)
 {
 	memset(&packet.eth.dstMAC, 0xFF, sizeof(MACAddress));
 	packet.eth.srcMAC = packet.arp.senderMAC = localMAC;
-	packet.eth.etherType.setValue(ETHTYPE_ARP);
-	packet.arp.HTYPE.setValue(0x0001);
-	packet.arp.PTYPE.setValue(0x0800);
+	packet.eth.etherType=ETHTYPE_ARP;
+	packet.arp.HTYPE = 0x0001;
+	packet.arp.PTYPE = 0x0800;
 	packet.arp.HLEN = 0x06;
 	packet.arp.PLEN = 0x04;
-	packet.arp.OPER.setValue(0x0001);
+	packet.arp.OPER = 0x0001;
 	memset(&packet.arp.targetMAC, 0x00, sizeof(MACAddress));
 	packet.arp.targetIP = ip;
 	packet.arp.senderIP = localIP;

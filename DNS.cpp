@@ -34,7 +34,7 @@ void DNSClient::onReceive(uint16_t len)
 
 DNSClient::DNSClient() 
 {
-	remotePort.setValue(53);
+	remotePort = 53;
 }
 
 /// <summary>
@@ -81,7 +81,7 @@ uint16_t DNSClient::resolve(const char* name)
 	header.opcode = 0; // standard query;
 	*/
 	header.RD = 1; //recursion desired
-	header.numberOfQuestions.setValue(1); //only one question
+	header.numberOfQuestions=1; //only one question
 
 	//queryType = 1 (A query), queryClass=1 (Internet Address);
 	b++;

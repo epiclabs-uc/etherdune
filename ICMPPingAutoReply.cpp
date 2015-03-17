@@ -1,7 +1,20 @@
+// EtherFlow ICMP automatic Echo reply class
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Implements an ICMP Echo reply service
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 
 #include "ICMPPingAutoReply.h"
-
-
 
 bool ICMPPingAutoReply::onICMPMessage()
 {
@@ -19,7 +32,7 @@ bool ICMPPingAutoReply::onICMPMessage()
 	prepareIPPacket(packet.ip.sourceIP);
 	calcICMPChecksum();
 
-	sendIPPacket((uint8_t)packet.ip.totalLength.getValue());
+	sendIPPacket((uint8_t)packet.ip.totalLength);
 
 	return true;
 

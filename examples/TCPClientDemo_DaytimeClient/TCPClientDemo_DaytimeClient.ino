@@ -54,7 +54,7 @@ public:
 
 	void start()
 	{
-		remotePort.setValue(13);
+		remotePort = 13;
 
 		DNSid = net::DNS().resolve("ntp-nist.ldsbc.edu");
 		//alternatives here: http://www.jumpjet.info/Offbeat-Internet/Public/Daytime/url.htm

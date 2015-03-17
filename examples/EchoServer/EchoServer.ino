@@ -50,7 +50,7 @@ public:
 	
 	void start(uint16_t port)
 	{
-		localPort.setValue(port);
+		localPort = port;
 		listen();
 	}
 

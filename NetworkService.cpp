@@ -85,7 +85,7 @@ void NetworkService::processIncomingPacket()
 
 #if ENABLE_IP_RX_CHECKSUM || ENABLE_UDPTCP_RX_CHECKSUM
 
-		if (packet.eth.etherType.getValue() == ETHTYPE_IP)
+		if (packet.eth.etherType == ETHTYPE_IP)
 		{
 			uint16_t sum = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 			if (0 != sum)
@@ -151,10 +151,10 @@ bool NetworkService::sendIPPacket(uint16_t length)
 	}
 
 	packet.eth.srcMAC = localMAC;
-	packet.eth.etherType.setValue(ETHTYPE_IP);
+	packet.eth.etherType = ETHTYPE_IP;
 
 	ENC28J60::writeBuf(TXSTART_INIT_DATA, sizeof(EthernetHeader) + length, packet.raw);
-	ENC28J60::packetSend(sizeof(EthernetHeader) + packet.ip.totalLength.getValue());
+	ENC28J60::packetSend(sizeof(EthernetHeader) + packet.ip.totalLength);
 
 	return true;
 }
@@ -196,14 +196,14 @@ void NetworkService::prepareIPPacket(const IPAddress& remoteIP)
 	packet.ip.version = 4;
 	packet.ip.IHL = 0x05; //20 bytes
 	packet.ip.raw[1] = 0x00; //DSCP/ECN=0;
-	packet.ip.identification.setValue(0);
+	packet.ip.identification.zero();
 	packet.ip.flags = 0;
 	packet.ip.fragmentOffset = 0;
 	packet.ip.destinationIP = remoteIP;
 	packet.ip.sourceIP = localIP;
 	packet.ip.TTL = 255;
-	packet.ip.checksum.setValue(0);
-	packet.ip.checksum.rawu = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
+	packet.ip.checksum.zero();
+	packet.ip.checksum.rawValue = ~Checksum::calc(sizeof(IPHeader), (uint8_t*)&packet.ip);
 }
 
 /// <summary>

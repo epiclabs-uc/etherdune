@@ -1,3 +1,18 @@
+// EtherFlow scratchpad test .ino
+// Author: Javier Peletier <jm@friendev.com>
+// Summary: Won't contain anything clean. Look at the other examples instead.
+//
+// Copyright (c) 2015 All Rights Reserved, http://friendev.com
+//
+// This source is subject to the GPLv2 license.
+// Please see the License.txt file for more information.
+// All other rights reserved.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+
 #include <ACross.h>
 #include <Checksum.h>
 #include <TCPSocket.h>
