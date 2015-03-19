@@ -79,6 +79,7 @@ void setup()
 	ACross::init();
 
 	Serial.println(F("EtherFlow DNS sample"));
+	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());

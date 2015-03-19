@@ -67,6 +67,8 @@ class Socket : protected NetworkService
 	 /// an integer, not the ASCII visual representation of it.
 	 ///
 	 /// Useful to serialize structs or complex types for sending.
+	 ///
+	 /// See UDPClientDemo_NTPClient.ino for an example usage
 	 /// </summary>
 	 /// <param name="message">The message.</param>
 	 /// <returns>Number of bytes written</returns>

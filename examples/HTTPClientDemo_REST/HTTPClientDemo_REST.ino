@@ -24,6 +24,7 @@
 #include <FlowScanner.h>
 #include <HTTPClient.h>
 
+
 #define AC_LOGLEVEL 6
 #include <ACLog.h>
 ACROSS_MODULE("HTTPClient demo");
@@ -73,6 +74,12 @@ public:
 	void onResponseReceived()
 	{
 		ACTRACE("HTTP status=%d", statusCode);
+		if (statusCode != HTTP_RESPONSE_OK)
+		{
+			Serial.print(F("Server error, status code="));
+			Serial.println(statusCode);
+			terminate();
+		}
 
 	}
 

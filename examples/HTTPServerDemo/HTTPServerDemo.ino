@@ -160,6 +160,7 @@ public:
 
 	void onTerminate()
 	{
+		ACTRACE("Listening again");
 		listen(); // listen again for the next request.
 	}
 

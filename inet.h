@@ -46,7 +46,11 @@ union u32_t
 	uint32_t v;
 };
 
-/// Represents a network-order 16-bit integer
+/// <summary>Represents a network byte order 16 bit integer.
+/// Includes overloaded operators so as to make conversion to/from 
+/// network byte order transparent
+///
+/// </summary>
 union nint16_t
 {
 	uint16_t rawValue; //!< provides low level access to the memory containing the network-order integer
@@ -91,6 +95,12 @@ union nint16_t
 	}
 };
 
+
+/// <summary>Represents a network byte order 32 bit integer.
+/// Includes overloaded operators so as to make conversion to/from 
+/// network byte order transparent
+///
+/// </summary>
 union nint32_t
 {
 	uint32_t rawValue; //!< provides low level access to the memory containing the network-order integer
@@ -155,6 +165,7 @@ struct IPAddress_P_
 #define IPAddress_P PROGMEM IPAddress_P_ 
 
 #ifdef ACROSS_ARDUINO
+/// defines an IP address as stored in PROGMEM
 #define IPADDR_P(b0,b1,b2,b3) (__extension__({static IPAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3)}; &__c;}))
 #else
 /// defines an IP address as stored in PROGMEM
@@ -225,6 +236,7 @@ struct MACAddress_P_
 
 #define MACAddress_P PROGMEM MACAddress_P_ 
 #ifdef ACROSS_ARDUINO
+/// stores a MAC address in PROGMEM
 #define MACADDR_P(b0,b1,b2,b3,b4,b5) (__extension__({static MACAddress_P_ __c PROGMEM = {(b0),(b1),(b2),(b3),(b4),(b5)}; &__c;}))
 #else
 /// stores a MAC address in PROGMEM
@@ -375,7 +387,7 @@ struct UDPHeader
 	nint16_t checksum; //!< The 16-bit checksum field is used for error-checking of the header and data
 };
 
-// Structure used to encode part of a DNS query
+/// Structure used to encode part of a DNS query
 struct DNSHeader
 {
 	uint16_t identification; //!< A 16-bit identification number chosen by the client. The server will reply with the same number so the client can match a response to a request.
@@ -383,7 +395,7 @@ struct DNSHeader
 	{
 		struct
 		{
-			uint8_t RD : 1; //!< Recursion Desired: When set in a query, requests that the server receiving the query attempt to answer the query recursively, if the server supports recursive resolution. The value of this bit is not changed in the response.
+			uint8_t RD : 1; //!< Recursion Desired. When set in a query, requests that the server receiving the query attempt to answer the query recursively, if the server supports recursive resolution. The value of this bit is not changed in the response.
 			uint8_t TC : 1; //!< Truncation Flag. When set to 1, indicates that the message was truncated due to its length being longer than the maximum permitted for the type of transport mechanism used. TCP doesn't have a length limit for messages, while UDP messages are limited to 512 bytes, so this bit being sent usually is an indication that the message was sent using UDP and was too long to fit. The client may need to establish a TCP session to get the full message. On the other hand, if the portion truncated was part of the Additional section, it may choose not to bother.
 			uint8_t AA : 1; //!< Authoritative Answer Flag. This bit is set to 1 in a response to indicate that the server that created the response is authoritative for the zone in which the domain name specified in the Question section is located. If it is 0, the response is non-authoritative.
 			uint8_t opcode : 4; //!< Operation Code.

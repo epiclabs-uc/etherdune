@@ -26,7 +26,7 @@
 /// saving valuable flash/code space.
 ///
 /// In order to use DHCP in your project, instantiate an object of this class, call
-/// \ref dhcpSetup and keep it alive for as long
+/// \ref dhcpSetup and keep the object instance alive for as long
 /// as you want to keep the lease active.
 ///
 /// If you do not instantiate the \ref DHCP class in your code, it will not be compiled in, therefore

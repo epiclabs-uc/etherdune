@@ -50,6 +50,7 @@ void setup()
 	ACross::init();
 
 	Serial.println(F("EtherFlow DHCP sample"));
+	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());
@@ -85,6 +86,7 @@ void setup()
 	Serial.print(F("DNS IP: "));
 	Serial.println(net::dnsIP.toString());
 
+	Serial.println(F("\nDHCP works!"));
 	
 }
 

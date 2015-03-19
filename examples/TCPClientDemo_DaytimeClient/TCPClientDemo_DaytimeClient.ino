@@ -103,7 +103,8 @@ void setup()
 	Serial.begin(115200);
 	ACross::init();
 
-
+	Serial.println(F("TCP Client EtherFlow example"));
+	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
 	while (!Serial.available());

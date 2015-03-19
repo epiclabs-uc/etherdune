@@ -245,7 +245,7 @@ void HTTPServer::writeHeader_P(PGM_P headerName, const String& headerValue)
 /// <param name="contentType">String / regular C string representing the content type, e.g., `application/json`</param>
 void HTTPServer::writeContentTypeHeader(const String& contentType)
 {
-	writeHeader(HTTP_HEADER_CONTENT_TYPE, contentType);
+	writeHeader_P(HTTP_HEADER_CONTENT_TYPE, contentType);
 }
 
 /// <summary>

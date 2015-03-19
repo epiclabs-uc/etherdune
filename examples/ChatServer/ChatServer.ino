@@ -160,6 +160,8 @@ void setup()
 
 	chatServer.start(CHAT_SERVER_TCP_PORT);
 	Serial.println(F("Chat server is up"));
+	Serial.print(F("Listening on TCP port "));
+	Serial.println(chatServer.localPort);
 }
 
 

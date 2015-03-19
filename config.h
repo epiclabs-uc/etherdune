@@ -255,7 +255,7 @@ static const uint8_t ICMP_PING_DATA_LENGTH = 32; //!< size of data to send as pa
 #define RXSTART_INIT  0x0000  //!<  start of RX buffer. Due to hardware bugs, this must be zero.
 #define RXSTOP_INIT (RXBUFFER_SIZE-1)  //!< end of RX buffer. Make sure RXSTOP_INIT is an odd number due to hardware bugs.
 
-#define TX_STATUS_VECTOR_SIZE  7 //!< don't change this, it is how it is.
+#define TX_STATUS_VECTOR_SIZE  15 //!< don't change this, it is how it is.
 
 #define TXSTART_INIT  (RXSTOP_INIT + 1)  //!< start of TX buffer
 #define TXSTOP_INIT  (TXSTART_INIT + TXBUFFER_SIZE - 1)  //!< end of TX buffer
@@ -268,6 +268,8 @@ static const uint8_t ICMP_PING_DATA_LENGTH = 32; //!< size of data to send as pa
 
 #define TXSTART_INIT_DATA (TXSTART_INIT + 1) // skip 1 byte to make room for the control byte required by ENC28J60
 
+static const uint16_t i2 = TXSTOP_INIT;
+static const uint16_t i1 = SHARED_BUFFER_INIT;
 ///@}
 
 #define NTICKS(ms) ((ms)/NETWORK_TIMER_RESOLUTION)

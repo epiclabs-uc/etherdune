@@ -95,6 +95,7 @@ void setup()
 #endif
 
 	printf(PSTR("ICMP Ping EtherFlow sample\n"));
+	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	printf(PSTR("Press any key to start...\n"));
 
 	while (!Serial.available());

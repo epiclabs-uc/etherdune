@@ -118,6 +118,8 @@ void setup()
 	echoServer.start(ECHO_SERVER_TCP_PORT);
 
 	Serial.println(F("Echo server is up"));
+	Serial.print(F("Listening on TCP port "));
+	Serial.println(echoServer.localPort);
 }
 
 

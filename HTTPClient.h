@@ -31,6 +31,7 @@
 /// See HTTPClientDemo_REST.ino for a full example on how to use this class.
 
 #include <ACross.h>
+#include "HTTPConstants.h"
 #include "TCPSocket.h"
 #include <FlowScanner.h>
 

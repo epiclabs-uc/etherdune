@@ -203,14 +203,9 @@ void TCPSocket::close()
 		case SCK_STATE_ESTABLISHED:
 		{
 			setState(SCK_STATE_FIN_WAIT_1, SCK_TIMEOUT_FIN_WAIT_1);
-			nextFlags.FIN = 1;
+			//nextFlags.FIN = 1;
 		}break;
 
-		default:
-		{
-			terminate(); return;
-		}
-		break;
 	}
 }
 
@@ -257,12 +252,13 @@ void TCPSocket::tick()
 			sendSYN(true);
 		}break;
 
+		case SCK_STATE_CLOSING:
 		case SCK_STATE_FIN_WAIT_1:
 		{
 			if (!buffer.isEmpty())
 				goto sck_state_established;
 		}
-		case SCK_STATE_CLOSING:
+		
 		case SCK_STATE_LAST_ACK:
 		{
 			nextFlags.FIN = 1;
@@ -373,7 +369,13 @@ bool TCPSocket::onPacketReceived()
 	
 
 	if (bytesReceived > 0) // do not send an ACK if this was a packet with no data
+	{
 		nextFlags.ACK = 1;
+		int16_t slen = min(bytesReceived, (int16_t)(sizeof(EthBuffer) - sizeof(EthernetHeader)) - headerLength);
+
+		if (slen > 0)
+			onReceive((uint16_t)slen, packet.raw + sizeof(EthernetHeader) + headerLength);
+	}
 
 
 	if (packet.tcp.flags.FIN)
@@ -386,11 +388,6 @@ bool TCPSocket::onPacketReceived()
 	{
 		case SCK_STATE_ESTABLISHED:
 		{
-			int16_t slen = min(bytesReceived, (int16_t)(sizeof(EthBuffer) - sizeof(EthernetHeader)) - headerLength);
-
-			if (slen > 0)
-				onReceive((uint16_t)slen, packet.raw + sizeof(EthernetHeader) + headerLength);
-
 
 			if (packet.tcp.flags.FIN)
 			{
@@ -407,7 +404,10 @@ bool TCPSocket::onPacketReceived()
 			if (bytesAck == 1 && buffer.isEmpty())
 			{
 				if (packet.tcp.flags.FIN)
+				{
 					setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
+					onClose();
+				}
 				else
 					setState(SCK_STATE_FIN_WAIT_2, SCK_TIMEOUT_FIN_WAIT_2);
 			}
@@ -417,6 +417,7 @@ bool TCPSocket::onPacketReceived()
 				{
 					setState(SCK_STATE_CLOSING, SCK_TIMEOUT_CLOSING);
 					nextFlags.ACK = 1;
+					onClose();
 				}
 			}
 
@@ -432,13 +433,14 @@ bool TCPSocket::onPacketReceived()
 
 		}break;
 
-		case SCK_STATE_TIME_WAIT:
+		//case SCK_STATE_TIME_WAIT:
 		case SCK_STATE_FIN_WAIT_2:
 		{
 			if (packet.tcp.flags.FIN)
 			{
 				setState(SCK_STATE_TIME_WAIT, SCK_TIMEOUT_TIME_WAIT);
 				nextFlags.ACK = 1;
+				onClose();
 			}
 
 		}break;
