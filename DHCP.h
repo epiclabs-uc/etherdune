@@ -63,6 +63,7 @@ static const uint8_t DHCP_OPTIONS_END = 255;
 
 static const uint8_t DHCP_HARDWARE_TYPE_ETHERNET = 1;
 
+/// \cond
 struct DHCPOptionHeader
 {
 	uint8_t code;
@@ -116,7 +117,7 @@ typedef  DHCPMessageTypeOption<DHCP_REQUEST> DHCPRequestMessageTypeOption;
 
 
 
-
+/// \endcond
 
 class DHCP : private UDPSocket, Stateful
 {

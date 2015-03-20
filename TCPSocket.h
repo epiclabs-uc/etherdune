@@ -24,6 +24,9 @@ the different virtual functions that notify of events related to the socket.
 The socket write functions are inherited from Socket. Check out Socket::write()
 for more information.
 
+See TCPClientDemo_DaytimeClient.ino, ChatServer.ino and EchoServer.ino for
+examples
+
 */
 
 

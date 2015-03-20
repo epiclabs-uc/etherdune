@@ -47,7 +47,7 @@ static IPAddress_P netmask = { 255, 255, 255, 0 };
 
 
 
-class MyProtocol : public TCPSocket
+class DaytimeClient : public TCPSocket
 {
 	uint16_t DNSid;
 public:
