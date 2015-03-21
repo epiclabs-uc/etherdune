@@ -20,14 +20,10 @@
 
 #include <ACross.h>
 #include <Checksum.h>
-#include <TCPSocket.h>
 #include <UDPSocket.h>
-
 #include <inet.h>
 #include <ENC28J60.h>
-#include <DNS.h>
 #include <FlowScanner.h>
-#include <HTTPClient.h>
 #include <ICMPPingAutoReply.h>
 #include <ICMPPinger.h>
 #include <DHCP.h>
@@ -39,9 +35,10 @@ ACROSS_MODULE("PingTest");
 static const uint8_t CS_PIN = 10; //Put here what pin you are using for your ENC28J60's chip select
 static MACAddress_P mymac = { 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64 };
 
+// Instantiate the DHCP service
 DHCP dhcp;
 
-// Instantiate ICMPPingAutoReply class, takes care of replying to incoming echo requests
+// Instantiate ICMPPingAutoReply service, takes care of replying to incoming echo requests. No other action is necessary.
 ICMPPingAutoReply pingAutoReply; 
 
 class ICMPHandler : ICMPPinger
@@ -94,9 +91,9 @@ void setup()
 	ACross::printf_serial_init();
 #endif
 
-	printf(PSTR("ICMP Ping EtherDune sample\n"));
-	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
-	printf(PSTR("Press any key to start...\n"));
+	printf_P(PSTR("ICMP Ping EtherDune sample\n"));
+	printf_P(PSTR("Free RAM: %d"),ACross::getFreeRam());
+	printf_P(PSTR("Press any key to start...\n"));
 
 	while (!Serial.available());
 	
@@ -114,24 +111,24 @@ void setup()
 
 	if (!dhcp.dhcpSetup())
 	{
-		Serial.println(F("DHCP setup failed"));
+		printf_P(PSTR("DHCP setup failed\n"));
 		ACross::halt(1);
 	}
 
-	Serial.println(F("DHCP setup OK"));
+	printf_P(PSTR("DHCP setup OK\n"));
 
 	printf_P(PSTR("Local IP is %d.%d.%d.%d. Try pinging me!\n\n"),
 		net::localIP.b[0], net::localIP.b[1], net::localIP.b[2], net::localIP.b[3]);
 
 	IPAddress targetIP;
-	targetIP = IPADDR_P(8, 8, 8, 8);
+	targetIP = IPADDR_P(8, 8, 8, 8); // ping Google's DNS 8.8.8.8
 	pingTest.start(targetIP);
 
 }
 
 void loop()
 {
-	net::loop();
+	net::loop(); //process packets and run all services.
 
 }
 
