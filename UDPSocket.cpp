@@ -1,4 +1,4 @@
-// EtherFlow UDP implementation as a NetworkService
+// EtherDune UDP implementation as a NetworkService
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements the UDP protocol
 //

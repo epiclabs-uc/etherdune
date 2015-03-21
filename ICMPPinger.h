@@ -1,4 +1,4 @@
-// EtherFlow ICMP Pinger class
+// EtherDune ICMP Pinger class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements an ICMP Echo request service
 //

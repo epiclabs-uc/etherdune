@@ -1,4 +1,4 @@
-// EtherFlow ENC28J60 hardware driver
+// EtherDune ENC28J60 hardware driver
 // Author: Javier Peletier <jm@friendev.com>
 // Credits: Initially based off EtherCard's own enc28j60.cpp file, but heavily modified afterwards.
 // Credits: Jean-Claude Wippler, Guido Socher and Pascal Stang

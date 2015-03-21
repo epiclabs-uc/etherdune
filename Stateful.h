@@ -1,4 +1,4 @@
-// EtherFlow State tracking class
+// EtherDune State tracking class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Maintains a state variable and allows to pull out a state string representation for debugging
 //

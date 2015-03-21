@@ -1,4 +1,4 @@
-// EtherFlow DHCP client demo
+// EtherDune DHCP client demo
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Shows how to use DHCP in your project
 //
@@ -49,7 +49,7 @@ void setup()
 	Serial.begin(115200);
 	ACross::init();
 
-	Serial.println(F("EtherFlow DHCP sample"));
+	Serial.println(F("EtherDune DHCP sample"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
@@ -58,7 +58,7 @@ void setup()
 	net::localMAC = mymac;
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

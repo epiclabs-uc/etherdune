@@ -1,4 +1,4 @@
-// EtherFlow DNS and TCP Daytime client demo
+// EtherDune DNS and TCP Daytime client demo
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates how to build a simple TCP client application
 // and how to resolve a host name to an IP address.
@@ -103,7 +103,7 @@ void setup()
 	Serial.begin(115200);
 	ACross::init();
 
-	Serial.println(F("TCP Client EtherFlow example"));
+	Serial.println(F("TCP Client EtherDune example"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
@@ -117,7 +117,7 @@ void setup()
 	net::dnsIP = IPADDR_P(8, 8, 8, 8);
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

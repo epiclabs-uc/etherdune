@@ -1,6 +1,6 @@
-// EtherFlow DNS Demo
+// EtherDune DNS Demo
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: Configures EtherFlow to resolve a hostname and print its IP address.
+// Summary: Configures EtherDune to resolve a hostname and print its IP address.
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
 //
@@ -78,7 +78,7 @@ void setup()
 	Serial.begin(115200);
 	ACross::init();
 
-	Serial.println(F("EtherFlow DNS sample"));
+	Serial.println(F("EtherDune DNS sample"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
@@ -91,7 +91,7 @@ void setup()
 	net::dnsIP = dnsIP;
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

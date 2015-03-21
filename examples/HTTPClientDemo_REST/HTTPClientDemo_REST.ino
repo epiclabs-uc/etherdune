@@ -1,4 +1,4 @@
-// EtherFlow HTTPClient class demo
+// EtherDune HTTPClient class demo
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates the HTTPClient class by connecting to a weather REST service
 //
@@ -123,7 +123,7 @@ void setup()
 {
 	Serial.begin(115200);
 	ACross::init();
-	Serial.println(F("Etherflow HTTPClient sample"));
+	Serial.println(F("EtherDune HTTPClient sample"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 
 	Serial.println(F("Press any key to start..."));
@@ -134,8 +134,8 @@ void setup()
 
 	if (!net::begin(CS_PIN))
 	{
-		ACERROR("failed to start EtherFlow");
-		Serial.println(F("failed to start EtherFlow"));
+		ACERROR("failed to start EtherDune");
+		Serial.println(F("failed to start EtherDune"));
 	}
 
 	ACINFO("waiting for link...");

@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="EtherSocketTest.ino" />
+    <None Include="..\..\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Checksum.h">

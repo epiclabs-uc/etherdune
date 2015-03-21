@@ -1,4 +1,4 @@
-// EtherFlow Shared circular buffer class
+// EtherDune Shared circular buffer class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements a "shared" circular buffer using spare ENC28J60 memory
 //

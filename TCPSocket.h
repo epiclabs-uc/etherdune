@@ -1,4 +1,4 @@
-// EtherFlow TCP implementation as a NetworkService
+// EtherDune TCP implementation as a NetworkService
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements the TCP protocol
 //

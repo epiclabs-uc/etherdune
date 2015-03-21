@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ARDUINO_LIB)\ACross;$(ARDUINO_LIB)\EtherFlow;$(ARDUINO_LIB)\FlowScanner;$(IncludePath)</IncludePath>
+    <IncludePath>$(ARDUINO_LIB)\ACross;$(ARDUINO_LIB)\EtherDune;$(ARDUINO_LIB)\FlowScanner;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)-pc\</OutDir>
     <IntDir>$(Configuration)-pc\</IntDir>
   </PropertyGroup>
@@ -102,6 +102,7 @@
     <ClCompile Include="EtherSocketTest-pc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\README.md" />
     <None Include="EtherSocketTest.ino" />
   </ItemGroup>
   <ItemGroup>

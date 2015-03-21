@@ -1,4 +1,4 @@
-// EtherFlow Chat Server demo
+// EtherDune Chat Server demo
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements a simple chat server, demonstrating TCP and how to handle
 // multiple simutaneous clients
@@ -134,7 +134,7 @@ void setup()
 {	
 	Serial.begin(115200);
 	ACross::init();
-	Serial.println(F("Etherflow ChatServer sample"));
+	Serial.println(F("EtherDune ChatServer sample"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	
 	Serial.println(F("Press any key to start..."));
@@ -149,7 +149,7 @@ void setup()
 
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

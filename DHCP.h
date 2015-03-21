@@ -1,4 +1,4 @@
-// EtherFlow DHCP Service
+// EtherDune DHCP Service
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements the basics of DHCP so as to obtain and maintain an IP lease
 // along with DNS, gateway IP and netmask.
@@ -15,12 +15,12 @@
 // PARTICULAR PURPOSE.
 
 /// \class DHCP
-/// \brief EtherFlow DHCP Service
+/// \brief EtherDune DHCP Service
 /// \details Implements the basics of DHCP so as to obtain and maintain an IP lease
 /// along with DNS, gateway IP and netmask.
-/// See \ref DHCPConfig for EtherFlow config parameters that apply to DHCP.
+/// See \ref DHCPConfig for EtherDune config parameters that apply to DHCP.
 ///
-/// EtherFlow DHCP is a crude "straight to the point" implementation of DHCP. 
+/// EtherDune DHCP is a crude "straight to the point" implementation of DHCP. 
 /// It does not implement a full RENEW/REBIND cycle, but rather shortcuts the whole process
 /// fully renewing the lease once the timeout expires. This simplifies the implementation
 /// saving valuable flash/code space.

@@ -1,4 +1,4 @@
-// EtherFlow HTTP Client class
+// EtherDune HTTP Client class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Provides an easy way to query a web server
 //

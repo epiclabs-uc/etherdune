@@ -1,4 +1,4 @@
-// EtherFlow Linked list class
+// EtherDune Linked list class
 // Author: Javier Peletier <jm@friendev.com>
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com

@@ -1,4 +1,4 @@
-// EtherFlow Socket base class
+// EtherDune Socket base class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Base class for TCP and UDP sockets
 //

@@ -1,4 +1,4 @@
-// EtherFlow Socket base class
+// EtherDune Socket base class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Base class for TCP and UDP sockets
 //
@@ -170,7 +170,7 @@ uint16_t Socket::calcPseudoHeaderChecksum(uint8_t protocol, uint16_t length)
 /// Calculates the TCP checksum.
 /// </summary>
 /// <param name="options">if set to <c>true</c>, considers extra size of a 2 byte length
-/// option, used in EtherFlow to establish the MSS</param>
+/// option, used in EtherDune to establish the MSS</param>
 /// <param name="dataLength">Length of the payload</param>
 /// <param name="dataChecksum">Checksum of the payload</param>
 /// <returns>The calculated checksum of the TCP segment</returns>

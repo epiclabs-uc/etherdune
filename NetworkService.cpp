@@ -1,6 +1,6 @@
-// EtherFlow Network Service base class
+// EtherDune Network Service base class
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: Base class for any network service running in EtherFlow 
+// Summary: Base class for any network service running in EtherDune 
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
 //
@@ -60,7 +60,7 @@ void NetworkService::onDNSResolve(uint8_t status, uint16_t identification, const
 
 
 /// <summary>
-/// Initializes EtherFlow and the underlying hardware
+/// Initializes EtherDune and the underlying hardware
 /// </summary>
 /// <param name="cspin">ENC28J60 chip select pin to use</param>
 /// <returns>`true` if successful, `false` otherwise.</returns>
@@ -108,7 +108,7 @@ void NetworkService::processIncomingPacket()
 }
 
 /// <summary>
-/// Gives processing time to EtherFlow so that it can check for incoming packets or send queued packets.
+/// Gives processing time to EtherDune so that it can check for incoming packets or send queued packets.
 /// Call this with the highest frequency possible, usually in your sketch's `%loop()` function.
 /// </summary>
 void NetworkService::loop()

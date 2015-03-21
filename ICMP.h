@@ -1,4 +1,4 @@
-// EtherFlow ICMP Abstract base class
+// EtherDune ICMP Abstract base class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements common ICMP packet building routines and ICMP checksum
 // Summary: Used as base class for ICMP Echo (ping)

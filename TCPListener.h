@@ -1,4 +1,4 @@
-// EtherFlow TCP Listener helper template class
+// EtherDune TCP Listener helper template class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Maintains a list of available sockets, also listening and spawning sockets to
 // serve multiple clients simultaneously.

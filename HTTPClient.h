@@ -1,4 +1,4 @@
-// EtherFlow HTTP Client class
+// EtherDune HTTP Client class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Provides an easy way to query a web server
 //
@@ -57,11 +57,11 @@ private:
 protected:
 
 	FlowScanner scanner;//!< Internal FlowScanner instance used to detect header/response/status code, etc. 
-						//!< Can be reused to scan the body after onBodyBegin() is called by EtherFlow
+						//!< Can be reused to scan the body after onBodyBegin() is called by EtherDune
 
 public:
 
-	uint16_t statusCode; //!< Contains the HTTP status code of the response. Valid only after onResponseReceived() is called by EtherFlow
+	uint16_t statusCode; //!< Contains the HTTP status code of the response. Valid only after onResponseReceived() is called by EtherDune
 
 	HTTPClient();
 	~HTTPClient();

@@ -1,6 +1,6 @@
-// EtherFlow Network Service base class
+// EtherDune Network Service base class
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: Base class for any network service running in EtherFlow 
+// Summary: Base class for any network service running in EtherDune 
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
 //
@@ -15,13 +15,13 @@
 
 
 /// \class NetworkService
-/// \brief Abstract base class for any network service running in EtherFlow
-/// \details The NetworkService class is the core of the EtherFlow library. 
+/// \brief Abstract base class for any network service running in EtherDune
+/// \details The NetworkService class is the core of the EtherDune library. 
 /// This class includes methods and virtual functions (events) that provide 
 /// access to the network layer, providing an extensible framework for building reusable 
 /// and maintenable components and maximizing code reuse.
 ///
-/// To extend the functionality of EtherFlow to new protocols, create a new class 
+/// To extend the functionality of EtherDune to new protocols, create a new class 
 /// derived from NetworkService. 
 ///
 /// How does this work ?
@@ -34,7 +34,7 @@
 /// If does not own the packet, it will return false and NetworkService will query the next 
 /// instance. If no instance claims the packet, the packet is discarded.
 ///
-/// For example, an open UDP socket listening on a given port (implemented in EtherFlow 
+/// For example, an open UDP socket listening on a given port (implemented in EtherDune 
 /// as the UDPSocket class) will check that the Ethernet Type field in the ethernet header
 /// is set to the IP protocol (`packet.eth.etherType =` \ref ETHTYPE_IP), then check whether 
 /// the IP Header indicates `UDP` as protocol type(`packet.ip.protocol =` \ref IP_PROTO_UDP) 
@@ -66,7 +66,7 @@
 ///
 /// \endcode
 ///
-/// EtherFlow comes with the following protocols out of the box, implemented as 
+/// EtherDune comes with the following protocols out of the box, implemented as 
 /// NetworkService - derived classes :
 ///
 /// - ARP (ARPService)

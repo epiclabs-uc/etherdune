@@ -1,6 +1,6 @@
-// EtherFlow configuration file
+// EtherDune configuration file
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: Etherflow settings, buffer sizes, compilation options, etc
+// Summary: EtherDune settings, buffer sizes, compilation options, etc
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
 //
@@ -13,13 +13,13 @@
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 
-#ifndef __EtherFlow_CONFIG__
-#define __EtherFlow_CONFIG__
+#ifndef __EtherDune_CONFIG__
+#define __EtherDune_CONFIG__
 
 #include <ACross.h>
 
-/// @defgroup config_h Etherflow configuration
-/// All Etherflow settings, buffer sizes, compilation options, etc
+/// @defgroup config_h EtherDune configuration
+/// All EtherDune settings, buffer sizes, compilation options, etc
 ///@{
 
 /// <summary>Resolution of the NetworkService timer. All network services
@@ -38,7 +38,7 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
 /// RAM memory buffer size to hold a packet.
 /// default is 566 which is enough to hold a TCP packet of 512 bytes
 /// </summary>
-#define ETHERFLOW_BUFFER_SIZE 566 
+#define EtherDune_BUFFER_SIZE 566 
 
 
 /// <summary>
@@ -70,14 +70,14 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
 ///  TOTAL         |  42
 /// 
 ///
-/// To disable sampling, set ETHERFLOW_SAMPLE_SIZE to ETHERFLOW_BUFFER_SIZE
+/// To disable sampling, set EtherDune_SAMPLE_SIZE to EtherDune_BUFFER_SIZE
 /// </summary>
-#define ETHERFLOW_SAMPLE_SIZE 42  
+#define EtherDune_SAMPLE_SIZE 42  
 
 ///@}
 
 /// @defgroup checksumConfig Checksum configuration
-/// Options to enable/disable checksum checking throughout EtherFlow
+/// Options to enable/disable checksum checking throughout EtherDune
 ///@{
 
 /// <summary>
@@ -108,12 +108,12 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
 ///
 /// RX buffer: packets are received here in a circular buffer fashion.
 /// The larger this buffer, the more packets that can be waiting for processing.
-/// The default allows for approximately two ethernet frames. However, EtherFlow
+/// The default allows for approximately two ethernet frames. However, EtherDune
 /// will request the other end to send packets as small as possible given
 /// memory is limited in the microcontroller.
 ///
 /// TX buffer: space to assemble an outgoing packet.
-/// The larger the buffer, the larger you can have Etherflow send TCP segments out.
+/// The larger the buffer, the larger you can have EtherDune send TCP segments out.
 /// You should not make this larger than 1500 which is the maximum size of an Ethernet frame anyway.
 ///
 /// Shared buffer: This will automatically compute as the remainder: 8192 - RXBUFFER_SIZE - TXBUFFER_SIZE.
@@ -137,12 +137,12 @@ static const uint16_t NETWORK_TIMER_RESOLUTION = 200;
 ///
 ///@{
 
-/// <summary>Indicates the most significant byte of the source port number that Etherflow will
+/// <summary>Indicates the most significant byte of the source port number that EtherDune will
 /// use by default when making outgoing connections. Each new socket will increment the least significant byte until it wraps around.
 /// </summary>
 static const uint8_t TCP_SRC_PORT_H = 250; 
 
-/// <summary>Indicates the most significant byte of the source port number that Etherflow will
+/// <summary>Indicates the most significant byte of the source port number that EtherDune will
 /// use by default when making outgoing connections. Each new UDP socket will increment the least significant byte until it wraps around.
 /// </summary>
 static const uint8_t UDP_SRC_PORT_H = 240;
@@ -153,7 +153,7 @@ static const uint8_t MAX_TCP_CONNECT_RETRIES = 50; //!< how many SYN packets to 
 
 	/// @defgroup TCPTimings TCP state timeout configuration
 	/// TCP timeouts, in milliseconds.
-	/// These represent how much patience will EtherFlow have waiting in this state before
+	/// These represent how much patience will EtherDune have waiting in this state before
 	/// thinking something is wrong and doing something about it.
 	///@{
 	#define SCK_TIMEOUT_SYN_SENT_MS  5000 //!< (client) represents waiting for a matching connection request after having sent a connection request.
@@ -195,7 +195,7 @@ static const int16_t MAX_ARP_TTL = 20; //!< Time the ARP entry is considered fre
 ///@{
 
 /// <summary>Enables sending hostname to DHCP server. By default, only enabled when debugging.
-/// When this option is enabled, EtherFlow identifies itself before the DHCP server. Most routers show a list
+/// When this option is enabled, EtherDune identifies itself before the DHCP server. Most routers show a list
 /// of connected hosts along with their names. Enabling this option will make your application to show up there.
 /// </summary>
 #define ENABLE_DHCP_HOSTNAME _DEBUG
@@ -204,7 +204,7 @@ static const char DHCP_HOSTNAME[] PROGMEM = "ARDUINO"; //!< host name sent to DH
 
 	/// @defgroup DHCPTimings DHCP state timeout configuration
 	/// DHCP timeouts
-	/// These represent how much patience will EtherFlow have waiting in this state before
+	/// These represent how much patience will EtherDune have waiting in this state before
 	/// thinking something is wrong and doing something about it.
 	///@{
 
@@ -295,21 +295,21 @@ static const uint16_t DHCP_DEFAULT_RENEWAL_TIMER = DHCP_DEFAULT_RENEWAL_TIMER_S 
 
 //error checking
 
-#if ETHERFLOW_BUFFER_SIZE < 566
-#error ETHERFLOW_BUFFER_SIZE must be at least 566 bytes
+#if EtherDune_BUFFER_SIZE < 566
+#error EtherDune_BUFFER_SIZE must be at least 566 bytes
 #endif
 
-//see ETHERFLOW_SAMPLE_SIZE definition above to see why 42
-#if ETHERFLOW_SAMPLE_SIZE < 42
-#error ETHERFLOW_SAMPLE_SIZE must be at least 42 bytes
+//see EtherDune_SAMPLE_SIZE definition above to see why 42
+#if EtherDune_SAMPLE_SIZE < 42
+#error EtherDune_SAMPLE_SIZE must be at least 42 bytes
 #endif
 
-#if ETHERFLOW_SAMPLE_SIZE > ETHERFLOW_BUFFER_SIZE
-#error ETHERFLOW_SAMPLE_SIZE must be less than ETHERFLOW_BUFFER_SIZE
+#if EtherDune_SAMPLE_SIZE > EtherDune_BUFFER_SIZE
+#error EtherDune_SAMPLE_SIZE must be less than EtherDune_BUFFER_SIZE
 #endif
 
-#if ETHERFLOW_BUFFER_SIZE & 1
-#error ETHERFLOW_BUFFER_SIZE must be an even number
+#if EtherDune_BUFFER_SIZE & 1
+#error EtherDune_BUFFER_SIZE must be an even number
 #endif
 
 #define BUFFER_END (SHARED_BUFFER_INIT + SHARED_BUFFER_CAPACITY)

@@ -1,4 +1,4 @@
-// EtherFlow HTTP Server demo
+// EtherDune HTTP Server demo
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates how to build a simple web server
 //
@@ -180,7 +180,7 @@ void setup()
 	ACross::printf_serial_init();
 #endif
 
-	printf(PSTR("HTTP Server EtherFlow sample\n"));
+	printf(PSTR("HTTP Server EtherDune sample\n"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	printf(PSTR("Press any key to start...\n"));
 
@@ -192,7 +192,7 @@ void setup()
 	net::netmask = netmask;
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

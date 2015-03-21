@@ -1,4 +1,4 @@
-// EtherFlow ICMP Abstract base class
+// EtherDune ICMP Abstract base class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements common ICMP packet building routines and ICMP checksum
 // Summary: Used as base class for ICMP Echo (ping)
@@ -68,7 +68,7 @@ void ICMP::calcICMPChecksum()
 /// <param name="dataLength">%ICMP payload length</param>
 void ICMP::sendICMPPacket(const IPAddress& targetIP, uint16_t dataLength)
 {
-	ACASSERT(dataLength < ETHERFLOW_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(ICMPHeader), "ICMP packet too big. Actual size=%d, max size=%d", dataLength, ETHERFLOW_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(ICMPHeader));
+	ACASSERT(dataLength < EtherDune_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(ICMPHeader), "ICMP packet too big. Actual size=%d, max size=%d", dataLength, EtherDune_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(ICMPHeader));
 
 	packet.ip.protocol = IP_PROTO_ICMP;
 	dataLength += sizeof(IPHeader) + sizeof(ICMPHeader);

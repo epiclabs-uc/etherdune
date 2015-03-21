@@ -1,4 +1,4 @@
-// EtherFlow DNS Service
+// EtherDune DNS Service
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements the basics of DNS so as to resolve hostnames to IP addresses
 //
@@ -14,9 +14,9 @@
 // PARTICULAR PURPOSE.
 
 /// \class DNSClient
-/// \brief EtherFlow DNS Service
+/// \brief EtherDune DNS Service
 /// \details Implements the basics of DNS so as to resolve hostnames to IP addresses.
-/// See \ref DNSConfig for EtherFlow config parameters that apply to DNS.
+/// See \ref DNSConfig for EtherDune config parameters that apply to DNS.
 ///
 /// You cannot create an instance of this class. In order to use DNS in your project, 
 /// access the singleton instance in net::DNS() this way:
@@ -33,10 +33,10 @@
 /// Most classes have this mechanism already automatically implemented, providing overloads that take a host name
 /// as opposed to an IP address.
 ///
-/// Etherflow is designed in such a way that if you do not call `net::DNS()` within your code,
+/// EtherDune is designed in such a way that if you do not call `net::DNS()` within your code,
 /// DNS functions won't be compiled in, thus saving space.
 ///
-/// DNS code will be compiled in if, however, you use any other function within EtherFlow that in turn requires DNS to work
+/// DNS code will be compiled in if, however, you use any other function within EtherDune that in turn requires DNS to work
 /// such as \ref HTTPClient::request, which takes in a hostname as a parameter and thus uses `net::DNS()` internally.
 ///
 /// See DNSDemo.ino for a simple demonstration application that uses DNS alone.

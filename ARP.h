@@ -1,6 +1,6 @@
-// EtherFlow ARP Service
+// EtherDune ARP Service
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: Implements the ARP protocol as an EtherFlow service
+// Summary: Implements the ARP protocol as an EtherDune service
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
 //
@@ -14,7 +14,7 @@
 // PARTICULAR PURPOSE.
 
 /// \class ARPService
-/// \brief Implements the ARP protocol as an EtherFlow service
+/// \brief Implements the ARP protocol as an EtherDune service
 /// \details This class maintains the ARP table, handles incoming ARP requests
 /// and allows to perform ARP queries in the network to discover other hosts
 ///

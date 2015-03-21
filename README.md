@@ -1,9 +1,9 @@
-# EtherFlow - Easy and extensible Arduino TCP/IP library
+# EtherDune - Easy and extensible Arduino TCP/IP library
 by Javier Peletier - jm@friendev.com
 
-Main page and documentation: http://friendev.com/etherflow/
+Main page and documentation: http://friendev.com/EtherDune/
 
-Etherflow is a new easy to use library for Arduino featuring:
+EtherDune is a new easy to use library for Arduino featuring:
 
 * Event-driven, non-blocking asynchronous API
 * Network services architecture:
@@ -37,7 +37,7 @@ How to install:
 * Download dependency libraries:
   * FlowScanner - scanf-like state machine for extracting data out of streams
   * ACross - cross-compile toolkit and runtime
-* Download EtherFlow from GitHub
+* Download EtherDune from GitHub
 * Install by adding the contents of each .zip file to your Arduino libraries folder
 
 

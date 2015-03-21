@@ -1,4 +1,4 @@
-// EtherFlow ICMP automatic Echo reply class
+// EtherDune ICMP automatic Echo reply class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements an ICMP Echo reply service
 //

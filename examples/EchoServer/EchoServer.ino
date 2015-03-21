@@ -1,4 +1,4 @@
-// EtherFlow Echo server demo
+// EtherDune Echo server demo
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates how to build a simple server application
 //
@@ -93,7 +93,7 @@ void setup()
 	
 	ACross::init();
 	Serial.begin(115200);
-	Serial.println(F("Etherflow Echo TCP server sample"));
+	Serial.println(F("EtherDune Echo TCP server sample"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
@@ -107,7 +107,7 @@ void setup()
 
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

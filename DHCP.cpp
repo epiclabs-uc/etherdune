@@ -1,4 +1,4 @@
-// EtherFlow DHCP Service
+// EtherDune DHCP Service
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements the basics of DHCP so as to obtain and maintain an IP lease
 // along with DNS, gateway IP and netmask.
@@ -44,7 +44,7 @@ void DHCP::prepareDHCPRequest()
 
 /// <summary>
 /// Attempts to configure the IP settings: local IP, subnet mask, gateway and DNS via DHCP.
-/// This call will block until Etherflow is configured or timeout and return false.
+/// This call will block until EtherDune is configured or timeout and return false.
 /// </summary>
 /// <returns>true if successful, false otherwise.</returns>
 bool DHCP::dhcpSetup()

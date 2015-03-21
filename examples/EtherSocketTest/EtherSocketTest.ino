@@ -1,4 +1,4 @@
-// EtherFlow scratchpad test .ino
+// EtherDune scratchpad test .ino
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Won't contain anything clean. Look at the other examples instead.
 //
@@ -57,7 +57,7 @@ void setup()
 	net::netmask = netmask;
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

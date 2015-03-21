@@ -1,4 +1,4 @@
-// EtherFlow scratchpad ACross Cross-compile project
+// EtherDune scratchpad ACross Cross-compile project
 // Author: Javier Peletier <jm@friendev.com>
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
@@ -34,7 +34,7 @@
 //#include "../DHCPTest/DHCPTest.ino"
 //#include "../HTTPServerDemo/HTTPServerDemo.ino"
 //#include "../DNSDemo/DNSDemo.ino"
-#include "../UDPClient/UDPClient.ino"
+#include "../UDPClientDemo_NTPClient/UDPClientDemo_NTPClient.ino"
 
 int _tmain(int argc, _TCHAR* argv[])
 {

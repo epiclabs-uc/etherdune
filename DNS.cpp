@@ -1,4 +1,4 @@
-// EtherFlow DNS Service
+// EtherDune DNS Service
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Implements the basics of DNS so as to resolve hostnames to IP addresses
 //

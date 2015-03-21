@@ -1,4 +1,4 @@
-// EtherFlow ICMP Ping example
+// EtherDune ICMP Ping example
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates how to use ICMPPinger and ICMPPingAutoReply classes
 //
@@ -94,7 +94,7 @@ void setup()
 	ACross::printf_serial_init();
 #endif
 
-	printf(PSTR("ICMP Ping EtherFlow sample\n"));
+	printf(PSTR("ICMP Ping EtherDune sample\n"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	printf(PSTR("Press any key to start...\n"));
 
@@ -103,7 +103,7 @@ void setup()
 	net::localMAC = mymac;
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

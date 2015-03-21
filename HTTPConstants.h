@@ -1,6 +1,6 @@
-// EtherFlow HTTP Constants
+// EtherDune HTTP Constants
 // Author: Javier Peletier <jm@friendev.com>
-// Summary: All constants used in all HTTP-related classes in EtherFlow
+// Summary: All constants used in all HTTP-related classes in EtherDune
 // Credits: Built from sources across the Internet, Wikipedia, Mozilla.org, etc
 //
 // Copyright (c) 2015 All Rights Reserved, http://friendev.com
@@ -19,7 +19,7 @@
 #include <ACross.h>
 
 /// @defgroup HTTPConstants HTTP Protocol constants
-/// @details All constants used in all HTTP-related classes in EtherFlow
+/// @details All constants used in all HTTP-related classes in EtherDune
 /// @{
 
 /// @defgroup HTTPConstants_ContentType Content-Type constants

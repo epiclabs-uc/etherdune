@@ -1,4 +1,4 @@
-// EtherFlow HTTP Server class
+// EtherDune HTTP Server class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Provides an easy way to build a web server
 //

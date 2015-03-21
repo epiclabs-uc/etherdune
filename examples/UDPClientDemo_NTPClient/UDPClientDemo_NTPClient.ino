@@ -1,4 +1,4 @@
-// EtherFlow UDP Client demo: NTP client
+// EtherDune UDP Client demo: NTP client
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates how to build a simple UDP client application
 // that syncs with an NTP server.
@@ -277,7 +277,7 @@ void setup()
 	ACross::printf_serial_init();
 #endif
 
-	printf(PSTR("NTP/UDP Client Etherflow sample\n"));
+	printf(PSTR("NTP/UDP Client EtherDune sample\n"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	Serial.println(F("Press any key to start..."));
 
@@ -291,7 +291,7 @@ void setup()
 
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 

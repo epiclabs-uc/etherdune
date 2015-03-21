@@ -1,4 +1,4 @@
-// EtherFlow IP Checksum module
+// EtherDune IP Checksum module
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: memory-efficient algorithm to calculate total and partial network checksums
 //

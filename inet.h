@@ -1,4 +1,4 @@
-// EtherFlow Network Service base class
+// EtherDune Network Service base class
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Base data structures for Internet communication
 // Credits: Some help text taken from Wikipedia and the TCP/IP guide http://http://www.tcpipguide.com/
@@ -482,10 +482,10 @@ struct DHCPHeader
 /// struct to represent the remaining space for DHCP options
 struct DHCPOptions
 {
-	byte data[ETHERFLOW_BUFFER_SIZE - sizeof(DHCPHeader) - sizeof(UDPHeader) - sizeof(IPHeader) - sizeof(EthernetHeader)]; 
+	byte data[EtherDune_BUFFER_SIZE - sizeof(DHCPHeader) - sizeof(UDPHeader) - sizeof(IPHeader) - sizeof(EthernetHeader)]; 
 };
 
-/// Union of all the different protocol headers and layers to help EtherFlow interpret
+/// Union of all the different protocol headers and layers to help EtherDune interpret
 /// or build packet.
 union EthBuffer
 {
@@ -506,7 +506,7 @@ union EthBuffer
 						UDPHeader udp;
 						union
 						{
-							byte udpData[ETHERFLOW_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader)];
+							byte udpData[EtherDune_BUFFER_SIZE - sizeof(EthernetHeader) - sizeof(IPHeader) - sizeof(UDPHeader)];
 							DNSHeader dns;
 							struct
 							{
@@ -528,7 +528,7 @@ union EthBuffer
 
 		};
 	};
-	uint8_t raw[ETHERFLOW_BUFFER_SIZE];
+	uint8_t raw[EtherDune_BUFFER_SIZE];
 };
 
 

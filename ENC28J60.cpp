@@ -1,4 +1,4 @@
-// EtherFlow ENC28J60 hardware driver
+// EtherDune ENC28J60 hardware driver
 // Author: Javier Peletier <jm@friendev.com>
 // Credits: Initially based off EtherCard's own enc28j60.cpp file, but heavily modified afterwards.
 // Credits: Jean-Claude Wippler, Guido Socher and Pascal Stang
@@ -384,7 +384,7 @@ void ENC28J60::loadSample()
 		if ((header.status & 0x80) != 0)
 		{
 			remainingPacketSize = header.byteCount - 4; //remove the CRC count
-			uint16_t len = min(remainingPacketSize, ETHERFLOW_SAMPLE_SIZE);
+			uint16_t len = min(remainingPacketSize, EtherDune_SAMPLE_SIZE);
 			chunkPtr = (byte*)&NetworkService::packet;
 			readBuf(len, chunkPtr);
 			remainingPacketSize -= len;
@@ -399,7 +399,7 @@ void ENC28J60::loadSample()
 
 void ENC28J60::loadAll()
 {
-#if (ETHERFLOW_SAMPLE_SIZE < ETHERFLOW_BUFFER_SIZE)
+#if (EtherDune_SAMPLE_SIZE < EtherDune_BUFFER_SIZE)
 	readBuf(min(remainingPacketSize, sizeof(NetworkService::packet) - (chunkPtr - (byte*)&NetworkService::packet)), chunkPtr);
 #endif
 	remainingPacketSize = 0;

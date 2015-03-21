@@ -1,4 +1,4 @@
-// EtherFlow HTTP Server demo supporting simultaneous connections
+// EtherDune HTTP Server demo supporting simultaneous connections
 // Author: Javier Peletier <jm@friendev.com>
 // Summary: Demonstrates how to build a simple web server that is able to serve multiple clients simultaneously
 //
@@ -181,7 +181,7 @@ void setup()
 	ACross::printf_serial_init();
 #endif
 
-	printf(PSTR("Multiple client HTTP Server EtherFlow sample\n"));
+	printf(PSTR("Multiple client HTTP Server EtherDune sample\n"));
 	Serial.print(F("Free RAM: ")); Serial.println(ACross::getFreeRam());
 	printf(PSTR("Press any key to start...\n"));
 
@@ -193,7 +193,7 @@ void setup()
 	net::netmask = netmask;
 
 	if (!net::begin(CS_PIN))
-		ACERROR("failed to start EtherFlow");
+		ACERROR("failed to start EtherDune");
 
 	ACINFO("waiting for link...");
 
