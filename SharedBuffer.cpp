@@ -22,12 +22,17 @@
 #include <ACLog.h>
 ACROSS_MODULE("SharedBuffer");
 
-struct BufferHeader
+/// \cond do not generate documentation for this.
+
+// Internal header type for each packet written to SharedBuffer
+struct BufferHeader 
 {
 	uint16_t nextIndex;
 	uint16_t length;
-	uint16_t checksum;
+	uint16_t checksum;<
 };
+/// \endcond
+
 
 uint16_t SharedBuffer::head = 0;
 uint16_t SharedBuffer::usedSpace = 0;

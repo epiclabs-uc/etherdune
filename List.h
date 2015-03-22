@@ -12,6 +12,12 @@
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 
+/// \class List
+/// \brief Basic linked list class
+
+/// \class ListItem
+/// \brief Base list item class
+
 #ifndef _LIST_h
 #define _LIST_h
 

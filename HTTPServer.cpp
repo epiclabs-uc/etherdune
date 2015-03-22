@@ -43,7 +43,7 @@ void HTTPServer::onBodyReceived(uint16_t len, const byte* data){}
 void HTTPServer::onHeaderReceived(const char* headerName, const char* headerValue){}
 /// <summary>
 /// Called when all HTTP headers have been received and the body of the request is about to arrive.
-/// This call gives an opportunity to configure the \ref scanner (FlowScanner) or other parser to process the
+/// This call gives an opportunity to configure scanner FlowScanner HTTPServer::scanner or other parser to process the
 /// body as it arrives.
 /// </summary>
 void HTTPServer::onBodyBegin(){}

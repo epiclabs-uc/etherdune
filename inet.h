@@ -27,6 +27,9 @@
 #include <ACross.h>
 #include "config.h"
 
+/// \cond do not document the following two structs
+
+/// Helper unions to handle the high/low parts of an integer
 union u16_t
 {
 	struct
@@ -45,6 +48,8 @@ union u32_t
 	};
 	uint32_t v;
 };
+
+/// \endcond
 
 /// <summary>Represents a network byte order 16 bit integer.
 /// Includes overloaded operators so as to make conversion to/from 
@@ -243,6 +248,7 @@ struct MACAddress_P_
 #define MACADDR_P(b0,b1,b2,b3,b4,b5) {{ (b0),(b1),(b2),(b3),(b4),(b5) }}
 #endif
 
+/// Stores a MAC address in memory
 struct MACAddress
 {
 	uint8_t b[6]; //!< byte-wise access to the MAC address

@@ -13,6 +13,10 @@
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 
+/// \class Checksum
+/// \brief Contains functions to perform IP checksum operations.
+/// \details Implements memory-efficient algorithm to calculate total and partial network checksums
+
 #ifndef _CHECKSUM_h
 #define _CHECKSUM_h
 
